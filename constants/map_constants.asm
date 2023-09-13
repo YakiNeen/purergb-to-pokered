@@ -23,10 +23,10 @@ ENDM
 	map_const LAVENDER_TOWN,                 10,  9 ; $04
 	map_const VERMILION_CITY,                20, 18 ; $05
 	map_const CELADON_CITY,                  25, 18 ; $06
-	map_const FUCHSIA_CITY,                  20, 18 ; $07
-	map_const CINNABAR_ISLAND,               10,  9 ; $08
-	map_const INDIGO_PLATEAU,                10,  9 ; $09
-	map_const SAFFRON_CITY,                  20, 18 ; $0A
+	map_const SAFFRON_CITY,                  20, 18 ; $07 ; PureRGBnote: MOVED: Saffron city was moved earlier in the index so it appears before Fuchsia city in the fly menu 
+	map_const FUCHSIA_CITY,                  20, 18 ; $08
+	map_const CINNABAR_ISLAND,               10,  9 ; $09
+	map_const INDIGO_PLATEAU,                10,  9 ; $0A
 DEF NUM_CITY_MAPS EQU const_value
 	map_const UNUSED_MAP_0B,                  0,  0 ; $0B
 DEF FIRST_ROUTE_MAP EQU const_value
@@ -54,7 +54,7 @@ DEF FIRST_ROUTE_MAP EQU const_value
 	map_const ROUTE_22,                      20,  9 ; $21
 	map_const ROUTE_23,                      10, 72 ; $22
 	map_const ROUTE_24,                      10, 18 ; $23
-	map_const ROUTE_25,                      30,  9 ; $24
+	map_const ROUTE_25,                      30, 10 ; $24
 DEF FIRST_INDOOR_MAP EQU const_value
 	map_const REDS_HOUSE_1F,                  4,  4 ; $25
 	map_const REDS_HOUSE_2F,                  4,  4 ; $26
@@ -124,33 +124,33 @@ DEF FIRST_INDOOR_MAP EQU const_value
 	map_const SS_ANNE_1F_ROOMS,              12,  8 ; $66
 	map_const SS_ANNE_2F_ROOMS,              12,  8 ; $67
 	map_const SS_ANNE_B1F_ROOMS,             12,  8 ; $68
-	map_const UNUSED_MAP_69,                  0,  0 ; $69
-	map_const UNUSED_MAP_6A,                  0,  0 ; $6A
-	map_const UNUSED_MAP_6B,                  0,  0 ; $6B
+	map_const CERULEAN_OLD_ROD_HOUSE,         4,  5 ; $69 ; PureRGBnote: ADDED: New map
+	map_const CERULEAN_ROCKET_HOUSE_1F,       3,  3 ; $6A ; PureRGBnote: ADDED: New map
+	map_const CERULEAN_ROCKET_HOUSE_B1F,      8,  8 ; $6B ; PureRGBnote: ADDED: New map
 	map_const VICTORY_ROAD_1F,               10,  9 ; $6C
-	map_const UNUSED_MAP_6D,                  0,  0 ; $6D
-	map_const UNUSED_MAP_6E,                  0,  0 ; $6E
-	map_const UNUSED_MAP_6F,                  0,  0 ; $6F
-	map_const UNUSED_MAP_70,                  0,  0 ; $70
+	map_const VIRIDIAN_SCHOOL_HOUSE_B1F,      9,  6 ; $6D ; PureRGBnote: ADDED: New map
+	map_const BILLS_GARDEN,                  11, 10 ; $6E ; PureRGBnote: ADDED: New map
+	map_const SECRET_LAB,                     5, 22 ; $6F ; PureRGBnote: ADDED: New map
+	map_const POKEMON_TOWER_B1F,             10,  9 ; $70 ; PureRGBnote: ADDED: New map
 	map_const LANCES_ROOM,                   13, 13 ; $71
 	map_const UNUSED_MAP_72,                  0,  0 ; $72
 	map_const UNUSED_MAP_73,                  0,  0 ; $73
 	map_const UNUSED_MAP_74,                  0,  0 ; $74
 	map_const UNUSED_MAP_75,                  0,  0 ; $75
 	map_const HALL_OF_FAME,                   5,  4 ; $76
-	map_const UNDERGROUND_PATH_NORTH_SOUTH,   4, 24 ; $77 ; UndergroundPathNorthSouth.blk is actually 4x23
+	map_const UNDERGROUND_PATH_NORTH_SOUTH,   4, 23 ; $77 ; ERROR: UndergroundPathNorthSouth.blk is actually 4x23 PureRGBnote: FIXED
 	map_const CHAMPIONS_ROOM,                 4,  4 ; $78
 	map_const UNDERGROUND_PATH_WEST_EAST,    25,  4 ; $79
 	map_const CELADON_MART_1F,               10,  4 ; $7A
 	map_const CELADON_MART_2F,               10,  4 ; $7B
 	map_const CELADON_MART_3F,               10,  4 ; $7C
 	map_const CELADON_MART_4F,               10,  4 ; $7D
-	map_const CELADON_MART_ROOF,             10,  4 ; $7E
+	map_const CELADON_MART_ROOF,             10,  6 ; $7E
 	map_const CELADON_MART_ELEVATOR,          2,  2 ; $7F
 	map_const CELADON_MANSION_1F,             4,  6 ; $80
 	map_const CELADON_MANSION_2F,             4,  6 ; $81
 	map_const CELADON_MANSION_3F,             4,  6 ; $82
-	map_const CELADON_MANSION_ROOF,           4,  6 ; $83
+	map_const CELADON_MANSION_ROOF,           4,  8 ; $83
 	map_const CELADON_MANSION_ROOF_HOUSE,     4,  4 ; $84
 	map_const CELADON_POKECENTER,             7,  4 ; $85
 	map_const CELADON_GYM,                    5,  9 ; $86
@@ -192,7 +192,7 @@ DEF FIRST_INDOOR_MAP EQU const_value
 	map_const CINNABAR_LAB_FOSSIL_ROOM,       4,  4 ; $AA
 	map_const CINNABAR_POKECENTER,            7,  4 ; $AB
 	map_const CINNABAR_MART,                  4,  4 ; $AC
-	map_const CINNABAR_MART_COPY,             4,  4 ; $AD
+	map_const TYPE_GUYS_HOUSE,                7,  4 ; $AD
 	map_const INDIGO_PLATEAU_LOBBY,           8,  6 ; $AE
 	map_const COPYCATS_HOUSE_1F,              4,  4 ; $AF
 	map_const COPYCATS_HOUSE_2F,              4,  4 ; $B0
@@ -223,8 +223,8 @@ DEF FIRST_INDOOR_MAP EQU const_value
 	map_const ROCKET_HIDEOUT_B3F,            15, 14 ; $C9
 	map_const ROCKET_HIDEOUT_B4F,            15, 12 ; $CA
 	map_const ROCKET_HIDEOUT_ELEVATOR,        3,  4 ; $CB
-	map_const UNUSED_MAP_CC,                  0,  0 ; $CC
-	map_const UNUSED_MAP_CD,                  0,  0 ; $CD
+	map_const FUCHSIA_TREE_DELETER_HOUSE,     4,  4 ; $CC ; PureRGBnote: ADDED: New map
+	map_const FOSSIL_GUYS_HOUSE,              5,  4 ; $CD ; PureRGBnote: ADDED: New map
 	map_const UNUSED_MAP_CE,                  0,  0 ; $CE
 	map_const SILPH_CO_2F,                   15,  9 ; $CF
 	map_const SILPH_CO_3F,                   15,  9 ; $D0

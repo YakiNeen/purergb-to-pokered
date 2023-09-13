@@ -19,7 +19,9 @@ _PewterGymBrockWaitTakeThisText::
 
 _PewterGymReceivedTM34Text::
 	text "<PLAYER> received"
-	line "TM34!@"
+	line "@"
+	text_ram wStringBuffer
+	text "!@"
 	text_end
 
 _TM34ExplanationText::
@@ -37,15 +39,18 @@ _TM34ExplanationText::
 	cont "pick the #MON"
 	cont "carefully!"
 
-	para "TM34 contains"
+	para "@"
+	text_ram wStringBuffer
+	text " contains"
 	line "BIDE!"
 
 	para "Your #MON will"
-	line "absorb damage in"
-	cont "battle then pay"
-	cont "it back double!"
+	line "steel itself,"
+	cont "raising ATTACK"
+	cont "and DEFENSE!"
 	done
 
+_GenericNoRoomText::
 _PewterGymTM34NoRoomText::
 	text "You don't have"
 	line "room for this!"
@@ -143,4 +148,57 @@ _PewterGymGuidePostBattleText::
 	text "Just as I thought!"
 	line "You're #MON"
 	cont "champ material!"
+	prompt
+
+_PewterGymGuideApexChipText::
+	text "I want you"
+	line "to have these!"
+	prompt
+
+_ReceivedApexChipsText::
+	text "<PLAYER> received"
+	line "2 APEX CHIPs!@"
+	text_end
+
+_ApexChipExplanationText::
+	text_start
+
+	para "The APEX CHIP is a"
+	line "special microchip"
+	cont "I developed."
+	
+	para "You install it"
+	line "onto a #MON's"
+	cont "Poké Ball."
+
+	para "It simulates the"
+	line "natural wild"
+	cont "environment of"
+	cont "the #MON"
+	cont "inside its Poké"
+	cont "Ball!"
+
+	para "It makes #MON"
+	line "happy and helps"
+	cont "achieve their"
+	cont "max potential!"
+
+	para "Use them on your"
+	line "best #MON!"
+
+	para "For Rock-type"
+	line "#MON, an APEX"
+	cont "CHIP simulates"
+	cont "a jagged craggy"
+	cont "ridge with cave"
+	cont "systems and steep"
+	cont "mountain terrain."
+	prompt
+
+_AlreadyReceivedApexChipsText::
+	text "Talk to me at"
+	line "the next GYM if"
+	cont "you defeat the"
+	cont "LEADER for more"
+	cont "APEX CHIPs!"
 	done

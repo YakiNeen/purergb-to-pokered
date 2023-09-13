@@ -125,3 +125,39 @@ _VermilionCityGymSignText::
 _VermilionCityHarborSignText::
 	text "VERMILION HARBOR"
 	done
+
+_VermilionCityText15::
+	text "The S.S.ANNE"
+	line "is back!"
+	
+	para "After a long"
+	line "journey it's"
+	cont "back in port."
+	done
+
+_VermilionCityDockBeautyGreeting::
+	text "Ack!! You found"
+	line "my top secret"
+	cont "suntanning dock!"
+	para "Don't tell anyone"
+	line "I'm here!"
+	para "Take this!"
+	prompt
+
+_VermilionCityDockBeautyReceivedItemText::
+	text "<PLAYER> received"
+	line "a @"
+	text_ram wStringBuffer
+	text "!"
+	done
+
+_VermilionCityDockBeautyEndText::
+	text "This is where I"
+	line "come to relax and"
+	cont "get a beautiful"
+	cont "tan!"
+	para "I love the peace"
+	line "and the calm"
+	cont "sound of the"
+	cont "gentle waves."
+	done

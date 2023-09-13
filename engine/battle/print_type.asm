@@ -3,16 +3,21 @@
 PrintMonType:
 	call GetPredefRegisters
 	push hl
-	call GetMonHeader
-	pop hl
 	push hl
+	call GetMonHeader
 	ld a, [wMonHType1]
-	call PrintType
-	ld a, [wMonHType1]
-	ld b, a
+	ld d, a
 	ld a, [wMonHType2]
-	cp b
+	ld e, a
+	callfar TryRemapTypingNoWramChange
 	pop hl
+	ld a, d
+	push de
+	call PrintType
+	pop de
+	pop hl
+	ld a, e
+	cp d
 	jr z, EraseType2Text
 	ld bc, SCREEN_WIDTH * 2
 	add hl, bc
@@ -50,3 +55,12 @@ PrintType_:
 	jp PlaceString
 
 INCLUDE "data/types/names.asm"
+
+; PureRGBnote: ADDED: version of this subroutine that can be called from other banks
+; de = destination address
+; wPlayerMoveType = type
+FarPrintType:
+	ld h, d
+	ld l, e
+	ld a, [wPlayerMoveType]
+	jp PrintType

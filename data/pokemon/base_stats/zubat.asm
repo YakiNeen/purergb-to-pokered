@@ -8,15 +8,34 @@
 	db 54 ; base exp
 
 	INCBIN "gfx/pokemon/front/zubat.pic", 0, 1 ; sprite dimensions
-	dw ZubatPicFront, ZubatPicBack
+	dw ZubatPicFront, ZubatPicBackSW
 
-	db LEECH_LIFE, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db GUST, ABSORB, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm RAZOR_WIND,   WHIRLWIND,    TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  \
-	     RAGE,         MEGA_DRAIN,   MIMIC,        DOUBLE_TEAM,  BIDE,         \
-	     SWIFT,        REST,         SUBSTITUTE
+	tmhm \
+	RAZOR_WIND,\ ; ROOST
+	TOXIC,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BARRIER,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	LOVELY_KISS,\
+	SKY_ATTACK,\
+	SLUDGE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLY,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(ZubatPicFront), BANK(ZubatPicBack)
+
+	dw 1, ZubatPicBack

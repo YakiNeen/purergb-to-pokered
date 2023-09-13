@@ -17,7 +17,7 @@ VictoryRoad2F_Script:
 
 VictoryRoad2FResetBoulderEventScript:
 	ResetEvent EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH
-; fallthrough
+	ret ; avoids running the below code twice because bit 5 of wCurrentMapScriptFlags is always set when bit 6 is set too
 VictoryRoad2FCheckBoulderEventScript:
 	CheckEvent EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1
 	jr z, .not_on_switch
@@ -33,16 +33,18 @@ VictoryRoad2FCheckBoulderEventScript:
 	lb bc, 7, 11
 VictoryRoad2FReplaceTileBlockScript:
 	ld [wNewTileBlockID], a
-	predef ReplaceTileBlock
-	ret
+	predef_jump ReplaceTileBlock
 
 VictoryRoad2F_ScriptPointers:
-	def_script_pointers
+	def_script_pointers	
 	dw_const VictoryRoad2FDefaultScript,            SCRIPT_VICTORYROAD2F_DEFAULT
 	dw_const DisplayEnemyTrainerTextAndStartBattle, SCRIPT_VICTORYROAD2F_START_BATTLE
 	dw_const EndTrainerBattle,                      SCRIPT_VICTORYROAD2F_END_BATTLE
 
 VictoryRoad2FDefaultScript:
+	ld a, [wFlags_0xcd60]
+	bit 1, a
+	ret nz ; PureRGBnote: ADDED: if a boulder animation is playing forget doing this, helps reduce lag
 	ld hl, .SwitchCoords
 	call CheckBoulderCoords
 	jp nc, CheckFightingMapTrainers
@@ -76,10 +78,10 @@ VictoryRoad2F_TextPointers:
 	dw_const VictoryRoad2FSuperNerd2Text,   TEXT_VICTORYROAD2F_SUPER_NERD2
 	dw_const VictoryRoad2FSuperNerd3Text,   TEXT_VICTORYROAD2F_SUPER_NERD3
 	dw_const VictoryRoad2FMoltresText,      TEXT_VICTORYROAD2F_MOLTRES
-	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_TM_SUBMISSION
-	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_FULL_HEAL
-	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_TM_MEGA_KICK
-	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_GUARD_SPEC
+	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_ITEM1
+	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_ITEM2
+	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_ITEM3
+	dw_const PickUpItemText,                TEXT_VICTORYROAD2F_ITEM4
 	dw_const BoulderText,                   TEXT_VICTORYROAD2F_BOULDER1
 	dw_const BoulderText,                   TEXT_VICTORYROAD2F_BOULDER2
 	dw_const BoulderText,                   TEXT_VICTORYROAD2F_BOULDER3
@@ -104,37 +106,37 @@ VictoryRoad2FHikerText:
 	text_asm
 	ld hl, VictoryRoad2TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FSuperNerd1Text:
 	text_asm
 	ld hl, VictoryRoad2TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FCooltrainerMText:
 	text_asm
 	ld hl, VictoryRoad2TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FSuperNerd2Text:
 	text_asm
 	ld hl, VictoryRoad2TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FSuperNerd3Text:
 	text_asm
 	ld hl, VictoryRoad2TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FMoltresText:
 	text_asm
 	ld hl, MoltresTrainerHeader
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FMoltresBattleText:
 	text_far _VictoryRoad2FMoltresBattleText
@@ -142,7 +144,7 @@ VictoryRoad2FMoltresBattleText:
 	ld a, MOLTRES
 	call PlayCry
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad2FHikerBattleText:
 	text_far _VictoryRoad2FHikerBattleText

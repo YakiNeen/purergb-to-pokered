@@ -24,8 +24,12 @@ DEF PALETTE_SIZE EQU NUM_PAL_COLORS * PAL_COLOR_SIZE
 	const SET_PAL_OVERWORLD            ; $09
 	const SET_PAL_PARTY_MENU           ; $0A
 	const SET_PAL_POKEMON_WHOLE_SCREEN ; $0B
-	const SET_PAL_GAME_FREAK_INTRO     ; $0C
-	const SET_PAL_TRAINER_CARD         ; $0D
+	const SET_PAL_POKEMON_WHOLE_SCREEN_TRADE ; $0C
+	const SET_PAL_GAME_FREAK_INTRO     ; $0D
+	const SET_PAL_TRAINER_CARD         ; $0E
+	const SET_PAL_BEFORE_AFTER         ; $10
+	const SET_PAL_MIDDLE_SCREEN_MON_BOX; $11
+	const SET_PAL_MOVEDEX              ; $12
 
 DEF SET_PAL_PARTY_MENU_HP_BARS EQU $fc
 DEF SET_PAL_DEFAULT EQU $ff
@@ -41,10 +45,10 @@ DEF SET_PAL_DEFAULT EQU $ff
 	const PAL_LAVENDER  ; $05
 	const PAL_VERMILION ; $06
 	const PAL_CELADON   ; $07
-	const PAL_FUCHSIA   ; $08
-	const PAL_CINNABAR  ; $09
-	const PAL_INDIGO    ; $0A
-	const PAL_SAFFRON   ; $0B
+	const PAL_SAFFRON   ; $08
+	const PAL_FUCHSIA   ; $09
+	const PAL_CINNABAR  ; $0A
+	const PAL_INDIGO    ; $0B
 	const PAL_TOWNMAP   ; $0C
 	const PAL_LOGO1     ; $0D
 	const PAL_LOGO2     ; $0E
@@ -70,4 +74,11 @@ DEF SET_PAL_DEFAULT EQU $ff
 	const PAL_BADGE     ; $22
 	const PAL_CAVE      ; $23
 	const PAL_GAMEFREAK ; $24
+	const PAL_BLACKMON  ; $25
+	const PAL_WHITEMON  ; $26
+	const PAL_BLUEGREENMON  ; $27
+	const PAL_BLACK2        ; $28	;gbc only
+	const PAL_ULTRABALL     ; $29	;gbc only
+	const PAL_SAFARIBALL    ; $2A   ;gbc only
+	const PAL_SECRETLAB     ; $2B
 DEF NUM_SGB_PALS EQU const_value

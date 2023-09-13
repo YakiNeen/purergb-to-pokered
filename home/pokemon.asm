@@ -83,15 +83,15 @@ DrawHPBar::
 LoadMonData::
 	jpfar LoadMonData_
 
-OverwritewMoves::
+;OverwritewMoves::
 ; Write c to [wMoves + b]. Unused.
-	ld hl, wMoves
-	ld e, b
-	ld d, 0
-	add hl, de
-	ld a, c
-	ld [hl], a
-	ret
+;	ld hl, wMoves
+;	ld e, b
+;	ld d, 0
+;	add hl, de
+;	ld a, c
+;	ld [hl], a
+;	ret
 
 LoadFlippedFrontSpriteByMonIndex::
 	ld a, 1
@@ -110,7 +110,6 @@ LoadFrontSpriteByMonIndex::
 	ld [hl], b
 	and a
 	pop hl
-	jr z, .invalidDexNumber ; dex #0 invalid
 	cp NUM_POKEMON + 1
 	jr c, .validDexNumber   ; dex >#151 invalid
 .invalidDexNumber
@@ -138,11 +137,19 @@ LoadFrontSpriteByMonIndex::
 	ret
 
 
+;;;;;;;;;; PureRGbnote: ADDED: code that remaps channel 8 of armored mewtwo's cry if it's passed to this function
 PlayCry::
 ; Play monster a's cry.
+	push af
 	call GetCryData
-	call PlaySound
+	rst _PlaySound
+	pop af
+	cp ARMORED_MEWTWO
+	jr nz, .wait
+	callfar RemapArmoredMewtwoCry
+.wait
 	jp WaitForSoundToFinish
+;;;;;;;;;;
 
 GetCryData::
 ; Load cry data for monster a.
@@ -294,11 +301,13 @@ DrawPartyMenu::
 	jr DrawPartyMenuCommon
 
 RedrawPartyMenu::
+	callfar ResetPartyAnimation ; mechanicalpennote: ADDED: new code for rendering party menu icons
 	ld hl, RedrawPartyMenu_
 
 DrawPartyMenuCommon::
 	ld b, BANK(RedrawPartyMenu_)
-	jp Bankswitch
+	rst _Bankswitch
+	ret
 
 ; prints a pokemon's status condition
 ; INPUT:
@@ -360,14 +369,14 @@ PrintLevelCommon::
 	ld b, LEFT_ALIGN | 1 ; 1 byte
 	jp PrintNumber
 
-GetwMoves::
+;GetwMoves::
 ; Unused. Returns the move at index a from wMoves in a
-	ld hl, wMoves
-	ld c, a
-	ld b, 0
-	add hl, bc
-	ld a, [hl]
-	ret
+;	ld hl, wMoves
+;	ld c, a
+;	ld b, 0
+;	add hl, bc
+;	ld a, [hl]
+;	ret
 
 ; copies the base stat data of a pokemon to wMonHeader
 ; INPUT:
@@ -396,18 +405,22 @@ GetMonHeader::
 	ld b, $77 ; size of Aerodactyl fossil sprite
 	cp FOSSIL_AERODACTYL ; Aerodactyl fossil
 	jr z, .specialID
-	cp MEW
-	jr z, .mew
+	cp ARMORED_MEWTWO
+	jr z, .armored_mewtwo
+	cp POWERED_HAUNTER
+	jr z, .powered_haunter
 	predef IndexToPokedex   ; convert pokemon ID in [wd11e] to pokedex number
 	ld a, [wd11e]
+	and a
+	jr z, .missingno ; PureRGBnote: ADDED: index of 0 is missingno
 	dec a
 	ld bc, BASE_DATA_SIZE
 	ld hl, BaseStats
 	call AddNTimes
-	ld de, wMonHeader
-	ld bc, BASE_DATA_SIZE
-	call CopyData
-	jr .done
+	jr .copyBaseStats
+.missingno
+	ld hl, MissingnoBaseStats
+	jr .copyBaseStats
 .specialID
 	ld hl, wMonHSpriteDim
 	ld [hl], b ; write sprite dimensions
@@ -416,12 +429,15 @@ GetMonHeader::
 	inc hl
 	ld [hl], d
 	jr .done
-.mew
-	ld hl, MewBaseStats
-	ld de, wMonHeader
+.powered_haunter
+	ld hl, PoweredHaunterBaseStats
+	jr .copyBaseStats
+.armored_mewtwo
+	ld hl, ArmoredMewtwoBaseStats 
+.copyBaseStats
 	ld bc, BASE_DATA_SIZE
-	ld a, BANK(MewBaseStats)
-	call FarCopyData
+	ld de, wMonHeader
+	rst _CopyData ; PureRGBnote: CHANGED: mew header now in same bank as rest of base stat data so no need to farcopy
 .done
 	ld a, [wd0b5]
 	ld [wMonHIndex], a
@@ -448,7 +464,7 @@ GetPartyMonName::
 	ld de, wcd6d
 	push de
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop de
 	pop bc
 	pop hl

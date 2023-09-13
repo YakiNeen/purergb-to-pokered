@@ -23,7 +23,18 @@ PlayDefaultMusicCommon::
 	and a
 	jr z, .walking
 	cp $2
-	jr z, .surfing
+	jr z, .surfing 
+;;;;;;;;;; PureRGBnote: ADDED: bike music can be disabled via options.
+	ld a, [wOptions2]
+	bit BIT_BIKE_MUSIC, a
+	jr z, .bikeMusic ; jump if bike music is enabled
+	; else only play bike music if in cycling road
+	ld a, [wd732] ; forcibly riding bike (cycling road)
+	bit 5, a
+	jr nz, .bikeMusic
+	jr .walking
+.bikeMusic
+;;;;;;;;;;
 	ld a, MUSIC_BIKE_RIDING
 	jr .next
 
@@ -64,35 +75,20 @@ PlayDefaultMusicCommon::
 	ld a, b
 	ld [wLastMusicSoundID], a
 	ld [wNewSoundID], a
-	jp PlaySound
+	rst _PlaySound
+	ret
 
 UpdateMusic6Times::
 ; This is called when entering a map, before fading out the current music and
 ; playing the default music (i.e. the map's music or biking/surfing music).
-	ld a, [wAudioROMBank]
-	ld b, a
-	cp BANK(Audio1_UpdateMusic)
-	jr nz, .checkForAudio2
-; audio 1
-	ld hl, Audio1_UpdateMusic
-	jr .next
-
-.checkForAudio2
-	cp BANK(Audio2_UpdateMusic)
-	jr nz, .audio3
-; audio 2
-	ld hl, Audio2_UpdateMusic
-	jr .next
-
-.audio3
-	ld hl, Audio3_UpdateMusic
-
-.next
+; shinpokerednote: audionote: updated to match pokemon yellow's audio engine code
+; TODO: remove now unused code?
 	ld c, 6
+UpdateMusicCTimes::
 .loop
 	push bc
 	push hl
-	call Bankswitch
+	farcall Audio1_UpdateMusic
 	pop hl
 	pop bc
 	dec c
@@ -126,7 +122,12 @@ CompareMapMusicBankWithCurrentBank::
 	scf
 	ret
 
+; shinpokerednote: audionote: updated to match pokemon yellow's audio engine code
 PlayMusic::
+	push af
+	xor a
+	ld [wSpecialMusicBank], a
+	pop af
 	ld b, a
 	ld [wNewSoundID], a
 	xor a
@@ -135,7 +136,15 @@ PlayMusic::
 	ld [wAudioROMBank], a
 	ld [wAudioSavedROMBank], a
 	ld a, b
+	jr PlaySound
 
+; shinpokerednote: audionote: updated to match pokemon yellow's audio engine code
+StopAllMusic:: 
+	xor a
+	ld [wSpecialMusicBank], a
+	ld a, SFX_STOP_ALL_MUSIC
+	ld [wNewSoundID], a
+; shinpokerednote: audionote: updated to match pokemon yellow's audio engine code
 ; plays music specified by a. If value is $ff, music is stopped
 PlaySound::
 	push hl
@@ -168,34 +177,7 @@ PlaySound::
 .noFadeOut
 	xor a
 	ld [wNewSoundID], a
-	ldh a, [hLoadedROMBank]
-	ldh [hSavedROMBank], a
-	ld a, [wAudioROMBank]
-	ldh [hLoadedROMBank], a
-	ld [MBC1RomBank], a
-	cp BANK(Audio1_PlaySound)
-	jr nz, .checkForAudio2
-; audio 1
-	ld a, b
-	call Audio1_PlaySound
-	jr .next2
-
-.checkForAudio2
-	cp BANK(Audio2_PlaySound)
-	jr nz, .audio3
-; audio 2
-	ld a, b
-	call Audio2_PlaySound
-	jr .next2
-
-.audio3
-	ld a, b
-	call Audio3_PlaySound
-
-.next2
-	ldh a, [hSavedROMBank]
-	ldh [hLoadedROMBank], a
-	ld [MBC1RomBank], a
+	call DetermineAudioFunction
 	jr .done
 
 .fadeOut
@@ -212,3 +194,97 @@ PlaySound::
 	pop de
 	pop hl
 	ret
+
+; shinpokerednote: audionote: everything below are genericized audio code pulled from yellow (they used to be duplicated in each audio engine)
+
+GetNextMusicByte::
+	ldh a, [hLoadedROMBank]
+	push af
+	ld a, [wSpecialMusicBank]
+	and a
+	ld a, [wAudioROMBank]
+	jr z, .doBankSwitch ; if wSpecialMusicBank not set
+	ld a, c
+	cp CHAN5
+	ld a, [wSpecialMusicBank]
+	jr c, .doBankSwitch
+	ld a, [wAudioROMBank]
+.doBankSwitch
+	call BankswitchCommon
+	ld d, $0
+	ld a, c
+	add a
+	ld e, a
+	ld hl, wChannelCommandPointers
+	add hl, de
+	ld a, [hli]
+	ld e, a
+	ld a, [hld]
+	ld d, a
+	ld a, [de]
+	inc de
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld e, a
+	pop af
+	call BankswitchCommon
+	ld a, e
+	ret
+
+InitMusicVariables::
+	push hl
+	push de
+	push bc
+	homecall Audio2_InitMusicVariables
+	pop bc
+	pop de
+	pop hl
+	ret
+
+InitSFXVariables::
+	push hl
+	push de
+	push bc
+	homecall Audio2_InitSFXVariables
+	pop bc
+	pop de
+	pop hl
+	ret
+
+StopAllAudio::
+	push hl
+	push de
+	push bc
+	homecall Audio2_StopAllAudio
+	pop bc
+	pop de
+	pop hl
+	ret
+
+DetermineAudioFunction::	
+	ldh a, [hLoadedROMBank]
+	push af
+	ld a, [wAudioROMBank]
+	call BankswitchCommon
+; determine the audio function, based on the bank
+	cp BANK(Audio1_PlaySound)
+	jr nz, .checkForAudio2
+; bank 02 (audio 1)
+	ld a, b
+	call Audio1_PlaySound
+	jr .done
+.checkForAudio2
+	cp BANK(Audio2_PlaySound)
+	jr nz, .audio3
+; bank 08 (audio 2)
+	ld a, b
+	call Audio2_PlaySound
+	jr .done
+.audio3
+; bank 1f (audio 3)
+	ld a, b
+	call Audio3_PlaySound
+.done
+	pop af
+	jp BankswitchCommon

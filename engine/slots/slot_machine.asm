@@ -4,9 +4,9 @@ PromptUserToPlaySlots:
 	ld [wAutoTextBoxDrawingControl], a
 	ld b, a
 	ld hl, DisplayTextIDInit
-	call Bankswitch
+	rst _Bankswitch
 	ld hl, PlaySlotMachineText
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
@@ -26,6 +26,7 @@ PromptUserToPlaySlots:
 	call GBPalNormal
 	ld a, $e4
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld hl, wd730
 	set 6, [hl]
 	xor a
@@ -64,7 +65,7 @@ MainSlotMachineLoop:
 	ld [hl], a
 	call SlotMachine_PrintPayoutCoins
 	ld hl, BetHowManySlotMachineText
-	call PrintText
+	rst _PrintText
 	call SaveScreenTilesToBuffer1
 .loop
 	ld a, A_BUTTON | B_BUTTON
@@ -103,7 +104,7 @@ MainSlotMachineLoop:
 	cp c
 	jr nc, .skip1
 	ld hl, NotEnoughCoinsSlotMachineText
-	call PrintText
+	rst _PrintText
 	jr .loop
 .skip1
 	call LoadScreenTilesFromBuffer1
@@ -117,9 +118,9 @@ MainSlotMachineLoop:
 	ld [hl], a
 	call WaitForSoundToFinish
 	ld a, SFX_SLOTS_NEW_SPIN
-	call PlaySound
+	rst _PlaySound
 	ld hl, StartSlotMachineText
-	call PrintText
+	rst _PrintText
 	call SlotMachine_SpinWheels
 	call SlotMachine_CheckForMatches
 	ld hl, wPlayerCoins
@@ -127,12 +128,12 @@ MainSlotMachineLoop:
 	or [hl]
 	jr nz, .skip2
 	ld hl, OutOfCoinsSlotMachineText
-	call PrintText
+	rst _PrintText
 	ld c, 60
 	jp DelayFrames
 .skip2
 	ld hl, OneMoreGoSlotMachineText
-	call PrintText
+	rst _PrintText
 	hlcoord 14, 12
 	lb bc, 13, 15
 	xor a ; YES_NO_MENU
@@ -209,7 +210,7 @@ SlotMachine_SpinWheels:
 	call SlotMachine_AnimWheel2
 	call SlotMachine_AnimWheel3
 	ld c, 2
-	call DelayFrames
+	rst _DelayFrames
 	pop bc
 	dec c
 	jr nz, .loop1
@@ -225,7 +226,7 @@ SlotMachine_SpinWheels:
 	xor $1
 	inc a
 	ld c, a
-	call DelayFrames
+	rst _DelayFrames
 	jr .loop2
 
 ; Note that the wheels can only stop when a symbol is centred in the wheel
@@ -408,27 +409,27 @@ SlotMachine_CheckForMatches:
 	jr nz, .rollWheel3DownByOneSymbol
 .noMatch
 	ld hl, NotThisTimeText
-	call PrintText
+	rst _PrintText
 .done
 	xor a
 	ld [wMuteAudioAndPauseMusic], a
 	ret
 .rollWheel3DownByOneSymbol
 	call SlotMachine_AnimWheel3
-	call DelayFrame
+	rst _DelayFrame
 	call SlotMachine_AnimWheel3
-	call DelayFrame
+	rst _DelayFrame
 	jp SlotMachine_CheckForMatches
-.foundMatch
-	ld a, [wSlotMachineFlags]
-	and $c0
-	jr z, .rollWheel3DownByOneSymbol ; roll wheel if player isn't allowed to win
-	and $80
-	jr nz, .acceptMatch
+.foundMatch ; PureRGBnote: CHANGED: always accept matches
+	;ld a, [wSlotMachineFlags]
+	;and $c0
+	;jr z, .rollWheel3DownByOneSymbol ; roll wheel if player isn't allowed to win
+	;and $80
+	;jr nz, .acceptMatch
 ; if 7/bar matches aren't enabled and the match was a 7/bar symbol, roll wheel
-	ld a, [hl]
-	cp HIGH(SLOTSBAR) + 1
-	jr c, .rollWheel3DownByOneSymbol
+	;ld a, [hl]
+	;cp HIGH(SLOTSBAR) + 1
+	;jr c, .rollWheel3DownByOneSymbol
 .acceptMatch
 	ld a, [hl]
 	sub $2
@@ -447,7 +448,7 @@ SlotMachine_CheckForMatches:
 	ld l, a
 	ld de, wStringBuffer
 	ld bc, 4
-	call CopyData
+	rst _CopyData
 	pop hl
 	ld de, .flashScreenLoop
 	push de
@@ -457,8 +458,9 @@ SlotMachine_CheckForMatches:
 	ldh a, [rBGP]
 	xor $40
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld c, 5
-	call DelayFrames
+	rst _DelayFrames
 	dec b
 	jr nz, .flashScreenLoop
 	ld hl, wPayoutCoins
@@ -467,12 +469,13 @@ SlotMachine_CheckForMatches:
 	ld [hl], e
 	call SlotMachine_PrintPayoutCoins
 	ld hl, SymbolLinedUpSlotMachineText
-	call PrintText
+	rst _PrintText
 	call WaitForTextScrollButtonPress
 	call SlotMachine_PayCoinsToPlayer
 	call SlotMachine_PrintPayoutCoins
 	ld a, $e4
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	jp .done
 
 SymbolLinedUpSlotMachineText:
@@ -505,17 +508,21 @@ SlotRewardPointers:
 	dw SlotReward15Func
 	dw SlotReward15Text
 
+;;;;;;;;;; PureRGBnote: CHANGED: payout amounts were increased.
+
 SlotReward300Text:
-	db "300@"
+	db "500@"
 
 SlotReward100Text:
-	db "100@"
+	db "200@"
 
 SlotReward8Text:
-	db "8@"
+	db "9@"
 
 SlotReward15Text:
-	db "15@"
+	db "50@"
+
+;;;;;;;;;;
 
 NotThisTimeText:
 	text_far _NotThisTimeText
@@ -561,6 +568,8 @@ SlotMachine_GetWheelTiles:
 	jr nz, .loop
 	ret
 
+;;;;;;;;;; PureRGBnote: CHANGED: payout amounts were increased.
+
 SlotReward8Func:
 	ld hl, wSlotMachineAllowMatchesCounter
 	ld a, [hl]
@@ -569,7 +578,7 @@ SlotReward8Func:
 	dec [hl]
 .skip
 	ld b, $2
-	ld de, 8
+	ld de, 9
 	ret
 
 SlotReward15Func:
@@ -580,23 +589,23 @@ SlotReward15Func:
 	dec [hl]
 .skip
 	ld b, $4
-	ld de, 15
+	ld de, 50
 	ret
 
 SlotReward100Func:
 	ld a, SFX_GET_KEY_ITEM
-	call PlaySound
+	rst _PlaySound
 	xor a
 	ld [wSlotMachineFlags], a
 	ld b, $8
-	ld de, 100
+	ld de, 200
 	ret
 
 SlotReward300Func:
 	ld hl, YeahText
-	call PrintText
+	rst _PrintText
 	ld a, SFX_GET_ITEM_2
-	call PlaySound
+	rst _PlaySound
 	call Random
 	cp $80
 	ld a, $0
@@ -605,8 +614,10 @@ SlotReward300Func:
 .skip
 	ld [wSlotMachineAllowMatchesCounter], a
 	ld b, $14
-	ld de, 300
+	ld de, 500
 	ret
+
+;;;;;;;;;;
 
 YeahText:
 	text_far _YeahText
@@ -663,7 +674,16 @@ SlotMachine_PayCoinsToPlayer:
 	ld hl, wTempCoins1
 	xor a
 	ld [hli], a
-	inc a
+;;;;;;;;;; PureRGBnote: CHANGED: payout speed when winning at the slots was increased
+	ld a, [wSlotMachineWinningSymbol]
+	cp HIGH(SLOTSBAR) + 1
+	jr c, .tenAtATime
+	ld a, 1
+	jr .loadTemp
+.tenAtATime
+	ld a, 10
+.loadTemp
+;;;;;;;;;;
 	ld [hl], a
 
 	ld a, 5
@@ -678,7 +698,17 @@ SlotMachine_PayCoinsToPlayer:
 	ld h, a
 	or l
 	ret z
+
+;;;;;;;;;; PureRGBnote: CHANGED: payout speed when winning at the slots was increased
+	ld a, [wSlotMachineWinningSymbol]
+	cp HIGH(SLOTSBAR) + 1
+	jr c, .tenAtATime2
 	ld de, -1
+	jr .doSubtract
+.tenAtATime2
+	ld de, -10
+.doSubtract
+;;;;;;;;;;
 	add hl, de
 	ld a, l
 	ld [wPayoutCoins + 1], a
@@ -691,23 +721,24 @@ SlotMachine_PayCoinsToPlayer:
 	call SlotMachine_PrintCreditCoins
 	call SlotMachine_PrintPayoutCoins
 	ld a, SFX_SLOTS_REWARD
-	call PlaySound
+	rst _PlaySound
 	ld a, [wAnimCounter]
 	dec a
 	jr nz, .skip1
 	ldh a, [rOBP0]
 	xor $40 ; make the slot wheel symbols flash
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld a, 5
 .skip1
 	ld [wAnimCounter], a
 	ld a, [wSlotMachineWinningSymbol]
-	cp HIGH(SLOTSBAR) + 1
+	cp LOW(SLOTSCHERRY)
 	ld c, 8
-	jr nc, .skip2
-	srl c ; c = 4 (make the the coins transfer faster if the symbol was 7 or bar)
+	jr z, .skip2
+	srl c ; c = 4 (make the the coins transfer faster if the symbol wasn't cherries)
 .skip2
-	call DelayFrames
+	rst _DelayFrames
 	jr .loop
 
 SlotMachine_PutOutLitBalls:
@@ -823,7 +854,7 @@ SlotMachine_AnimWheel:
 	ret
 
 SlotMachine_HandleInputWhileWheelsSpin:
-	call DelayFrame
+	rst _DelayFrame
 	call JoypadLowSensitivity
 	ldh a, [hJoy5]
 	and A_BUTTON
@@ -866,7 +897,7 @@ LoadSlotMachineTiles:
 	ld hl, SlotMachineMap
 	decoord 0, 0
 	ld bc, SlotMachineMapEnd - SlotMachineMap
-	call CopyData
+	rst _CopyData
 	call EnableLCD
 	ld hl, wSlotMachineWheel1Offset
 	ld a, $1c
@@ -890,4 +921,21 @@ ENDC
 IF DEF(_BLUE)
 	INCBIN "gfx/slots/blue_slots_1.2bpp"
 ENDC
+IF DEF(_GREEN) ; PureRGBnote: GREENBUILD: use the green slots visuals on green version
+	INCBIN "gfx/slots/green_slots_1.2bpp"
+ENDC
 SlotMachineTiles1End:
+
+;;;;;;;;;; PureRGBnote: Slot machine tiles moved from bank1E for more bank1E space
+SlotMachineTiles2:
+IF DEF(_RED)
+	INCBIN "gfx/slots/red_slots_2.2bpp"
+ENDC
+IF DEF(_BLUE)
+	INCBIN "gfx/slots/blue_slots_2.2bpp"
+ENDC
+IF DEF(_GREEN) ; PureRGBnote: GREENBUILD: slot graphics for green version added
+	INCBIN "gfx/slots/green_slots_2.2bpp"
+ENDC
+SlotMachineTiles2End:
+;;;;;;;;;;

@@ -1,10 +1,38 @@
 Route9_Script:
+	call Route9ReplaceCutTile
 	call EnableAutoTextBoxDrawing
 	ld hl, Route9TrainerHeaders
 	ld de, Route9_ScriptPointers
 	ld a, [wRoute9CurScript]
 	call ExecuteCurMapScriptInTable
 	ld [wRoute9CurScript], a
+	ret
+
+; PureRGBnote: ADDED: function that will remove the cut tree if we deleted it with the tree deleter
+Route9ReplaceCutTile:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl]
+	res 5, [hl]
+	jr nz, .replaceTile
+	bit 4, [hl]
+	res 4, [hl]
+	jr nz, .replaceTileNoRedraw
+	ret
+.replaceTile
+	CheckEvent EVENT_DELETED_ROUTE9_TREE
+	ret z
+	call .loadTile
+	predef_jump ReplaceTileBlock
+.replaceTileNoRedraw
+	CheckEvent EVENT_DELETED_ROUTE9_TREE
+	ret z
+	; this avoids redrawing the map because when going between areas these tiles are offscreen.
+	call .loadTile
+	predef_jump ReplaceTileBlockNoRedraw
+.loadTile
+	lb bc, 4, 3
+	ld a, $4C
+	ld [wNewTileBlockID], a
 	ret
 
 Route9_ScriptPointers:
@@ -24,7 +52,7 @@ Route9_TextPointers:
 	dw_const Route9Youngster1Text,    TEXT_ROUTE9_YOUNGSTER_1
 	dw_const Route9Hiker3Text,        TEXT_ROUTE9_HIKER_3
 	dw_const Route9Youngster2Text,    TEXT_ROUTE9_YOUNGSTER_2
-	dw_const PickUpItemText,          TEXT_ROUTE9_TM_TELEPORT
+	dw_const PickUpItemText,          TEXT_ROUTE9_ITEM1
 	dw_const Route9SignText,          TEXT_ROUTE9_SIGN
 
 Route9TrainerHeaders:
@@ -94,7 +122,7 @@ Route9Youngster2Text:
 	ld hl, Route9TrainerHeader8
 Route9TalkToTrainer:
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route9CooltrainerF1BattleText:
 	text_far _Route9CooltrainerF1BattleText

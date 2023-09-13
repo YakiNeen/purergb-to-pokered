@@ -2,7 +2,7 @@ NamePointers::
 ; entries correspond to *_NAME constants
 	dw MonsterNames
 	dw MoveNames
-	dw UnusedBadgeNames
+	dw 0
 	dw ItemNames
 	dw wPartyMonOT ; player's OT names list
 	dw wEnemyMonOT ; enemy's OT names list
@@ -85,12 +85,12 @@ GetName::
 	ld l, e
 	ld de, wcd6d
 	ld bc, NAME_BUFFER_LENGTH
-	call CopyData
+	rst _CopyData
 .gotPtr
-	ld a, e
-	ld [wUnusedCF8D], a
-	ld a, d
-	ld [wUnusedCF8D + 1], a
+	;ld a, e
+	;ld [wUnusedCF8D], a
+	;ld a, d
+	;ld [wUnusedCF8D + 1], a
 	pop de
 	pop bc
 	pop hl

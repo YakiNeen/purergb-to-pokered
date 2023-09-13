@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainer in this location
+
 Route10_Script:
 	call EnableAutoTextBoxDrawing
 	ld hl, Route10TrainerHeaders
@@ -21,6 +23,8 @@ Route10_TextPointers:
 	dw_const Route10CooltrainerF1Text,  TEXT_ROUTE10_COOLTRAINER_F1
 	dw_const Route10Hiker2Text,         TEXT_ROUTE10_HIKER2
 	dw_const Route10CooltrainerF2Text,  TEXT_ROUTE10_COOLTRAINER_F2
+	dw_const Route10Text7,              TEXT_ROUTE10_SUPER_NERD3
+	dw_const PickUpItemText,            TEXT_ROUTE10_ITEM1 ; PureRGBnote: ADDED: new item in this location 
 	dw_const Route10RockTunnelSignText, TEXT_ROUTE10_ROCKTUNNEL_NORTH_SIGN
 	dw_const PokeCenterSignText,        TEXT_ROUTE10_POKECENTER_SIGN
 	dw_const Route10RockTunnelSignText, TEXT_ROUTE10_ROCKTUNNEL_SOUTH_SIGN
@@ -40,13 +44,15 @@ Route10TrainerHeader4:
 	trainer EVENT_BEAT_ROUTE_10_TRAINER_4, 2, Route10Hiker2BattleText, Route10Hiker2EndBattleText, Route10Hiker2AfterBattleText
 Route10TrainerHeader5:
 	trainer EVENT_BEAT_ROUTE_10_TRAINER_5, 2, Route10CooltrainerF2BattleText, Route10CooltrainerF2EndBattleText, Route10CooltrainerF2AfterBattleText
+Route10TrainerHeader6:
+	trainer EVENT_BEAT_ROUTE_10_TRAINER_6, 2, Route10BattleText7, Route10EndBattleText7, Route10AfterBattleText7
 	db -1 ; end
 
 Route10SuperNerd1Text:
 	text_asm
 	ld hl, Route10TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10SuperNerd1BattleText:
 	text_far _Route10SuperNerd1BattleText
@@ -64,7 +70,7 @@ Route10Hiker1Text:
 	text_asm
 	ld hl, Route10TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10Hiker1BattleText:
 	text_far _Route10Hiker1BattleText
@@ -82,7 +88,7 @@ Route10SuperNerd2Text:
 	text_asm
 	ld hl, Route10TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10SuperNerd2BattleText:
 	text_far _Route10SuperNerd2BattleText
@@ -100,7 +106,7 @@ Route10CooltrainerF1Text:
 	text_asm
 	ld hl, Route10TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10CooltrainerF1BattleText:
 	text_far _Route10CooltrainerF1BattleText
@@ -118,7 +124,7 @@ Route10Hiker2Text:
 	text_asm
 	ld hl, Route10TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10Hiker2BattleText:
 	text_far _Route10Hiker2BattleText
@@ -136,7 +142,7 @@ Route10CooltrainerF2Text:
 	text_asm
 	ld hl, Route10TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route10CooltrainerF2BattleText:
 	text_far _Route10CooltrainerF2BattleText
@@ -148,6 +154,24 @@ Route10CooltrainerF2EndBattleText:
 
 Route10CooltrainerF2AfterBattleText:
 	text_far _Route10CooltrainerF2AfterBattleText
+	text_end
+
+Route10Text7:
+	text_asm
+	ld hl, Route10TrainerHeader6
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route10BattleText7:
+	text_far _Route10BattleText7
+	text_end
+
+Route10EndBattleText7:
+	text_far _Route10EndBattleText7
+	text_end
+
+Route10AfterBattleText7:
+	text_far _Route10AfterBattleText7
 	text_end
 
 Route10RockTunnelSignText:

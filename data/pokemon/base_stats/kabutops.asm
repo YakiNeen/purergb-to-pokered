@@ -3,22 +3,53 @@
 	db  60, 115, 105,  80,  70
 	;   hp  atk  def  spd  spc
 
-	db ROCK, WATER ; type
+	db ROCK, BUG ; type
 	db 45 ; catch rate
 	db 201 ; base exp
 
 	INCBIN "gfx/pokemon/front/kabutops.pic", 0, 1 ; sprite dimensions
-	dw KabutopsPicFront, KabutopsPicBack
+	dw KabutopsPicFront, KabutopsPicBackSW
 
-	db SCRATCH, HARDEN, ABSORB, NO_MOVE ; level 1 learnset
+	db ROCK_THROW, HARDEN, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm RAZOR_WIND,   SWORDS_DANCE, MEGA_KICK,    TOXIC,        BODY_SLAM,    \
-	     TAKE_DOWN,    DOUBLE_EDGE,  BUBBLEBEAM,   WATER_GUN,    ICE_BEAM,     \
-	     BLIZZARD,     HYPER_BEAM,   SUBMISSION,   SEISMIC_TOSS, RAGE,         \
-	     MIMIC,        DOUBLE_TEAM,  REFLECT,      BIDE,         SKULL_BASH,   \
-	     REST,         SUBSTITUTE,   SURF
+	tmhm \
+	LEECH_SEED,\
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BUBBLEBEAM,\
+	AURORA_BEAM,\
+	ICE_BEAM,\
+	BLIZZARD,\
+	HYPER_BEAM,\
+	HI_JUMP_KICK,\
+	ROLLING_KICK,\
+	BARRIER,\
+	EARTHQUAKE,\
+	CRABHAMMER,\
+	DIG,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	AGILITY,\
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	SLUDGE,\
+	ROCK_SLIDE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	SURF,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(KabutopsPicFront), BANK(KabutopsPicBack)
+
+	dw 1, KabutopsPicBack

@@ -399,4 +399,10 @@ hJoyInput:: db
 
 hDisableJoypadPolling:: db
 
-	ds 5
+; shinpokerednote: ADDED: new flag to prevent something while sprites are updating
+;bit 0 - PrepareOAMData and DMARoutine will not run in Vblank while this bit is set
+;bit 1 - BGmap update functions will not run in Vblank while this bit is set
+hFlagsFFFA::db 
+	ds 3
+hHRAMend::
+hGBC:: db ; shinpokerednote: gbcnote: hram indicator from pokeyellow for where we're playing on GBC

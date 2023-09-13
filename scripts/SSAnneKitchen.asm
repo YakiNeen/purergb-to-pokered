@@ -39,7 +39,7 @@ SSAnneKitchenCook6Text:
 SSAnneKitchenCook7Text:
 	text_asm
 	ld hl, .MainCourseIsText
-	call PrintText
+	rst _PrintText
 	ldh a, [hRandomAdd]
 	bit 7, a
 	jr z, .not_dialog_1
@@ -53,8 +53,8 @@ SSAnneKitchenCook7Text:
 .not_dialog_2
 	ld hl, .PrimeBeefSteakText
 .done
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .MainCourseIsText:
 	text_far _SSAnneKitchenCook7MainCourseIsText

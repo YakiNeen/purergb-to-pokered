@@ -48,13 +48,15 @@ _CeledonCityGramps3ReceivedTM41Text::
 
 _CeledonCityGramps3TM41ExplanationText::
 	text "TM41 teaches"
-	line "SOFTBOILED!"
+	line "MEDITATE!"
 
-	para "Only one #MON"
-	line "can use it!"
+	para "It enhances "
+	line "ATTACK, SPECIAL"
+	cont "and SPEED all"
+	cont "once!"
 
-	para "That #MON is"
-	line "CHANSEY!"
+	para "Your #MON will"
+	line "be unstoppable!"
 	done
 
 _CeledonCityGramps3TM41NoRoomText::
@@ -132,9 +134,9 @@ _CeladonCityTrainerTips2Text::
 
 	para "GUARD SPEC."
 	line "protects #MON"
-	cont "against SPECIAL"
-	cont "attacks such as"
-	cont "fire and water!"
+	cont "against status"
+	cont "moves like LEER"
+	cont "or SAND-ATTACK!"
 
 	para "Get your items at"
 	line "CELADON DEPT."
@@ -151,4 +153,16 @@ _CeladonCityGameCornerSignText::
 	text "ROCKET GAME CORNER"
 	line "The playground"
 	cont "for grown-ups!"
+	done
+
+_CeladonCityText19::
+	text "TRAINER TIPS"
+	para "Open the START "
+	line "menu and scroll"
+	cont "down to the SAVE"
+	cont "option."
+	para "Then press SELECT"
+	line "to change PC"
+	cont "boxes whenever"
+	cont "you like!"
 	done

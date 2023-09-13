@@ -1,16 +1,18 @@
+; PureRGBnote: CHANGED: ADDED: many encounter assignments were changed. Some were added, like in many cases surfing encounters.
+
 WildDataPointers:
 	table_width 2, WildDataPointers
 	dw NothingWildMons         ; PALLET_TOWN
-	dw NothingWildMons         ; VIRIDIAN_CITY
+	dw ViridianCityWildMons    ; VIRIDIAN_CITY
 	dw NothingWildMons         ; PEWTER_CITY
-	dw NothingWildMons         ; CERULEAN_CITY
+	dw CeruleanCityWildMons    ; CERULEAN_CITY
 	dw NothingWildMons         ; LAVENDER_TOWN
-	dw NothingWildMons         ; VERMILION_CITY
-	dw NothingWildMons         ; CELADON_CITY
-	dw NothingWildMons         ; FUCHSIA_CITY
-	dw NothingWildMons         ; CINNABAR_ISLAND
-	dw NothingWildMons         ; INDIGO_PLATEAU
+	dw VermilionCityWildMons   ; VERMILION_CITY
+	dw CeladonCityWildMons     ; CELADON_CITY
 	dw NothingWildMons         ; SAFFRON_CITY
+	dw FuchsiaCityWildMons     ; FUCHSIA_CITY
+	dw SeaRoutesWildMons       ; CINNABAR_ISLAND
+	dw NothingWildMons         ; INDIGO_PLATEAU
 	dw NothingWildMons         ; unused
 	dw Route1WildMons          ; ROUTE_1
 	dw Route2WildMons          ; ROUTE_2
@@ -110,7 +112,7 @@ WildDataPointers:
 	dw NothingWildMons
 	dw VictoryRoad1FWildMons
 	dw NothingWildMons
-	dw NothingWildMons
+	dw BillsGardenWildMons
 	dw NothingWildMons
 	dw NothingWildMons
 	dw NothingWildMons
@@ -321,3 +323,9 @@ INCLUDE "data/wild/maps/VictoryRoad2F.asm"
 INCLUDE "data/wild/maps/VictoryRoad3F.asm"
 INCLUDE "data/wild/maps/VictoryRoad1F.asm"
 INCLUDE "data/wild/maps/DiglettsCave.asm"
+INCLUDE "data/wild/maps/FuchsiaCity.asm"
+INCLUDE "data/wild/maps/ViridianCity.asm"
+INCLUDE "data/wild/maps/VermilionCity.asm"
+INCLUDE "data/wild/maps/CeruleanCity.asm"
+INCLUDE "data/wild/maps/CeladonCity.asm"
+INCLUDE "data/wild/maps/BillsGarden.asm"

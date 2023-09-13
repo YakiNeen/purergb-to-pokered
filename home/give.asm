@@ -15,8 +15,15 @@ GiveItem::
 	scf
 	ret
 
+; PureRGBnote: ADDED: when giving a pokemon we can make it alternate palette by calling a different function
+GivePokemonAltPalette::
+	ld a, 1
+	jr GivePokemonCommon
 GivePokemon::
 ; Give the player monster b at level c.
+	xor a
+GivePokemonCommon:
+	ld [wIsAltPalettePkmnData], a
 	ld a, b
 	ld [wcf91], a
 	ld a, c

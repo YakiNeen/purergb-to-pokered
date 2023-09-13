@@ -8,16 +8,37 @@
 	db 100 ; base exp
 
 	INCBIN "gfx/pokemon/front/seel.pic", 0, 1 ; sprite dimensions
-	dw SeelPicFront, SeelPicBack
+	dw SeelPicFront, SeelPicBackSW
 
-	db HEADBUTT, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db POUND, WATER_GUN, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        HORN_DRILL,   BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  \
-	     BUBBLEBEAM,   WATER_GUN,    ICE_BEAM,     BLIZZARD,     PAY_DAY,      \
-	     RAGE,         MIMIC,        DOUBLE_TEAM,  BIDE,         SKULL_BASH,   \
-	     REST,         SUBSTITUTE,   SURF,         STRENGTH
+	tmhm \
+	TOXIC,\
+	HORN_DRILL,\
+	BODY_SLAM,\
+	DOUBLE_EDGE,\
+	BUBBLEBEAM,\
+	AURORA_BEAM,\
+	ICE_BEAM,\
+	BLIZZARD,\
+	AMNESIA,\
+	BARRIER,\
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	LOVELY_KISS,\
+	LIGHT_SCREEN,\
+	GLARE,\
+	SUBSTITUTE,\
+	SURF,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(SeelPicFront), BANK(SeelPicBack)
+
+	dw 1, SeelPicBack

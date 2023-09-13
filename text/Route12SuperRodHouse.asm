@@ -1,45 +1,10 @@
-_Route12SuperRodHouseFishingGuruDoYouLikeToFishText::
+_Route12GuruIntro::
 	text "I'm the FISHING"
-	line "GURU's brother!"
+	line "GURU's younger"
+	cont "brother!"
+	prompt
 
-	para "I simply Looove"
-	line "fishing!"
-
-	para "Do you like to"
-	line "fish?"
-	done
-
-_Route12SuperRodHouseFishingGuruReceivedSuperRodText::
-	text "Grand! I like"
-	line "your style!"
-
-	para "Take this and"
-	line "fish, young one!"
-
-	para "<PLAYER> received"
-	line "a @"
-	text_ram wStringBuffer
-	text "!@"
-	text_end
-
-_Route12SuperRodHouseFishingGuruFishingWayOfLifeText::
-	text_start
-
-	para "Fishing is a way"
-	line "of life!"
-
-	para "From the seas to"
-	line "rivers, go out"
-	cont "and land the big"
-	cont "one!"
-	done
-
-_Route12SuperRodHouseFishingGuruThatsDisappointingText::
-	text "Oh... That's so"
-	line "disappointing..."
-	done
-
-_Route12SuperRodHouseFishingGuruTryFishingText::
+_Route12GuruEnd::
 	text "Hello there,"
 	line "<PLAYER>!"
 
@@ -47,16 +12,37 @@ _Route12SuperRodHouseFishingGuruTryFishingText::
 	line "in any water!"
 	cont "You can catch"
 	cont "different kinds"
-	cont "of #MON."
+	cont "of #MON.@"
+	text_end
+
+_Route12GuruColor::
+	text "Depending on"
+	line "where you fish,"
+	cont "you may even find"
+	cont "differently"
+	cont "colored #MON!"
 
 	para "Try fishing"
 	line "wherever you can!"
 	done
 
-_Route12SuperRodHouseFishingGuruNoRoomText::
-	text "Oh no!"
+_LastTwoGurusFishingGuideReceived::
+	text "<PLAYER> received"
+	line "a FISHING GUIDE!@"
+	text_end
 
-	para "I had a gift for"
-	line "you, but you have"
-	cont "no room for it!"
+_LastTwoGurusFishingGuideInfo::
+	text "Since you have"
+	line "a FISHING GUIDE"
+	cont "of your own, your"
+	cont "#DEX will show"
+	cont "fishing locations"
+	cont "of #MON in it!"
+	done
+
+_FishingGuideBookText::
+	text "It's a big book."
+	para "It says FISHING"
+	line "GUIDE in big"
+	cont "letters."
 	done

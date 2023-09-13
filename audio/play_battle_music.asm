@@ -2,10 +2,8 @@ PlayBattleMusic::
 	xor a
 	ld [wAudioFadeOutControl], a
 	ld [wLowHealthAlarm], a
-	dec a ; SFX_STOP_ALL_MUSIC
-	ld [wNewSoundID], a
-	call PlaySound
-	call DelayFrame
+	call StopAllMusic ; shinpokerednote: MOVED: a common function to do what the 3 lines that used to be here did was created
+	rst _DelayFrame
 	ld c, BANK(Music_GymLeaderBattle)
 	ld a, [wGymLeaderNo]
 	and a
@@ -18,8 +16,13 @@ PlayBattleMusic::
 	jr c, .wildBattle
 	cp OPP_RIVAL3
 	jr z, .finalBattle
+	cp OPP_PROF_OAK
+	jr z, .finalBattle ; PureRGBnote: ADDED: professor oak battle uses final battle music
+	cp OPP_CHIEF
+	jr z, .gymLeader ; PureRGBnote: ADDED: chief battle uses gym leader music
 	cp OPP_LANCE
 	jr nz, .normalTrainerBattle
+.gymLeader
 	ld a, MUSIC_GYM_LEADER_BATTLE ; lance also plays gym leader theme
 	jr .playSong
 .normalTrainerBattle

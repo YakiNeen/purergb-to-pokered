@@ -14,15 +14,19 @@ _GameCornerClerk1DoYouNeedSomeGameCoinsText::
 	para "Do you need some"
 	line "game coins?"
 
-	para "It's ¥1000 for 50"
-	line "coins. Would you"
-	cont "like some?"
+	para "It's ¥8000 for"
+	line "500 coins. Would"
+	cont "you like some?"
 	done
 
 _GameCornerClerk1ThanksHereAre50CoinsText::
 	text "Thanks! Here are"
-	line "your 50 coins!"
-	done
+	line "your 500 coins!"
+	prompt
+
+_CeladonGameCornerText_another500::
+	text "Want another 500?"
+	prompt
 
 _GameCornerClerk1PleaseComePlaySometimeText::
 	text "No? Please come"
@@ -100,8 +104,28 @@ _GameCornerGymGuideChampInMakingText::
 	cont "be fooled!"
 	done
 
+_CeladonGameCornerText_gymguide::
+	text "Yo! Champ in"
+	line "making! I hear"
+	cont "you beat ERIKA!"
+	prompt
+
+_CeladonGameCornerGymGuideApexChipGrassText::
+	text "For grass #MON,"
+	line "an APEX CHIP will"
+	cont "evoke a lush"
+	cont "green forest or"
+	cont "jungle with a"
+	cont "thick canopy and"
+	cont "endless amounts"
+	cont "of plantlife."
+	prompt
+
 _GameCornerGymGuideTheyOfferRarePokemonText::
-	text "They offer rare"
+	text "How about this"
+	line "Game Corner?"
+
+	para "They offer rare"
 	line "#MON that can"
 	cont "be exchanged for"
 	cont "your coins."

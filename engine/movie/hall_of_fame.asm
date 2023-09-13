@@ -2,7 +2,7 @@ AnimateHallOfFame:
 	call HoFFadeOutScreenAndMusic
 	call ClearScreen
 	ld c, 100
-	call DelayFrames
+	rst _DelayFrames
 	call LoadFontTilePatterns
 	call LoadTextBoxTilePatterns
 	call DisableLCD
@@ -18,6 +18,7 @@ AnimateHallOfFame:
 	ld bc, HOF_TEAM
 	call FillMemory
 	xor a
+	ld [wHallOfFamePalettes], a ; PureRGBnote: ADDED: clear the hall of fame team color palettes as we're going to repopulate this variable.
 	ld [wUpdateSpritesEnabled], a
 	ldh [hTileAnimations], a
 	ld [wSpriteFlipped], a
@@ -48,6 +49,7 @@ AnimateHallOfFame:
 	ld [wHoFMonSpecies], a
 	ld a, c
 	ld [wHoFPartyMonIndex], a
+	call StoreHoFAltPaletteFlag ; PureRGBnote: ADDED: we will set a flag to indicate whether the pokemon uses alt palette or not
 	ld hl, wPartyMon1Level
 	ld bc, wPartyMon2 - wPartyMon1
 	call AddNTimes
@@ -56,7 +58,7 @@ AnimateHallOfFame:
 	call HoFShowMonOrPlayer
 	call HoFDisplayAndRecordMonInfo
 	ld c, 80
-	call DelayFrames
+	rst _DelayFrames
 	hlcoord 2, 13
 	ld b, 3
 	ld c, 14
@@ -65,7 +67,7 @@ AnimateHallOfFame:
 	ld de, HallOfFameText
 	call PlaceString
 	ld c, 180
-	call DelayFrames
+	rst _DelayFrames
 	call GBFadeOutToWhite
 	pop bc
 	pop hl
@@ -77,7 +79,8 @@ AnimateHallOfFame:
 	ld bc, HOF_MON
 	call AddNTimes
 	ld [hl], $ff
-	call SaveHallOfFameTeams
+	; PureRGBnote: MOVED: hall_of_fame.asm was moved to a different bank so this was switched to a callfar to go to the save.asm bank.
+	callfar SaveHallOfFameTeams
 	xor a
 	ld [wHoFMonSpecies], a
 	inc a
@@ -90,6 +93,26 @@ AnimateHallOfFame:
 	ld hl, rLCDC
 	res 3, [hl]
 	ret
+
+; PureRGBnote: ADDED: sets a flag in wHallofFamePalettes if the pokemon uses an alt palette.
+StoreHoFAltPaletteFlag:
+	push af
+	ld a, [wHoFPartyMonIndex]
+	ld hl, wPartyMon1Flags
+	ld bc, wPartyMon2 - wPartyMon1
+	call AddNTimes
+	ld a, [hl]
+	and 1
+	ld [wIsAltPalettePkmn], a
+	ld b, a ; whether it's an alt palette (used as FLAG_SET or FLAG_RESET)
+	ld a, [wHoFPartyMonIndex]
+	ld c, a
+	ld hl, wHallOfFamePalettes
+	predef FlagActionPredef
+	pop af
+	ret
+
+
 
 HallOfFameText:
 	db "HALL OF FAME@"
@@ -112,16 +135,18 @@ HoFShowMonOrPlayer:
 	call HoFLoadPlayerPics
 	jr .next1
 .showMon
+	ld a, [wBattleMon]
 	hlcoord 12, 5
 	call GetMonHeader
 	call LoadFrontSpriteByMonIndex
 	predef LoadMonBackPic
 .next1
-	ld b, SET_PAL_POKEMON_WHOLE_SCREEN
+	ld b, SET_PAL_POKEMON_WHOLE_SCREEN_TRADE
 	ld c, 0
 	call RunPaletteCommand
 	ld a, %11100100
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld c, $31 ; back pic
 	call HoFLoadMonPlayerPicTileIDs
 	ld d, $a0
@@ -141,7 +166,7 @@ HoFShowMonOrPlayer:
 ; scroll front pic right
 
 .ScrollPic
-	call DelayFrame
+	rst _DelayFrame
 	ldh a, [hSCX]
 	add e
 	ldh [hSCX], a
@@ -182,6 +207,7 @@ HoFMonInfoText:
 	next "TYPE1/"
 	next "TYPE2/@"
 
+; PureRGBnote: CHANGED: updated to be able to display higher quality back sprite if option turned on.
 HoFLoadPlayerPics:
 	ld de, RedPicFront
 	ld a, BANK(RedPicFront)
@@ -189,9 +215,13 @@ HoFLoadPlayerPics:
 	ld hl, sSpriteBuffer1
 	ld de, sSpriteBuffer0
 	ld bc, $310
-	call CopyData
+	rst _CopyData
 	ld de, vFrontPic
 	call InterlaceMergeSpriteBuffers
+	ld a, [wSpriteOptions2]
+	bit BIT_BACK_SPRITES, a
+	jr nz, .swSprite
+.ogSprite
 	ld de, RedPicBack
 	ld a, BANK(RedPicBack)
 	call UncompressSpriteFromDE
@@ -199,6 +229,11 @@ HoFLoadPlayerPics:
 	ld de, vBackPic
 	call InterlaceMergeSpriteBuffers
 	ld c, $1
+.swSprite
+	ld de, RedPicBackSW
+	ld a, BANK(RedPicBackSW)
+	call UncompressSpriteFromDE
+	farcall LoadBackSpriteUnzoomed
 
 HoFLoadMonPlayerPicTileIDs:
 ; c = base tile ID
@@ -246,7 +281,7 @@ HoFDisplayPlayerStats:
 	ld hl, wDexRatingText
 
 HoFPrintTextAndDelay:
-	call PrintText
+	rst _PrintText
 	ld c, 120
 	jp DelayFrames
 

@@ -8,15 +8,45 @@
 	db 64 ; base exp
 
 	INCBIN "gfx/pokemon/front/bulbasaur.pic", 0, 1 ; sprite dimensions
-	dw BulbasaurPicFront, BulbasaurPicBack
+	dw BulbasaurPicFront, BulbasaurPicBackSW
 
 	db TACKLE, GROWL, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm SWORDS_DANCE, TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  \
-	     RAGE,         MEGA_DRAIN,   SOLARBEAM,    MIMIC,        DOUBLE_TEAM,  \
-	     REFLECT,      BIDE,         REST,         SUBSTITUTE,   CUT
+	tmhm \
+	LEECH_SEED,\
+	PIN_MISSILE,\ 
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	AMNESIA,\
+	ROLLING_KICK,\ 
+	BARRIER, \
+	RAZOR_LEAF,\
+	SOLARBEAM,\
+	DIG,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	MEDITATE,\
+	LIGHT_SCREEN,\
+	SLUDGE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(BulbasaurPicFront), BANK(BulbasaurPicBack)
+
+	dw BulbasaurPicRGFront, BulbasaurPicBack
+
+	
+
+	; end

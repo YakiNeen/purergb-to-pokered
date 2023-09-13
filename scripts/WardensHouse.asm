@@ -4,7 +4,7 @@ WardensHouse_Script:
 WardensHouse_TextPointers:
 	def_text_pointers
 	dw_const WardensHouseWardenText,  TEXT_WARDENSHOUSE_WARDEN
-	dw_const PickUpItemText,          TEXT_WARDENSHOUSE_RARE_CANDY
+	dw_const PickUpItemText,          TEXT_WARDENSHOUSE_ITEM1
 	dw_const BoulderText,             TEXT_WARDENSHOUSE_BOULDER
 	dw_const WardensHouseDisplayText, TEXT_WARDENSHOUSE_DISPLAY_LEFT
 	dw_const WardensHouseDisplayText, TEXT_WARDENSHOUSE_DISPLAY_RIGHT
@@ -19,7 +19,7 @@ WardensHouseWardenText:
 	CheckEvent EVENT_GAVE_GOLD_TEETH
 	jr nz, .gave_gold_teeth
 	ld hl, .Gibberish1Text
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
@@ -27,34 +27,34 @@ WardensHouseWardenText:
 	jr nz, .refused
 	ld hl, .Gibberish2Text
 .refused
-	call PrintText
+	rst _PrintText
 	jr .done
 .have_gold_teeth
 	ld hl, .GaveTheGoldTeethText
-	call PrintText
+	rst _PrintText
 	ld a, GOLD_TEETH
 	ldh [hItemToRemoveID], a
 	farcall RemoveItemByID
 	SetEvent EVENT_GAVE_GOLD_TEETH
 .gave_gold_teeth
 	ld hl, .ThanksText
-	call PrintText
+	rst _PrintText
 	lb bc, HM_STRENGTH, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld hl, .ReceivedHM04Text
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_GOT_HM04
 	jr .done
 .got_item
 	ld hl, .HM04ExplanationText
-	call PrintText
+	rst _PrintText
 	jr .done
 .bag_full
 	ld hl, .HM04NoRoomText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Gibberish1Text:
 	text_far _WardensHouseWardenGibberish1Text
@@ -101,8 +101,8 @@ WardensHouseDisplayText:
 	jr nz, .print_text
 	ld hl, .PhotosAndFossilsText
 .print_text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .PhotosAndFossilsText:
 	text_far _WardensHouseDisplayPhotosAndFossilsText

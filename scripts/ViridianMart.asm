@@ -66,7 +66,8 @@ ViridianMart_TextPointers:
 	dw ViridianMartClerkSayHiToOakText
 	dw ViridianMartYoungsterText
 	dw ViridianMartCooltrainerMText
-	const_def 4
+	dw ViridianMartTMKid
+	const_def 5
 	dw_const ViridianMartClerkYouCameFromPalletTownText, TEXT_VIRIDIANMART_CLERK_YOU_CAME_FROM_PALLET_TOWN
 	dw_const ViridianMartClerkParcelQuestText,           TEXT_VIRIDIANMART_CLERK_PARCEL_QUEST
 
@@ -76,6 +77,7 @@ ViridianMart_TextPointers2:
 	dw_const ViridianMartClerkText,        TEXT_VIRIDIANMART_CLERK
 	dw_const ViridianMartYoungsterText,    TEXT_VIRIDIANMART_YOUNGSTER
 	dw_const ViridianMartCooltrainerMText, TEXT_VIRIDIANMART_COOLTRAINER_M
+	dw_const ViridianMartTMKid,            TEXT_VIRIDIANMART_TM_KID
 
 ViridianMartClerkSayHiToOakText:
 	text_far _ViridianMartClerkSayHiToOakText
@@ -97,3 +99,50 @@ ViridianMartYoungsterText:
 ViridianMartCooltrainerMText:
 	text_far _ViridianMartCooltrainerMText
 	text_end
+
+ViridianMartTMKid: ; PureRGBnote: ADDED: new NPC who will talk about TMs
+	text_asm
+	CheckEvent EVENT_BEAT_BLAINE
+	jr nz, .beforeGiovanni
+	CheckEvent EVENT_BEAT_MISTY
+	jr nz, .afterMisty
+	jr .beforeMisty
+.beforeMisty
+	ld hl, ViridianMartTMKidBefore
+	rst _PrintText
+	jr .done
+.tmkidgreet
+	ld hl, TMKidGreet8
+	rst _PrintText
+	ret
+.afterMisty
+	call .tmkidgreet
+	ld hl, TMKidStockingUp
+	rst _PrintText
+	jr .done
+.beforeGiovanni
+	CheckEvent EVENT_MET_GYM_GUIDE_SON
+	jr nz, .afterMisty
+	call .tmkidgreet
+	ld hl, TMKidBigStockIndigo
+	rst _PrintText
+.done
+	rst TextScriptEnd
+
+TMKidGreet8:
+	text_far _TMKidGreet
+	text_end
+
+TMKidStockingUp:
+	text_far _TMKidStockingUp
+	text_end
+
+TMKidBigStockIndigo:
+	text_far _TMKidBigStockIndigo
+	text_end
+
+ViridianMartTMKidBefore:
+	text_far _ViridianMartTMKid
+	text_end
+
+INCLUDE "data/items/marts/viridian.asm"

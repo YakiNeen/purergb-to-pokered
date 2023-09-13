@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers in this route.
+
 Route14_Script:
 	call EnableAutoTextBoxDrawing
 	ld hl, Route14TrainerHeaders
@@ -25,7 +27,10 @@ Route14_TextPointers:
 	dw_const Route14Biker2Text,        TEXT_ROUTE14_BIKER2
 	dw_const Route14Biker3Text,        TEXT_ROUTE14_BIKER3
 	dw_const Route14Biker4Text,        TEXT_ROUTE14_BIKER4
+	dw_const Route14Text11,            TEXT_ROUTE14_COOLTRAINER_M7
+	dw_const Route14Text12,            TEXT_ROUTE14_BEAUTY
 	dw_const Route14SignText,          TEXT_ROUTE14_SIGN
+	dw_const Route14Text14,            TEXT_ROUTE14_TRAINER_TIPS ; PureRGBnote: ADDED: new trainer tips sign on this route.
 
 Route14TrainerHeaders:
 	def_trainers
@@ -49,13 +54,17 @@ Route14TrainerHeader8:
 	trainer EVENT_BEAT_ROUTE_14_TRAINER_8, 3, Route14Biker3BattleText, Route14Biker3EndBattleText, Route14Biker3AfterBattleText
 Route14TrainerHeader9:
 	trainer EVENT_BEAT_ROUTE_14_TRAINER_9, 4, Route14Biker4BattleText, Route14Biker4EndBattleText, Route14Biker4AfterBattleText
+Route14TrainerHeader10:
+	trainer EVENT_BEAT_ROUTE_14_TRAINER_10, 3, Route14BattleText11, Route14EndBattleText11, Route14AfterBattleText11
+Route14TrainerHeader11:
+	trainer EVENT_BEAT_ROUTE_14_TRAINER_11, 4, Route14BattleText12, Route14EndBattleText12, Route14AfterBattleText12
 	db -1 ; end
 
 Route14CooltrainerM1Text:
 	text_asm
 	ld hl, Route14TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM1BattleText:
 	text_far _Route14CooltrainerM1BattleText
@@ -73,7 +82,7 @@ Route14CooltrainerM2Text:
 	text_asm
 	ld hl, Route14TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM2BattleText:
 	text_far _Route14CooltrainerM2BattleText
@@ -91,7 +100,7 @@ Route14CooltrainerM3Text:
 	text_asm
 	ld hl, Route14TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM3BattleText:
 	text_far _Route14CooltrainerM3BattleText
@@ -109,7 +118,7 @@ Route14CooltrainerM4Text:
 	text_asm
 	ld hl, Route14TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM4BattleText:
 	text_far _Route14CooltrainerM4BattleText
@@ -127,7 +136,7 @@ Route14CooltrainerM5Text:
 	text_asm
 	ld hl, Route14TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM5BattleText:
 	text_far _Route14CooltrainerM5BattleText
@@ -145,7 +154,7 @@ Route14CooltrainerM6Text:
 	text_asm
 	ld hl, Route14TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14CooltrainerM6BattleText:
 	text_far _Route14CooltrainerM6BattleText
@@ -163,7 +172,7 @@ Route14Biker1Text:
 	text_asm
 	ld hl, Route14TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14Biker1BattleText:
 	text_far _Route14Biker1BattleText
@@ -181,7 +190,7 @@ Route14Biker2Text:
 	text_asm
 	ld hl, Route14TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14Biker2BattleText:
 	text_far _Route14Biker2BattleText
@@ -199,7 +208,7 @@ Route14Biker3Text:
 	text_asm
 	ld hl, Route14TrainerHeader8
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14Biker3BattleText:
 	text_far _Route14Biker3BattleText
@@ -217,7 +226,7 @@ Route14Biker4Text:
 	text_asm
 	ld hl, Route14TrainerHeader9
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route14Biker4BattleText:
 	text_far _Route14Biker4BattleText
@@ -231,6 +240,46 @@ Route14Biker4AfterBattleText:
 	text_far _Route14Biker4AfterBattleText
 	text_end
 
+Route14Text11:
+	text_asm
+	ld hl, Route14TrainerHeader10
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route14BattleText11:
+	text_far _Route14BattleText11
+	text_end
+
+Route14EndBattleText11:
+	text_far _Route14EndBattleText11
+	text_end
+
+Route14AfterBattleText11:
+	text_far _Route14AfterBattleText11
+	text_end
+
+Route14Text12:
+	text_asm
+	ld hl, Route14TrainerHeader11
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route14BattleText12:
+	text_far _Route14BattleText12
+	text_end
+
+Route14EndBattleText12:
+	text_far _Route14EndBattleText12
+	text_end
+
+Route14AfterBattleText12:
+	text_far _Route14AfterBattleText12
+	text_end
+
 Route14SignText:
 	text_far _Route14SignText
+	text_end
+
+Route14Text14:
+	text_far _Route14Text12
 	text_end

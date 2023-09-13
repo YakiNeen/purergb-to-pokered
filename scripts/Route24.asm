@@ -23,6 +23,10 @@ Route24_ScriptPointers:
 	dw_const Route24PlayerMovingScript,             SCRIPT_ROUTE24_PLAYER_MOVING
 
 Route24DefaultScript:
+IF DEF(_DEBUG)
+	call DebugPressedOrHeldB
+	jp nz, CheckFightingMapTrainers
+ENDC
 	CheckEvent EVENT_GOT_NUGGET
 	jp nz, CheckFightingMapTrainers
 	ld hl, .PlayerCoordsArray
@@ -86,7 +90,8 @@ Route24_TextPointers:
 	dw_const Route24Youngster1Text,    TEXT_ROUTE24_YOUNGSTER_1
 	dw_const Route24CooltrainerF2Text, TEXT_ROUTE24_COOLTRAINER_F2
 	dw_const Route24Youngster2Text,    TEXT_ROUTE24_YOUNGSTER_2
-	dw_const PickUpItemText,           TEXT_ROUTE24_TM_THUNDER_WAVE
+	dw_const PickUpItemText,           TEXT_ROUTE24_ITEM1
+	dw_const PickUpItemText,           TEXT_ROUTE24_ITEM2 ; PureRGBnote: ADDED: new item on this route.
 
 Route24TrainerHeaders:
 	def_trainers 2
@@ -110,15 +115,15 @@ Route24CooltrainerM1Text:
 	CheckEvent EVENT_GOT_NUGGET
 	jr nz, .got_item
 	ld hl, .YouBeatOurContestText
-	call PrintText
-	lb bc, NUGGET, 1
+	rst _PrintText
+	lb bc, ITEM_NUGGET_BRIDGE_REWARD, 1
 	call GiveItem
 	jr nc, .bag_full
 	SetEvent EVENT_GOT_NUGGET
 	ld hl, .ReceivedNuggetText
-	call PrintText
+	rst _PrintText
 	ld hl, .JoinTeamRocketText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -134,16 +139,16 @@ Route24CooltrainerM1Text:
 	ld a, SCRIPT_ROUTE24_AFTER_ROCKET_BATTLE
 	ld [wRoute24CurScript], a
 	ld [wCurMapScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 .got_item
 	ld hl, .YouCouldBecomeATopLeaderText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 .bag_full
 	ld hl, .NoRoomText
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_NUGGET_REWARD_AVAILABLE
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .YouBeatOurContestText:
 	text_far _Route24CooltrainerM1YouBeatOurContestText
@@ -177,37 +182,37 @@ Route24CooltrainerM2Text:
 	text_asm
 	ld hl, Route24TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24CooltrainerM3Text:
 	text_asm
 	ld hl, Route24TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24CooltrainerF1Text:
 	text_asm
 	ld hl, Route24TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24Youngster1Text:
 	text_asm
 	ld hl, Route24TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24CooltrainerF2Text:
 	text_asm
 	ld hl, Route24TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24Youngster2Text:
 	text_asm
 	ld hl, Route24TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route24CooltrainerM2BattleText:
 	text_far _Route24CooltrainerM2BattleText

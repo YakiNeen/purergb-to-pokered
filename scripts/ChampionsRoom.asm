@@ -226,9 +226,8 @@ ChampionsRoomCleanupScript:
 	ld a, [wSimulatedJoypadStatesIndex]
 	and a
 	ret nz
-	xor a
+	xor a ; same as SCRIPT_CHAMPIONSROOM_DEFAULT
 	ld [wJoyIgnore], a
-	ld a, SCRIPT_CHAMPIONSROOM_DEFAULT
 	ld [wChampionsRoomCurScript], a
 	ret
 
@@ -255,8 +254,8 @@ ChampionsRoomRivalText:
 	jr z, .printText
 	ld hl, ChampionsRoomRivalAfterBattleText
 .printText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .IntroText:
 	text_far _ChampionsRoomRivalIntroText
@@ -284,8 +283,8 @@ ChampionsRoomOakCongratulatesPlayerText:
 	ld [wd11e], a
 	call GetMonName
 	ld hl, .Text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .Text:
 	text_far _ChampionsRoomOakCongratulatesPlayerText

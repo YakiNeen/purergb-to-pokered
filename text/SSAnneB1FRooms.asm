@@ -88,8 +88,8 @@ _SSAnneB1FRoomsFisherBattleText::
 	text "Hello stranger!"
 	line "Stop and chat!"
 
-	para "All my #MON"
-	line "are from the sea!"
+	para "I love #MON"
+	line "from the sea!"
 	done
 
 _SSAnneB1FRoomsFisherEndBattleText::

@@ -8,17 +8,25 @@ VermilionCity_Script:
 	pop hl
 	bit 5, [hl]
 	res 5, [hl]
-	call nz, .setFirstLockTrashCanIndex
+	call nz, .setFirstLockTrashCanIndexAndCheckRemoveTree
 	ld hl, VermilionCity_ScriptPointers
 	ld a, [wVermilionCityCurScript]
 	jp CallFunctionInTable
-
-.setFirstLockTrashCanIndex
+.setFirstLockTrashCanIndexAndCheckRemoveTree
+	ld de, VermilionCutAlcove
+	callfar FarArePlayerCoordsInRange
+	; if we're in the specific area where we can get trapped without CUT, remove the tree on map load.
+	call c, .removeTree
 	call Random
 	ldh a, [hRandomSub]
 	and $e
 	ld [wFirstLockTrashCanIndex], a
 	ret
+.removeTree
+	lb bc, 9, 7
+	ld a, $4C
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlock
 
 VermilionCityLeftSSAnneCallbackScript:
 	CheckEventHL EVENT_SS_ANNE_LEFT
@@ -51,8 +59,12 @@ VermilionCityDefaultScript:
 	ld a, TEXT_VERMILIONCITY_SAILOR1
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
+	ld a, [wObtainedBadges] ; PureRGBnote: CHANGED: ship returns after obtaining the soul badge so let the player in if they have the ticket
+	bit 4, a
+	jr nz, .default
 	CheckEvent EVENT_SS_ANNE_LEFT
 	jr nz, .ship_departed
+.default
 	ld b, S_S_TICKET
 	predef GetQuantityOfItemInBag
 	ld a, b
@@ -109,7 +121,7 @@ VermilionCityPlayerMovingUp1Script:
 	and a
 	ret nz
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	ld a, SCRIPT_VERMILIONCITY_DEFAULT
 	ld [wVermilionCityCurScript], a
 	ret
@@ -122,6 +134,7 @@ VermilionCity_TextPointers:
 	dw_const VermilionCityGambler2Text,           TEXT_VERMILIONCITY_GAMBLER2
 	dw_const VermilionCityMachopText,             TEXT_VERMILIONCITY_MACHOP
 	dw_const VermilionCitySailor2Text,            TEXT_VERMILIONCITY_SAILOR2
+	dw_const VermilionCityDockBeautyText,         TEXT_VERMILIONCITY_DOCK_BEAUTY
 	dw_const VermilionCitySignText,               TEXT_VERMILIONCITY_SIGN
 	dw_const VermilionCityNoticeSignText,         TEXT_VERMILIONCITY_NOTICE_SIGN
 	dw_const MartSignText,                        TEXT_VERMILIONCITY_MART_SIGN
@@ -139,13 +152,13 @@ VermilionCityGambler1Text:
 	CheckEvent EVENT_SS_ANNE_LEFT
 	jr nz, .ship_departed
 	ld hl, .DidYouSeeText
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .ship_departed
 	ld hl, .SSAnneDepartedText
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .DidYouSeeText:
 	text_far _VermilionCityGambler1DidYouSeeText
@@ -157,8 +170,12 @@ VermilionCityGambler1Text:
 
 VermilionCitySailor1Text:
 	text_asm
+	ld a, [wObtainedBadges]
+	bit BIT_SOULBADGE, a ; PureRGBnote: CHANGED: after obtaining soul badge the ship returns so this NPC will talk about it
+	jr nz, .default
 	CheckEvent EVENT_SS_ANNE_LEFT
 	jr nz, .ship_departed
+.default
 	ld a, [wSpritePlayerStateData1FacingDirection]
 	cp SPRITE_FACING_RIGHT
 	jr z, .greet_player
@@ -167,30 +184,30 @@ VermilionCitySailor1Text:
 	jr nc, .greet_player_and_check_ticket
 .greet_player
 	ld hl, .WelcomeToSSAnneText
-	call PrintText
+	rst _PrintText
 	jr .end
 .greet_player_and_check_ticket
 	ld hl, .DoYouHaveATicketText
-	call PrintText
+	rst _PrintText
 	ld b, S_S_TICKET
 	predef GetQuantityOfItemInBag
 	ld a, b
 	and a
 	jr nz, .player_has_ticket
 	ld hl, .YouNeedATicketText
-	call PrintText
+	rst _PrintText
 	jr .end
 .player_has_ticket
 	ld hl, .FlashedTicketText
-	call PrintText
+	rst _PrintText
 	ld a, SCRIPT_VERMILIONCITY_PLAYER_ALLOWED_TO_PASS
 	ld [wVermilionCityCurScript], a
 	jr .end
 .ship_departed
 	ld hl, .ShipSetSailText
-	call PrintText
+	rst _PrintText
 .end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .inFrontOfOrBehindGuardCoords
 	dbmapcoord 19, 29 ; in front of guard
@@ -235,7 +252,22 @@ VermilionCityMachopText:
 	text_end
 
 VermilionCitySailor2Text:
+	text_asm
+	ld a, [wObtainedBadges]
+	bit BIT_SOULBADGE, a ; after obtaining the soul badge the ship returns
+	jr z, .default
+	ld hl, .ShipBackText
+	ret
+.default
+	ld hl, .Text
+	ret
+
+.Text:
 	text_far _VermilionCitySailor2Text
+	text_end
+
+.ShipBackText:
+	text_far _VermilionCityText15
 	text_end
 
 VermilionCitySignText:
@@ -256,4 +288,45 @@ VermilionCityGymSignText:
 
 VermilionCityHarborSignText:
 	text_far _VermilionCityHarborSignText
+	text_end
+
+; PureRGBnote: ADDED: new NPC who will give you an item if found. Requires surf to even see this NPC's location.
+VermilionCityDockBeautyText: 
+	text_asm
+	CheckEvent EVENT_GOT_DOCK_BEAUTY_ITEM
+	jr nz, .endText
+	ld hl, VermilionCityDockBeautyGreeting
+	rst _PrintText
+	lb bc, ITEM_VERMILION_SECRET_DOCK_BEAUTY_NEW, 1
+	call GiveItem
+	jr nc, .bagfull
+	SetEvent EVENT_GOT_DOCK_BEAUTY_ITEM
+	ld hl, VermilionCityDockBeautyReceivedItemText
+	rst _PrintText
+	jr .done
+.bagfull
+	ld hl, VermilionCityDockBeautyNoRoomText
+	rst _PrintText
+	jr .done
+.endText
+	ld hl, VermilionCityDockBeautyEndText
+	rst _PrintText
+.done
+	rst TextScriptEnd
+
+VermilionCityDockBeautyGreeting:
+	text_far _VermilionCityDockBeautyGreeting
+	text_end
+
+VermilionCityDockBeautyNoRoomText:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+VermilionCityDockBeautyReceivedItemText:
+	text_far _VermilionCityDockBeautyReceivedItemText
+	sound_get_key_item
+	text_end
+
+VermilionCityDockBeautyEndText:
+	text_far _VermilionCityDockBeautyEndText
 	text_end

@@ -8,16 +8,37 @@
 	db 213 ; base exp
 
 	INCBIN "gfx/pokemon/front/arcanine.pic", 0, 1 ; sprite dimensions
-	dw ArcaninePicFront, ArcaninePicBack
+	dw ArcaninePicFront, ArcaninePicBackSW
 
-	db ROAR, EMBER, LEER, TAKE_DOWN ; level 1 learnset
-	db GROWTH_SLOW ; growth rate
+	db BITE, ROAR, NO_MOVE, NO_MOVE ; level 1 learnset
+	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  HYPER_BEAM,   \
-	     RAGE,         DRAGON_RAGE,  DIG,          TELEPORT,     MIMIC,        \
-	     DOUBLE_TEAM,  REFLECT,      BIDE,         FIRE_BLAST,   SWIFT,        \
-	     SKULL_BASH,   REST,         SUBSTITUTE
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	HYPER_BEAM,\
+	ROLLING_KICK,\
+	SOLARBEAM,\
+	DRAGON_RAGE,\
+	DIG,\
+	KINESIS,\ ; FIREWALL
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	FIRE_BLAST,\
+	FLAMETHROWER,\
+	LIGHT_SCREEN,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(ArcaninePicFront), BANK(ArcaninePicBack)
+
+	dw ArcaninePicFrontAlt, ArcaninePicBack

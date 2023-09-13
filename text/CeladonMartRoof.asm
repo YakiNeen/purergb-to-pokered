@@ -74,16 +74,16 @@ _CeladonMartRoofLittleGirlYayLemonadeText::
 	line "from me!@"
 	text_end
 
-_CeladonMartRoofLittleGirlReceivedTM49Text::
-	text "<PLAYER> received"
-	line "TM49!@"
-	text_end
-
 _CeladonMartRoofLittleGirlTM49ExplanationText::
 	text_start
 
-	para "TM49 contains"
-	line "TRI ATTACK!@"
+	para "@"
+	text_ram wStringBuffer
+	text " contains"
+	line "GLARE!"
+	para "It paralyzes the"
+	line "target with a"
+	cont "piercing gaze!@"
 	text_end
 
 _CeladonMartRoofLittleGirlNoRoomText::
@@ -140,6 +140,7 @@ _VendingMachineText5::
 	text_ram wStringBuffer
 	text_start
 	line "popped out!"
+	prompt
 	done
 
 _VendingMachineText6::
@@ -149,4 +150,9 @@ _VendingMachineText6::
 
 _VendingMachineText7::
 	text "Not thirsty!"
+	done
+
+_VendingMachineText8::
+	text "That's enough"
+	line "of that!"
 	done

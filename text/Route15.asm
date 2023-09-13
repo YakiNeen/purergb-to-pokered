@@ -10,13 +10,15 @@ _Route15CooltrainerF1EndBattleText::
 	prompt
 
 _Route15CooltrainerF1AfterBattleText::
-	text "You can't change"
+	text "It's nice to keep"
 	line "the nickname of"
 	cont "any #MON you"
 	cont "get in a trade."
 
-	para "Only the Original"
-	line "Trainer can."
+	para "The NAME RATER"
+	line "can always help"
+	cont "you come up with"
+	cont "a new name!"
 	done
 
 _Route15CooltrainerF2BattleText::

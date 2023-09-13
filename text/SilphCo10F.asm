@@ -1,6 +1,6 @@
 _SilphCo10FSilphWorkerFImScaredText::
 	text "Waaaaa!"
-	cont "I'm scared!"
+	para "I'm scared!"
 	done
 
 _SilphCo10FSilphWorkerFQuietAboutMyCryingText::

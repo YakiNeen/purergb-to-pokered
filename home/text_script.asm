@@ -26,6 +26,10 @@ DisplayTextID::
 	dict TEXT_MON_FAINTED,      DisplayPokemonFaintedText
 	dict TEXT_BLACKED_OUT,      DisplayPlayerBlackedOutText
 	dict TEXT_REPEL_WORE_OFF,   DisplayRepelWoreOffText
+	dict TEXT_RANGER_SAFARI_GAME_OVER, DisplayRangerSafariGameOverText ; PureRGBnote: ADDED: text that displays when ranger hunt is completed
+	
+	cp $FF
+	jp z, CloseTextDisplay
 
 	ld a, [wNumSprites]
 	ld e, a
@@ -101,15 +105,28 @@ HoldTextDisplayOpen::
 	bit BIT_A_BUTTON, a
 	jr nz, HoldTextDisplayOpen
 
+; FIXME: this unintentionally gets run after HoldTextDisplayOpen...but that may be a good thing since resetting sprite facings seems pointless.
+CloseTextDisplayNoSpriteUpdate:: ; PureRGBnote: ADDED: less laggy version of closing the text display that doesn't reset sprite facings
+	call CloseTextDisplayPart1
+	jp CloseTextDisplayPart2
+
 CloseTextDisplay::
+	call CloseTextDisplayPart1
+	call CloseTextDisplaySpriteUpdateLoop
+	jp CloseTextDisplayPart2
+
+CloseTextDisplayPart1:
 	ld a, [wCurMap]
 	call SwitchToMapRomBank
 	ld a, $90
 	ldh [hWY], a ; move the window off the screen
-	call DelayFrame
+	rst _DelayFrame
 	call LoadGBPal
 	xor a
 	ldh [hAutoBGTransferEnabled], a ; disable continuous WRAM to VRAM transfer each V-blank
+	ret
+
+CloseTextDisplaySpriteUpdateLoop:
 ; loop to make sprites face the directions they originally faced before the dialogue
 	ld hl, wSprite01StateData2OrigFacingDirection
 	ld c, $0f
@@ -122,6 +139,9 @@ CloseTextDisplay::
 	add hl, de
 	dec c
 	jr nz, .restoreSpriteFacingDirectionLoop
+	ret
+
+CloseTextDisplayPart2:
 	ld a, BANK(InitMapSprites)
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
@@ -140,18 +160,18 @@ CloseTextDisplay::
 DisplayPokemartDialogue::
 	push hl
 	ld hl, PokemartGreetingText
-	call PrintText
+	rst _PrintText
 	pop hl
+	call DisplayPokemartNoGreeting
+	jp AfterDisplayingTextID
+
+DisplayPokemartNoGreeting:: ; PureRGBnote: ADDED: show pokemart without the "welcome!" dialogue first, allows vendors to say something else beforehand.
 	inc hl
 	call LoadItemList
 	ld a, PRICEDITEMLISTMENU
 	ld [wListMenuID], a
 	homecall DisplayPokemartDialogue_
-	jp AfterDisplayingTextID
-
-PokemartGreetingText::
-	text_far _PokemartGreetingText
-	text_end
+	ret
 
 LoadItemList::
 	ld a, 1
@@ -184,32 +204,26 @@ DisplaySafariGameOverText::
 	callfar PrintSafariGameOverText
 	jp AfterDisplayingTextID
 
-DisplayPokemonFaintedText::
-	ld hl, PokemonFaintedText
-	call PrintText
+DisplayRangerSafariGameOverText::
+	callfar PrintRangerSafariGameOverText
 	jp AfterDisplayingTextID
 
-PokemonFaintedText::
-	text_far _PokemonFaintedText
-	text_end
+DisplayPokemonFaintedText::
+	ld hl, PokemonFaintedText
+	rst _PrintText
+	jp AfterDisplayingTextID
 
 DisplayPlayerBlackedOutText::
 	ld hl, PlayerBlackedOutText
-	call PrintText
+	rst _PrintText
 	ld a, [wd732]
 	res 5, a ; reset forced to use bike bit
 	ld [wd732], a
 	jp HoldTextDisplayOpen
 
-PlayerBlackedOutText::
-	text_far _PlayerBlackedOutText
-	text_end
-
 DisplayRepelWoreOffText::
 	ld hl, RepelWoreOffText
-	call PrintText
-	jp AfterDisplayingTextID
-
-RepelWoreOffText::
-	text_far _RepelWoreOffText
-	text_end
+	rst _PrintText
+	callfar UseAnotherRepel ; PureRGBnote: ADDED: when repel wears off ask to use another if available
+	jp CloseTextDisplay
+	

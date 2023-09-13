@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers on this route.
+
 Route18_Script:
 	call EnableAutoTextBoxDrawing
 	ld hl, Route18TrainerHeaders
@@ -15,11 +17,13 @@ Route18_ScriptPointers:
 
 Route18_TextPointers:
 	def_text_pointers
-	dw_const Route18CooltrainerM1Text,   SCRIPT_ROUTE18_COOLTRAINER_M1
-	dw_const Route18CooltrainerM2Text,   SCRIPT_ROUTE18_COOLTRAINER_M2
-	dw_const Route18CooltrainerM3Text,   SCRIPT_ROUTE18_COOLTRAINER_M3
-	dw_const Route18SignText,            SCRIPT_ROUTE18_SIGN
-	dw_const Route18CyclingRoadSignText, SCRIPT_ROUTE18_CYCLING_ROAD_SIGN
+	dw_const Route18CooltrainerM1Text,   TEXT_ROUTE18_COOLTRAINER_M1
+	dw_const Route18CooltrainerM2Text,   TEXT_ROUTE18_COOLTRAINER_M2
+	dw_const Route18CooltrainerM3Text,   TEXT_ROUTE18_COOLTRAINER_M3
+	dw_const Route18Text4,               TEXT_ROUTE18_TAMER
+	dw_const Route18Text5,               TEXT_ROUTE18_ROCKER
+	dw_const Route18SignText,            TEXT_ROUTE18_SIGN
+	dw_const Route18CyclingRoadSignText, TEXT_ROUTE18_CYCLING_ROAD_SIGN
 
 Route18TrainerHeaders:
 	def_trainers
@@ -29,13 +33,17 @@ Route18TrainerHeader1:
 	trainer EVENT_BEAT_ROUTE_18_TRAINER_1, 3, Route18CooltrainerM2BattleText, Route18CooltrainerM2EndBattleText, Route18CooltrainerM2AfterBattleText
 Route18TrainerHeader2:
 	trainer EVENT_BEAT_ROUTE_18_TRAINER_2, 4, Route18CooltrainerM3BattleText, Route18CooltrainerM3EndBattleText, Route18CooltrainerM3AfterBattleText
+Route18TrainerHeader3:
+	trainer EVENT_BEAT_ROUTE_18_TRAINER_3, 3, Route18BattleText4, Route18EndBattleText4, Route18AfterBattleText4
+Route18TrainerHeader4:
+	trainer EVENT_BEAT_ROUTE_18_TRAINER_4, 2, Route18BattleText5, Route18EndBattleText5, Route18AfterBattleText5
 	db -1 ; end
 
 Route18CooltrainerM1Text:
 	text_asm
 	ld hl, Route18TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route18CooltrainerM1BattleText:
 	text_far _Route18CooltrainerM1BattleText
@@ -53,7 +61,7 @@ Route18CooltrainerM2Text:
 	text_asm
 	ld hl, Route18TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route18CooltrainerM2BattleText:
 	text_far _Route18CooltrainerM2BattleText
@@ -71,7 +79,7 @@ Route18CooltrainerM3Text:
 	text_asm
 	ld hl, Route18TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route18CooltrainerM3BattleText:
 	text_far _Route18CooltrainerM3BattleText
@@ -83,6 +91,42 @@ Route18CooltrainerM3EndBattleText:
 
 Route18CooltrainerM3AfterBattleText:
 	text_far _Route18CooltrainerM3AfterBattleText
+	text_end
+
+Route18Text4:
+	text_asm
+	ld hl, Route18TrainerHeader3
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route18BattleText4:
+	text_far _Route18BattleText4
+	text_end
+
+Route18EndBattleText4:
+	text_far _Route18EndBattleText4
+	text_end
+
+Route18AfterBattleText4:
+	text_far _Route18AfterBattleText4
+	text_end
+
+Route18Text5:
+	text_asm
+	ld hl, Route18TrainerHeader4
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route18BattleText5:
+	text_far _Route18BattleText5
+	text_end
+
+Route18EndBattleText5:
+	text_far _Route18EndBattleText5
+	text_end
+
+Route18AfterBattleText5:
+	text_far _Route18AfterBattleText5
 	text_end
 
 Route18SignText:

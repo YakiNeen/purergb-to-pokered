@@ -8,10 +8,10 @@ MapHeaderBanks::
 	db BANK(LavenderTown_h)
 	db BANK(VermilionCity_h)
 	db BANK(CeladonCity_h)
+	db BANK(SaffronCity_h)
 	db BANK(FuchsiaCity_h)
 	db BANK(CinnabarIsland_h)
 	db BANK(IndigoPlateau_h)
-	db BANK(SaffronCity_h)
 	db $01 ; UNUSED_MAP_0B
 	db BANK(Route1_h)
 	db BANK(Route2_h)
@@ -79,7 +79,7 @@ MapHeaderBanks::
 	db BANK(UndergroundPathRoute6_h) ; UNDERGROUND_PATH_ROUTE_6_COPY
 	db BANK(Route7Gate_h)
 	db BANK(UndergroundPathRoute7_h)
-	db BANK(UndergroundPathRoute7Copy_h)
+	db BANK(UndergroundPathRoute7_h) ; unused
 	db BANK(Route8Gate_h)
 	db BANK(UndergroundPathRoute8_h)
 	db BANK(RockTunnelPokecenter_h)
@@ -106,14 +106,14 @@ MapHeaderBanks::
 	db BANK(SSAnne1FRooms_h)
 	db BANK(SSAnne2FRooms_h)
 	db BANK(SSAnneB1FRooms_h)
-	db $1D ; UNUSED_MAP_69
-	db $1D ; UNUSED_MAP_6A
-	db $1D ; UNUSED_MAP_6B
+	db BANK(CeruleanOldRodHouse_h) ; UNUSED_MAP_69
+	db BANK(CeruleanRocketHouse1F_h) ; UNUSED_MAP_6A
+	db BANK(CeruleanRocketHouseB1F_h); UNUSED_MAP_6B
 	db BANK(VictoryRoad1F_h)
-	db $1D ; UNUSED_MAP_6D
-	db $1D ; UNUSED_MAP_6E
-	db $1D ; UNUSED_MAP_6F
-	db $1D ; UNUSED_MAP_70
+	db BANK(ViridianSchoolHouseB1F_h) ; UNUSED_MAP_6D
+	db BANK(BillsGarden_h) ; UNUSED_MAP_6E
+	db BANK(SecretLab_h) ; UNUSED_MAP_6F
+	db BANK(PokemonTowerB1F_h) ; UNUSED_MAP_70
 	db BANK(LancesRoom_h)
 	db $1D ; UNUSED_MAP_72
 	db $1D ; UNUSED_MAP_73
@@ -174,7 +174,7 @@ MapHeaderBanks::
 	db BANK(CinnabarLabFossilRoom_h)
 	db BANK(CinnabarPokecenter_h)
 	db BANK(CinnabarMart_h)
-	db BANK(CinnabarMart_h)
+	db BANK(TypeGuysHouse_h)
 	db BANK(IndigoPlateauLobby_h)
 	db BANK(CopycatsHouse1F_h)
 	db BANK(CopycatsHouse2F_h)
@@ -205,8 +205,8 @@ MapHeaderBanks::
 	db BANK(RocketHideoutB3F_h)
 	db BANK(RocketHideoutB4F_h)
 	db BANK(RocketHideoutElevator_h)
-	db $01 ; UNUSED_MAP_CC
-	db $01 ; UNUSED_MAP_CD
+	db BANK(FuchsiaTreeDeleterHouse_h)
+	db BANK(FossilGuysHouse_h)
 	db $01 ; UNUSED_MAP_CE
 	db BANK(SilphCo2F_h)
 	db BANK(SilphCo3F_h)

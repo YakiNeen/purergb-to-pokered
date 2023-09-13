@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers were added to this location
+
 PokemonMansion2F_Script:
 	call Mansion2Script_51fee
 	call EnableAutoTextBoxDrawing
@@ -60,7 +62,11 @@ PokemonMansion2F_ScriptPointers:
 PokemonMansion2F_TextPointers:
 	def_text_pointers
 	dw_const PokemonMansion2FSuperNerdText, TEXT_POKEMONMANSION2F_SUPER_NERD
-	dw_const PickUpItemText,                TEXT_POKEMONMANSION2F_CALCIUM
+	dw_const Mansion2Trainer2,              TEXT_POKEMONMANSION2F_COOLTRAINER_M
+	dw_const Mansion2Trainer3,              TEXT_POKEMONMANSION2F_COOLTRAINER_F1
+	dw_const Mansion2Trainer4,              TEXT_POKEMONMANSION2F_SCIENTIST
+	dw_const Mansion2Trainer5,              TEXT_POKEMONMANSION2F_COOLTRAINER_F2
+	dw_const PickUpItemText,                TEXT_POKEMONMANSION2F_ITEM1
 	dw_const PokemonMansion2FDiary1Text,    TEXT_POKEMONMANSION2F_DIARY1
 	dw_const PokemonMansion2FDiary2Text,    TEXT_POKEMONMANSION2F_DIARY2
 	dw_const PokemonMansion2FSwitchText,    TEXT_POKEMONMANSION2F_SWITCH
@@ -69,13 +75,21 @@ Mansion2TrainerHeaders:
 	def_trainers
 Mansion2TrainerHeader0:
 	trainer EVENT_BEAT_MANSION_2_TRAINER_0, 0, PokemonMansion2FSuperNerdBattleText, PokemonMansion2FSuperNerdEndBattleText, PokemonMansion2FSuperNerdAfterBattleText
+Mansion2TrainerHeader1:
+	trainer EVENT_BEAT_MANSION_2_TRAINER_1, 0, Mansion2BattleText2, Mansion2EndBattleText2, Mansion2AfterBattleText2
+Mansion2TrainerHeader2:
+	trainer EVENT_BEAT_MANSION_2_TRAINER_2, 0, Mansion2BattleText3, Mansion2EndBattleText3, Mansion2AfterBattleText3
+Mansion2TrainerHeader3:
+	trainer EVENT_BEAT_MANSION_2_TRAINER_3, 3, Mansion2BattleText4, Mansion2EndBattleText4, Mansion2AfterBattleText4
+Mansion2TrainerHeader4:
+	trainer EVENT_BEAT_MANSION_2_TRAINER_4, 0, Mansion2BattleText5, Mansion2EndBattleText5, Mansion2AfterBattleText5
 	db -1 ; end
 
 PokemonMansion2FSuperNerdText:
 	text_asm
 	ld hl, Mansion2TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonMansion2FSuperNerdBattleText:
 	text_far _PokemonMansion2FSuperNerdBattleText
@@ -89,6 +103,78 @@ PokemonMansion2FSuperNerdAfterBattleText:
 	text_far _PokemonMansion2FSuperNerdAfterBattleText
 	text_end
 
+Mansion2Trainer2:
+	text_asm
+	ld hl, Mansion2TrainerHeader1
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion2BattleText2:
+	text_far _Mansion2BattleText2
+	text_end
+
+Mansion2EndBattleText2:
+	text_far _Mansion2EndBattleText2
+	text_end
+
+Mansion2AfterBattleText2:
+	text_far _Mansion2AfterBattleText2
+	text_end
+
+Mansion2Trainer3:
+	text_asm
+	ld hl, Mansion2TrainerHeader2
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion2BattleText3:
+	text_far _Mansion2BattleText3
+	text_end
+
+Mansion2EndBattleText3:
+	text_far _Mansion2EndBattleText3
+	text_end
+
+Mansion2AfterBattleText3:
+	text_far _Mansion2AfterBattleText3
+	text_end
+
+Mansion2Trainer4:
+	text_asm
+	ld hl, Mansion2TrainerHeader3
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion2BattleText4:
+	text_far _Mansion2BattleText4
+	text_end
+
+Mansion2EndBattleText4:
+	text_far _Mansion2EndBattleText4
+	text_end
+
+Mansion2AfterBattleText4:
+	text_far _Mansion2AfterBattleText4
+	text_end
+
+Mansion2Trainer5:
+	text_asm
+	ld hl, Mansion2TrainerHeader4
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion2BattleText5:
+	text_far _Mansion2BattleText5
+	text_end
+
+Mansion2EndBattleText5:
+	text_far _Mansion2EndBattleText5
+	text_end
+
+Mansion2AfterBattleText5:
+	text_far _Mansion2AfterBattleText5
+	text_end
+
 PokemonMansion2FDiary1Text:
 	text_far _PokemonMansion2FDiary1Text
 	text_end
@@ -100,7 +186,7 @@ PokemonMansion2FDiary2Text:
 PokemonMansion2FSwitchText:
 	text_asm
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
@@ -110,18 +196,18 @@ PokemonMansion2FSwitchText:
 	ld hl, wCurrentMapScriptFlags
 	set 5, [hl]
 	ld hl, .PressedText
-	call PrintText
+	rst _PrintText
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	CheckAndSetEvent EVENT_MANSION_SWITCH_ON
 	jr z, .done
 	ResetEventReuseHL EVENT_MANSION_SWITCH_ON
 	jr .done
 .not_pressed
 	ld hl, .NotPressed
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _PokemonMansion2FSwitchText

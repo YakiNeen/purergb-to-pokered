@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers were added to this location
+
 PokemonMansion3F_Script:
 	call Mansion3Script_52204
 	call EnableAutoTextBoxDrawing
@@ -87,8 +89,9 @@ PokemonMansion3F_TextPointers:
 	def_text_pointers
 	dw_const PokemonMansion3FSuperNerdText, TEXT_POKEMONMANSION3F_SUPER_NERD
 	dw_const PokemonMansion3FScientistText, TEXT_POKEMONMANSION3F_SCIENTIST
-	dw_const PickUpItemText,                TEXT_POKEMONMANSION3F_MAX_POTION
-	dw_const PickUpItemText,                TEXT_POKEMONMANSION3F_IRON
+	dw_const Mansion3Text3,                 TEXT_POKEMONMANSION3F_CHANNELER
+	dw_const PickUpItemText,                TEXT_POKEMONMANSION3F_ITEM1
+	dw_const PickUpItemText,                TEXT_POKEMONMANSION3F_ITEM2
 	dw_const PokemonMansion3FDiaryText,     TEXT_POKEMONMANSION3F_DIARY
 	dw_const PokemonMansion2FSwitchText,    TEXT_POKEMONMANSION3F_SWITCH ; This switch uses the text script from the 2F.
 
@@ -98,19 +101,21 @@ Mansion3TrainerHeader0:
 	trainer EVENT_BEAT_MANSION_3_TRAINER_0, 0, PokemonMansion3FSuperNerdBattleText, PokemonMansion3FSuperNerdEndBattleText, PokemonMansion3FSuperNerdAfterBattleText
 Mansion3TrainerHeader1:
 	trainer EVENT_BEAT_MANSION_3_TRAINER_1, 2, PokemonMansion3FScientistBattleText, PokemonMansion3FScientistEndBattleText, PokemonMansion3FScientistAfterBattleText
+Mansion3TrainerHeader2:
+	trainer EVENT_BEAT_MANSION_3_TRAINER_2, 0, Mansion3BattleText3, Mansion3EndBattleText3, Mansion3AfterBattleText3
 	db -1 ; end
 
 PokemonMansion3FSuperNerdText:
 	text_asm
 	ld hl, Mansion3TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonMansion3FScientistText:
 	text_asm
 	ld hl, Mansion3TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonMansion3FSuperNerdBattleText:
 	text_far _PokemonMansion3FSuperNerdBattleText
@@ -134,6 +139,24 @@ PokemonMansion3FScientistEndBattleText:
 
 PokemonMansion3FScientistAfterBattleText:
 	text_far _PokemonMansion3FScientistAfterBattleText
+	text_end
+
+Mansion3Text3:
+	text_asm
+	ld hl, Mansion3TrainerHeader2
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion3BattleText3:
+	text_far _Mansion3BattleText3
+	text_end
+
+Mansion3EndBattleText3:
+	text_far _Mansion3EndBattleText3
+	text_end
+
+Mansion3AfterBattleText3:
+	text_far _Mansion3AfterBattleText3
 	text_end
 
 PokemonMansion3FDiaryText:

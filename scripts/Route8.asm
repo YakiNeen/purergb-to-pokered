@@ -1,11 +1,41 @@
 Route8_Script:
 	call EnableAutoTextBoxDrawing
+	call Route8CheckHideCutTrees
 	ld hl, Route8TrainerHeaders
 	ld de, Route8_ScriptPointers
 	ld a, [wRoute8CurScript]
 	call ExecuteCurMapScriptInTable
 	ld [wRoute8CurScript], a
 	ret
+
+Route8CheckHideCutTrees:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl] ; did we load the map from a save/warp/door/battle, etc?
+	res 5, [hl]
+	ret z
+	ld de, Route8CutAlcove
+	callfar FarArePlayerCoordsInRange
+	jr c, .removeTreeBlockers
+	; if the map is loaded outside of the alcove, reset the cut tree events
+	ResetEvent EVENT_CUT_DOWN_ROUTE8_LEFT_TREE
+	ResetEvent EVENT_CUT_DOWN_ROUTE8_RIGHT_TREE
+	ret
+.removeTreeBlockers
+	CheckEvent EVENT_CUT_DOWN_ROUTE8_LEFT_TREE
+	jr z, .rightTreeCheck
+	; if we're in the cut alcove, remove the tree
+	lb bc, 6, 14
+	ld a, $4C
+	ld [wNewTileBlockID], a
+	predef ReplaceTileBlock
+.rightTreeCheck
+	CheckEvent EVENT_CUT_DOWN_ROUTE8_RIGHT_TREE
+	ret z
+	; if we're in the cut alcove, remove the tree
+	lb bc, 5, 20
+	ld a, $4C
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlock
 
 Route8_ScriptPointers:
 	def_script_pointers
@@ -24,6 +54,7 @@ Route8_TextPointers:
 	dw_const Route8CooltrainerF3Text,   TEXT_ROUTE8_COOLTRAINER_F3
 	dw_const Route8Gambler2Text,        TEXT_ROUTE8_GAMBLER2
 	dw_const Route8CooltrainerF4Text,   TEXT_ROUTE8_COOLTRAINER_F4
+	dw_const PickUp5ItemText,           TEXT_ROUTE8_ITEM1 ; PureRGBnote: ADDED: new item on this route.
 	dw_const Route8UndergroundSignText, TEXT_ROUTE8_UNDERGROUND_SIGN
 
 Route8TrainerHeaders:
@@ -52,7 +83,7 @@ Route8SuperNerd1Text:
 	text_asm
 	ld hl, Route8TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8SuperNerd1BattleText:
 	text_far _Route8SuperNerd1BattleText
@@ -70,7 +101,7 @@ Route8Gambler1Text:
 	text_asm
 	ld hl, Route8TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8Gambler1BattleText:
 	text_far _Route8Gambler1BattleText
@@ -88,7 +119,7 @@ Route8SuperNerd2Text:
 	text_asm
 	ld hl, Route8TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8SuperNerd2BattleText:
 	text_far _Route8SuperNerd2BattleText
@@ -106,7 +137,7 @@ Route8CooltrainerF1Text:
 	text_asm
 	ld hl, Route8TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8CooltrainerF1BattleText:
 	text_far _Route8CooltrainerF1BattleText
@@ -124,7 +155,7 @@ Route8SuperNerd3Text:
 	text_asm
 	ld hl, Route8TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8SuperNerd3BattleText:
 	text_far _Route8SuperNerd3BattleText
@@ -142,7 +173,7 @@ Route8CooltrainerF2Text:
 	text_asm
 	ld hl, Route8TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8CooltrainerF2BattleText:
 	text_far _Route8CooltrainerF2BattleText
@@ -160,7 +191,7 @@ Route8CooltrainerF3Text:
 	text_asm
 	ld hl, Route8TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8CooltrainerF3BattleText:
 	text_far _Route8CooltrainerF3BattleText
@@ -178,7 +209,7 @@ Route8Gambler2Text:
 	text_asm
 	ld hl, Route8TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8Gambler2BattleText:
 	text_far _Route8Gambler2BattleText
@@ -196,7 +227,7 @@ Route8CooltrainerF4Text:
 	text_asm
 	ld hl, Route8TrainerHeader8
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route8CooltrainerF4BattleText:
 	text_far _Route8CooltrainerF4BattleText

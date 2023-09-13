@@ -12,7 +12,7 @@ MoveNames::
 	li "SCRATCH"
 	li "VICEGRIP"
 	li "GUILLOTINE"
-	li "RAZOR WIND"
+	li "ROOST" ; changed from RAZOR WIND
 	li "SWORDS DANCE"
 	li "CUT"
 	li "GUST"
@@ -20,7 +20,7 @@ MoveNames::
 	li "WHIRLWIND"
 	li "FLY"
 	li "BIND"
-	li "SLAM"
+	li "FILTHY SLAM" ; changed from SLAM
 	li "VINE WHIP"
 	li "STOMP"
 	li "DOUBLE KICK"
@@ -35,7 +35,7 @@ MoveNames::
 	li "TACKLE"
 	li "BODY SLAM"
 	li "WRAP"
-	li "TAKE DOWN"
+	li "HEAT RUSH" ; changed from TAKE DOWN
 	li "THRASH"
 	li "DOUBLE-EDGE"
 	li "TAIL WHIP"
@@ -67,7 +67,7 @@ MoveNames::
 	li "DRILL PECK"
 	li "SUBMISSION"
 	li "LOW KICK"
-	li "COUNTER"
+	li "DRAIN PUNCH" ; changed from COUNTER
 	li "SEISMIC TOSS"
 	li "STRENGTH"
 	li "ABSORB"
@@ -131,9 +131,9 @@ MoveNames::
 	li "SWIFT"
 	li "SKULL BASH"
 	li "SPIKE CANNON"
-	li "CONSTRICT"
+	li "STATIC SNAG" ; changed from CONSTRICT
 	li "AMNESIA"
-	li "KINESIS"
+	li "FIREWALL" ; changed from KINESIS
 	li "SOFTBOILED"
 	li "HI JUMP KICK"
 	li "GLARE"
@@ -153,7 +153,7 @@ MoveNames::
 	li "ACID ARMOR"
 	li "CRABHAMMER"
 	li "EXPLOSION"
-	li "FURY SWIPES"
+	li "DUST CLAW" ; changed from FURY SWIPES
 	li "BONEMERANG"
 	li "REST"
 	li "ROCK SLIDE"

@@ -8,16 +8,40 @@
 	db 202 ; base exp
 
 	INCBIN "gfx/pokemon/front/aerodactyl.pic", 0, 1 ; sprite dimensions
-	dw AerodactylPicFront, AerodactylPicBack
+	dw AerodactylPicFront, AerodactylPicBackSW
 
 	db WING_ATTACK, AGILITY, NO_MOVE, NO_MOVE ; level 1 learnset
-	db GROWTH_SLOW ; growth rate
+	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm RAZOR_WIND,   WHIRLWIND,    TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  \
-	     HYPER_BEAM,   RAGE,         DRAGON_RAGE,  MIMIC,        DOUBLE_TEAM,  \
-	     REFLECT,      BIDE,         FIRE_BLAST,   SWIFT,        SKY_ATTACK,   \
-	     REST,         SUBSTITUTE,   FLY
+	tmhm \
+	RAZOR_WIND,\ ; ROOST
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	HYPER_BEAM,\
+	DRAGON_RAGE,\
+	EARTHQUAKE,\
+	KINESIS,\ ; FIREWALL
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	FIRE_BLAST,\
+	FLAMETHROWER,\
+	SLAM,\ ; FILTHY SLAM
+	SKY_ATTACK,\
+	ROCK_SLIDE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLY,\
+	STRENGTH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(AerodactylPicFront), BANK(AerodactylPicBack)
+
+	dw 1, AerodactylPicBack

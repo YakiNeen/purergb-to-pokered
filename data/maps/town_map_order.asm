@@ -1,10 +1,12 @@
+; PureRGBnote: CHANGED: this list was reordered a bit to follow the order of the game a bit better.
+
 TownMapOrder:
 	db PALLET_TOWN
 	db ROUTE_1
 	db VIRIDIAN_CITY
 	db ROUTE_2
+	db ROUTE_22
 	db VIRIDIAN_FOREST
-	db DIGLETTS_CAVE
 	db PEWTER_CITY
 	db ROUTE_3
 	db MT_MOON_1F
@@ -17,8 +19,10 @@ TownMapOrder:
 	db ROUTE_6
 	db VERMILION_CITY
 	db SS_ANNE_1F
+	db ROUTE_11
+	db DIGLETTS_CAVE
 	db ROUTE_9
-	db ROCK_TUNNEL_POKECENTER
+	db ROCK_TUNNEL_1F
 	db ROUTE_10
 	db LAVENDER_TOWN
 	db POKEMON_TOWER_2F
@@ -26,7 +30,6 @@ TownMapOrder:
 	db ROUTE_7
 	db CELADON_CITY
 	db SAFFRON_CITY
-	db ROUTE_11
 	db ROUTE_12
 	db ROUTE_13
 	db ROUTE_14
@@ -41,9 +44,8 @@ TownMapOrder:
 	db ROUTE_20
 	db CINNABAR_ISLAND
 	db ROUTE_21
-	db ROUTE_22
+	db POWER_PLANT
 	db ROUTE_23
 	db VICTORY_ROAD_3F
 	db INDIGO_PLATEAU
-	db POWER_PLANT
 TownMapOrderEnd:

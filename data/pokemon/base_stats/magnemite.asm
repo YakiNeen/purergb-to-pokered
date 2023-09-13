@@ -8,16 +8,34 @@
 	db 89 ; base exp
 
 	INCBIN "gfx/pokemon/front/magnemite.pic", 0, 1 ; sprite dimensions
-	dw MagnemitePicFront, MagnemitePicBack
+	dw MagnemitePicFront, MagnemitePicBackSW
 
-	db TACKLE, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db TACKLE, SCREECH, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  RAGE,         THUNDERBOLT,  \
-	     THUNDER,      TELEPORT,     MIMIC,        DOUBLE_TEAM,  REFLECT,      \
-	     BIDE,         SWIFT,        REST,         THUNDER_WAVE, SUBSTITUTE,   \
-	     FLASH
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	BARRIER,\
+	THUNDERBOLT,\
+	THUNDER,\
+	CRABHAMMER,\
+	KINESIS,\ ; FIREWALL
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	MEDITATE,\
+	LIGHT_SCREEN,\
+	THUNDER_WAVE,\
+	PSYBEAM,\
+	SUBSTITUTE,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(MagnemitePicFront), BANK(MagnemitePicBack)
+
+	dw 1, MagnemitePicBack

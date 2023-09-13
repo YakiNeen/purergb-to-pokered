@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo9F_Script:
 	call SilphCo9FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -101,22 +103,40 @@ SilphCo9F_SetUnlockedSilphCoDoorsScript:
 	cp $1
 	jr nz, .unlock_door1
 	SetEventReuseHL EVENT_SILPH_CO_9_UNLOCKED_DOOR1
-	ret
+	callfar CheckAllCardKeyEvents
+	jp Load9FCheckCardKeyText
 .unlock_door1
 	cp $2
 	jr nz, .unlock_door2
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_9_UNLOCKED_DOOR2, EVENT_SILPH_CO_9_UNLOCKED_DOOR1
-	ret
+	callfar CheckAllCardKeyEvents
+	jp Load9FCheckCardKeyText
 .unlock_door2
 	cp $3
 	jr nz, .unlock_door3
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_9_UNLOCKED_DOOR3, EVENT_SILPH_CO_9_UNLOCKED_DOOR1
-	ret
+	callfar CheckAllCardKeyEvents
+	jp Load9FCheckCardKeyText
 .unlock_door3
 	cp $4
 	ret nz
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_9_UNLOCKED_DOOR4, EVENT_SILPH_CO_9_UNLOCKED_DOOR1
+	callfar CheckAllCardKeyEvents
+	jp Load9FCheckCardKeyText
+
+
+Load9FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO9F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo9Text5:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo9F_ScriptPointers:
 	def_script_pointers
@@ -130,6 +150,7 @@ SilphCo9F_TextPointers:
 	dw_const SilphCo9FRocket1Text,   TEXT_SILPHCO9F_ROCKET1
 	dw_const SilphCo9FScientistText, TEXT_SILPHCO9F_SCIENTIST
 	dw_const SilphCo9FRocket2Text,   TEXT_SILPHCO9F_ROCKET2
+	dw_const SilphCo9Text5,          TEXT_SILPHCO9F_CARD_KEY_DONE
 
 SilphCo9TrainerHeaders:
 	def_trainers 2
@@ -146,19 +167,19 @@ SilphCo9FNurseText:
 	CheckEvent EVENT_BEAT_SILPH_CO_GIOVANNI
 	jr nz, .beat_giovanni
 	ld hl, .YouLookTiredText
-	call PrintText
+	rst _PrintText
 	predef HealParty
 	call GBFadeOutToWhite
 	call Delay3
 	call GBFadeInFromWhite
 	ld hl, .DontGiveUpText
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .beat_giovanni
 	ld hl, .ThankYouText
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .YouLookTiredText:
 	text_far SilphCo9FNurseYouLookTiredText
@@ -176,19 +197,19 @@ SilphCo9FRocket1Text:
 	text_asm
 	ld hl, SilphCo9TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo9FScientistText:
 	text_asm
 	ld hl, SilphCo9TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo9FRocket2Text:
 	text_asm
 	ld hl, SilphCo9TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo9FRocket1BattleText:
 	text_far _SilphCo9FRocket1BattleText

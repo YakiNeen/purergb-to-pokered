@@ -23,7 +23,12 @@ AgathaShowOrHideExitBlock:
 .setExitBlock
 	ld [wNewTileBlockID], a
 	lb bc, 0, 2
-	predef_jump ReplaceTileBlock
+	predef ReplaceTileBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl] 
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 
 ResetAgathaScript:
 	xor a ; SCRIPT_AGATHASROOM_DEFAULT
@@ -132,7 +137,7 @@ AgathasRoomAgathaText:
 	text_asm
 	ld hl, AgathasRoomTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 AgathaBeforeBattleText:
 	text_far _AgathaBeforeBattleText

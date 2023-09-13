@@ -1,3 +1,5 @@
+; PureRGBNote: ADDED: some new enhanced sprites were added. They are only used if enhanced sprites is turned on in the options in-game.
+
 MACRO overworld_sprite
 	dw \1
 	db \2 tiles
@@ -37,7 +39,7 @@ SpriteSheetPointerTable:
 	overworld_sprite MiddleAgedWomanSprite, 12  ; SPRITE_MIDDLE_AGED_WOMAN
 	overworld_sprite BrunetteGirlSprite, 12     ; SPRITE_BRUNETTE_GIRL
 	overworld_sprite LanceSprite, 12            ; SPRITE_LANCE
-	overworld_sprite ScientistSprite, 12        ; SPRITE_UNUSED_SCIENTIST
+	overworld_sprite Quadruped2Sprite, 12       ; SPRITE_UNUSED_SCIENTIST
 	overworld_sprite ScientistSprite, 12        ; SPRITE_SCIENTIST
 	overworld_sprite RockerSprite, 12           ; SPRITE_ROCKER
 	overworld_sprite SwimmerSprite, 12          ; SPRITE_SWIMMER
@@ -56,17 +58,28 @@ SpriteSheetPointerTable:
 	overworld_sprite FisherSprite, 12           ; SPRITE_FISHER
 	overworld_sprite KogaSprite, 12             ; SPRITE_KOGA
 	overworld_sprite GuardSprite, 12            ; SPRITE_GUARD
-	overworld_sprite GuardSprite, 12            ; SPRITE_UNUSED_GUARD
 	overworld_sprite MomSprite, 12              ; SPRITE_MOM
 	overworld_sprite BaldingGuySprite, 12       ; SPRITE_BALDING_GUY
 	overworld_sprite LittleBoySprite, 12        ; SPRITE_LITTLE_BOY
-	overworld_sprite GameboyKidSprite, 12       ; SPRITE_UNUSED_GAMEBOY_KID
 	overworld_sprite GameboyKidSprite, 12       ; SPRITE_GAMEBOY_KID
 	overworld_sprite FairySprite, 12            ; SPRITE_FAIRY
 	overworld_sprite AgathaSprite, 12           ; SPRITE_AGATHA
 	overworld_sprite BrunoSprite, 12            ; SPRITE_BRUNO
 	overworld_sprite LoreleiSprite, 12          ; SPRITE_LORELEI
+	overworld_sprite BrockSprite, 12            ; SPRITE_BROCK
+	overworld_sprite MistySprite, 12            ; SPRITE_MISTY
+	overworld_sprite LtSurgeSprite, 12          ; SPRITE_LT_SURGE
+	overworld_sprite ErikaSprite, 12            ; SPRITE_ERIKA
+	overworld_sprite SabrinaSprite, 12          ; SPRITE_SABRINA
+	overworld_sprite BlaineSprite, 12           ; SPRITE_BLAINE
 	overworld_sprite SeelSprite, 12             ; SPRITE_SEEL
+	overworld_sprite Monster2Sprite, 12         ; SPRITE_MONSTER2
+	overworld_sprite CatSprite, 12     	        ; SPRITE_CAT
+	overworld_sprite LegendaryBirdSprite, 12    ; SPRITE_BIRD2
+	overworld_sprite PsychicSprite, 12     	    ; SPRITE_PSYCHIC
+	overworld_sprite FightingSprite, 12     	; SPRITE_FIGHTING
+	overworld_sprite DadSprite, 12     	        ; SPRITE_DAD
+	overworld_sprite ChiefSprite, 12     	    ; SPRITE_CHIEF
 	overworld_sprite PokeBallSprite, 4          ; SPRITE_POKE_BALL
 	overworld_sprite FossilSprite, 4            ; SPRITE_FOSSIL
 	overworld_sprite BoulderSprite, 4           ; SPRITE_BOULDER
@@ -74,9 +87,9 @@ SpriteSheetPointerTable:
 	overworld_sprite PokedexSprite, 4           ; SPRITE_POKEDEX
 	overworld_sprite ClipboardSprite, 4         ; SPRITE_CLIPBOARD
 	overworld_sprite SnorlaxSprite, 4           ; SPRITE_SNORLAX
-	overworld_sprite OldAmberSprite, 4          ; SPRITE_UNUSED_OLD_AMBER
 	overworld_sprite OldAmberSprite, 4          ; SPRITE_OLD_AMBER
-	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_UNUSED_GAMBLER_ASLEEP_1
-	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_UNUSED_GAMBLER_ASLEEP_2
 	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_GAMBLER_ASLEEP
+	overworld_sprite Monster2Sprite, 4          ; SPRITE_MONSTER2_STILL
+	overworld_sprite PokeballSprite2, 4     	; SPRITE_POKE_BALL2
+	overworld_sprite DarkChannelerSprite, 4     ; SPRITE_DARK_CHANNELER
 	assert_table_length NUM_SPRITES

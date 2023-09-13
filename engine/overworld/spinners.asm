@@ -23,31 +23,32 @@ LoadSpinnerArrowTiles::
 	ld a, $4
 	ld bc, $0
 .loop
-	push af
-	push hl
-	push bc
-	add hl, bc
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	ld d, a
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	call CopyVideoData
-	pop bc
-	ld a, $6
-	add c
-	ld c, a
-	pop hl
-	pop af
-	dec a
-	jr nz, .loop
-	ret
+	ret ; PureRGBnote: FIXED: faster spin movement on spinners
+	;push af
+	;push hl
+	;push bc
+	;add hl, bc
+	;ld a, [hli]
+	;ld e, a
+	;ld a, [hli]
+	;ld d, a
+	;ld a, [hli]
+	;ld c, a
+	;ld a, [hli]
+	;ld b, a
+	;ld a, [hli]
+	;ld h, [hl]
+	;ld l, a
+	;call CopyVideoData
+	;pop bc
+	;ld a, $6
+	;add c
+	;ld c, a
+	;pop hl
+	;pop af
+	;dec a
+	;jr nz, .loop
+	;ret
 
 INCLUDE "data/tilesets/spinner_tiles.asm"
 

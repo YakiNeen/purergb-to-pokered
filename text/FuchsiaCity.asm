@@ -5,6 +5,11 @@ _FuchsiaCityYoungster1Text::
 	cont "be caught there."
 	done
 
+_FuchsiaCityYoungster1TextColor::
+	text "Many have unique"
+	line "colors too!"
+	done
+
 _FuchsiaCityGamblerText::
 	text "SAFARI ZONE has a"
 	line "zoo in front of"
@@ -116,4 +121,24 @@ _FuchsiaCityFossilSignKabutoText::
 
 _FuchsiaCityFossilSignUndeterminedText::
 	text "..."
+	done
+
+_FuchsiaCityFossilFanText::
+	text "This fossil"
+	line "#MON is really"
+	cont "shy."
+
+	para "It stays in its"
+	line "shell all day."
+	done
+
+_FuchsiaCityFossilFanText2::
+	text "But if you wait"
+	line "quietly, it"
+	cont "occasionally"
+	cont "peeks out!"
+	done
+
+_FuchsiaCityFossilFanText3::
+	text "There it is!"
 	done

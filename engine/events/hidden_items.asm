@@ -1,4 +1,30 @@
+;;;;;;;;;; PureRGBnote: ADDED: CHANGED: most of these functions were modified to allow multiple hidden items to be picked up at once. 
+
 HiddenItems:
+	call HiddenItemsInit
+	ret nz
+	ld a, 1
+	jr HiddenItemsFinish
+
+HiddenItems2:
+	call HiddenItemsInit
+	ret nz
+	ld a, 2
+	jr HiddenItemsFinish
+
+HiddenItems3:
+	call HiddenItemsInit
+	ret nz
+	ld a, 3
+	jr HiddenItemsFinish
+
+HiddenItems5:
+	call HiddenItemsInit
+	ret nz
+	ld a, 5
+	jr HiddenItemsFinish
+
+HiddenItemsInit:
 	ld hl, HiddenItemCoords
 	call FindHiddenItemOrCoinsIndex
 	ld [wHiddenItemOrCoinsIndex], a
@@ -16,16 +42,40 @@ HiddenItems:
 	ld a, [wHiddenObjectFunctionArgument] ; item ID
 	ld [wd11e], a
 	call GetItemName
+	xor a
+	and a ; clear z flag
+	ret
+
+HiddenItemsFinish:
+	ld [wTempStore1], a
+	ld a, "@"
+	ld [wTempStore2], a
 	tx_pre_jump FoundHiddenItemText
 
 INCLUDE "data/events/hidden_item_coords.asm"
 
 FoundHiddenItemText::
-	text_far _FoundHiddenItemText
 	text_asm
+	ld a, [wTempStore1]
+	ld c, a
+	cp 1
+	jr nz, .multiItem
+	ld hl, FoundHiddenItemSingleText
+	push bc
+	rst _PrintText
+	pop bc
+	jr .give
+.multiItem
+	ld a, c
+	add NUMBER_CHAR_OFFSET ; index of first number character in charmap (assumes a must be 0-9)
+	ld [wTempStore1], a ; this store now stores the numeric text character to display in the text
+	ld hl, FoundHiddenItemMultiText
+	push bc
+	rst _PrintText
+	pop bc
+.give
 	ld a, [wHiddenObjectFunctionArgument] ; item ID
 	ld b, a
-	ld c, 1
 	call GiveItem
 	jr nc, .bagFull
 	ld hl, wObtainedHiddenItemsFlags
@@ -36,24 +86,36 @@ FoundHiddenItemText::
 	ld a, SFX_GET_ITEM_2
 	call PlaySoundWaitForCurrent
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	xor a
+	ld [wTempStore1], a
+	rst TextScriptEnd
 .bagFull
 	call WaitForTextScrollButtonPress ; wait for button press
 	xor a
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
 	ld hl, HiddenItemBagFullText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	xor a
+	ld [wTempStore1], a
+	rst TextScriptEnd
+
+FoundHiddenItemSingleText::
+	text_far _FoundHiddenItemText
+	text_end
+
+FoundHiddenItemMultiText::
+	text_far _FoundHiddenItemMultiText
+	text_end
 
 HiddenItemBagFullText::
 	text_far _HiddenItemBagFullText
 	text_end
 
+;;;;;;;;;;
+
+
 HiddenCoins:
-	ld b, COIN_CASE
-	predef GetQuantityOfItemInBag
-	ld a, b
-	and a
+	CheckEvent EVENT_GOT_COIN_CASE ; PureRGBnote: CHANGED: coin case is now just an event instead of an item in your bag.
 	ret z
 	ld hl, HiddenCoinCoords
 	call FindHiddenItemOrCoinsIndex

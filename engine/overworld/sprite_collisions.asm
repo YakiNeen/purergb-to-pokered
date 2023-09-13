@@ -28,6 +28,20 @@ _UpdateSprites::
 	jp nz, UpdateNonPlayerSprite
 	jp UpdatePlayerSprite
 
+; PureRGBnote: ADDED: when exiting the pokemon menu we have to reload the kabuto sprite that can display in fuchsia city
+LoadExtraSprites::
+	ld a, [wCurMap]
+	cp FUCHSIA_CITY
+	ret nz
+	jpfar CheckLoadKabutoShell
+
+LoadExtraTiles::
+	ld a, [wCurMap]
+	cp TYPE_GUYS_HOUSE
+	ret nz
+	jpfar CheckLoadLightSwitch
+
+
 UpdateNonPlayerSprite:
 	dec a
 	swap a

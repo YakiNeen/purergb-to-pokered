@@ -5,19 +5,40 @@
 
 	db FIRE, FIRE ; type
 	db 190 ; catch rate
-	db 91 ; base exp
+	db 90 ; base exp
 
 	INCBIN "gfx/pokemon/front/growlithe.pic", 0, 1 ; sprite dimensions
-	dw GrowlithePicFront, GrowlithePicBack
+	dw GrowlithePicFront, GrowlithePicBackSW
 
 	db BITE, ROAR, NO_MOVE, NO_MOVE ; level 1 learnset
-	db GROWTH_SLOW ; growth rate
+	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  RAGE,         \
-	     DRAGON_RAGE,  DIG,          MIMIC,        DOUBLE_TEAM,  REFLECT,      \
-	     BIDE,         FIRE_BLAST,   SWIFT,        SKULL_BASH,   REST,         \
-	     SUBSTITUTE
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	ROLLING_KICK,\
+	SOLARBEAM,\
+	DRAGON_RAGE,\
+	DIG,\
+	KINESIS,\ ; FIREWALL
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	FIRE_BLAST,\
+	FLAMETHROWER,\
+	LIGHT_SCREEN,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(GrowlithePicFront), BANK(GrowlithePicBack)
+
+	dw 1, GrowlithePicBack

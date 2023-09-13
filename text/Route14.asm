@@ -11,9 +11,14 @@ _Route14CooltrainerM1EndBattleText::
 
 _Route14CooltrainerM1AfterBattleText::
 	text "You have some HMs"
-	line "right? #MON"
-	cont "can't ever forget"
-	cont "those moves."
+	line "right?"
+	para "They can be"
+	line "replaced just"
+	cont "like other moves"
+	cont "can."
+	para "It's best to"
+	line "replace them at a"
+	cont "#MON CENTER."
 	done
 
 _Route14CooltrainerM2BattleText::
@@ -166,8 +171,52 @@ _Route14Biker4AfterBattleText::
 	cont "one on one!"
 	done
 
+_Route14BattleText11::
+	text "Initiate"
+	line "power dive!"
+	done
+
+_Route14EndBattleText11::
+	text "Pull"
+	line "up!"
+	prompt
+
+_Route14AfterBattleText11::
+	text "Looks like we"
+	line "lost another one,"
+	cont "flyboys."
+	done
+
+_Route14BattleText12::
+	text "Lots of burly"
+	line "BIKERs here,"
+	cont "aren't there?"
+	done
+
+_Route14EndBattleText12::
+	text "Goodness!"
+	prompt
+
+_Route14AfterBattleText12::
+	text "I've seen those"
+	line "BIKERs around"
+	cont "here before."
+	para "They might look"
+	line "scary, but they"
+	cont "are actually nice"
+	cont "guys."
+	done	
+
 _Route14SignText::
 	text "ROUTE 14"
 	line "West to FUCHSIA"
 	cont "CITY"
+	done
+
+_Route14Text12::
+	text "TRAINER TIPS"
+	para "Press SELECT to"
+	line "use your BICYCLE."
+	para "Make sure to keep"
+	line "it in your bag."
 	done

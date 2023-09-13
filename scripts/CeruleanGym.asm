@@ -1,8 +1,4 @@
 CeruleanGym_Script:
-	ld hl, wCurrentMapScriptFlags
-	bit 6, [hl]
-	res 6, [hl]
-	call nz, .LoadNames
 	call EnableAutoTextBoxDrawing
 	ld hl, CeruleanGymTrainerHeaders
 	ld de, CeruleanGym_ScriptPointers
@@ -10,17 +6,6 @@ CeruleanGym_Script:
 	call ExecuteCurMapScriptInTable
 	ld [wCeruleanGymCurScript], a
 	ret
-
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "CERULEAN CITY@"
-
-.LeaderName:
-	db "MISTY@"
 
 CeruleanGymResetScripts:
 	xor a ; SCRIPT_CERULEANGYM_DEFAULT
@@ -48,7 +33,7 @@ CeruleanGymReceiveTM11:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_MISTY
-	lb bc, TM_BUBBLEBEAM, 1
+	lb bc, TM_MISTY, 1
 	call GiveItem
 	jr nc, .BagFull
 	ld a, TEXT_CERULEANGYM_MISTY_RECEIVED_TM11
@@ -100,11 +85,11 @@ CeruleanGymMistyText:
 	jr .done
 .afterBeat
 	ld hl, .TM11ExplanationText
-	call PrintText
+	rst _PrintText
 	jr .done
 .beforeBeat
 	ld hl, .PreBattleText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -122,7 +107,7 @@ CeruleanGymMistyText:
 	ld a, SCRIPT_CERULEANGYM_MISTY_POST_BATTLE
 	ld [wCeruleanGymCurScript], a
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .PreBattleText:
 	text_far _CeruleanGymMistyPreBattleText
@@ -155,7 +140,7 @@ CeruleanGymCooltrainerFText:
 	text_asm
 	ld hl, CeruleanGymTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeruleanGymBattleText1:
 	text_far _CeruleanGymBattleText1
@@ -173,7 +158,7 @@ CeruleanGymSwimmerText:
 	text_asm
 	ld hl, CeruleanGymTrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeruleanGymBattleText2:
 	text_far _CeruleanGymBattleText2
@@ -187,23 +172,80 @@ CeruleanGymAfterBattleText2:
 	text_far _CeruleanGymAfterBattleText2
 	text_end
 
-CeruleanGymGymGuideText:
+CeruleanGymGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	CheckEvent EVENT_BEAT_MISTY
 	jr nz, .afterBeat
-	ld hl, .ChampInMakingText
-	call PrintText
-	jr .done
+	ld hl, CeruleanGymChampInMakingText
+	rst _PrintText
+	rst TextScriptEnd
 .afterBeat
-	ld hl, .BeatMistyText
-	call PrintText
-.done
-	jp TextScriptEnd
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS ; have to hear about apex chips to receive them after that
+	jr z, .donePost
+	ld hl, CeruleanGymBeatMistyTextPrompt
+	rst _PrintText
+	CheckEvent EVENT_GOT_CERULEAN_APEX_CHIPS
+	jr nz, .alreadyApexChips
+.giveApexChips
+	ld hl, GymGuideMoreApexChipText2
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsText2
+	rst _PrintText
+	ld hl, CeruleanGymGuideApexChipWaterText
+	rst _PrintText
+	SetEvent EVENT_GOT_CERULEAN_APEX_CHIPS
+.alreadyApexChips
+	ld hl, AlreadyReceivedApexChipsText2
+	rst _PrintText
+	rst TextScriptEnd
+.BagFull
+	ld hl, ApexNoRoomText2
+	rst _PrintText
+	rst TextScriptEnd
+.donePost
+	ld hl, CeruleanGymBeatMistyText
+	rst _PrintText
+	rst TextScriptEnd
 
-.ChampInMakingText:
+
+ReceivedApexChipsText2:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+ApexNoRoomText2:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+GymGuideMoreApexChipText2:
+	text_far _GymGuideMoreApexChipText
+	text_end
+
+AlreadyReceivedApexChipsText2:
+	text_far _AlreadyReceivedApexChipsText
+	text_end
+
+CeruleanGymChampInMakingText:
 	text_far _CeruleanGymGymGuideChampInMakingText
 	text_end
 
-.BeatMistyText:
+CeruleanGymBeatMistyTextPrompt:
 	text_far _CeruleanGymGymGuideBeatMistyText
+	text_promptbutton
+	text_end
+
+CeruleanGymBeatMistyText:
+	text_far _CeruleanGymGymGuideBeatMistyText
+	text_end
+
+ReceivedApexChipsText::
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+CeruleanGymGuideApexChipWaterText:
+	text_far _CeruleanGymGuideApexChipWaterText
 	text_end

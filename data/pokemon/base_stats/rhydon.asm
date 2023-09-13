@@ -5,22 +5,54 @@
 
 	db GROUND, ROCK ; type
 	db 60 ; catch rate
-	db 204 ; base exp
+	db 255 ; base exp
 
 	INCBIN "gfx/pokemon/front/rhydon.pic", 0, 1 ; sprite dimensions
-	dw RhydonPicFront, RhydonPicBack
+	dw RhydonPicFront, RhydonPicBackSW
 
-	db HORN_ATTACK, STOMP, TAIL_WHIP, FURY_ATTACK ; level 1 learnset
-	db GROWTH_SLOW ; growth rate
+	db FURY_SWIPES, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm MEGA_PUNCH,   MEGA_KICK,    TOXIC,        HORN_DRILL,   BODY_SLAM,    \
-	     TAKE_DOWN,    DOUBLE_EDGE,  BUBBLEBEAM,   WATER_GUN,    ICE_BEAM,     \
-	     BLIZZARD,     HYPER_BEAM,   PAY_DAY,      SUBMISSION,   COUNTER,      \
-	     SEISMIC_TOSS, RAGE,         THUNDERBOLT,  THUNDER,      EARTHQUAKE,   \
-	     FISSURE,      DIG,          MIMIC,        DOUBLE_TEAM,  BIDE,         \
-	     FIRE_BLAST,   SKULL_BASH,   REST,         ROCK_SLIDE,   SUBSTITUTE,   \
-	     SURF,         STRENGTH
+	tmhm \
+	ICE_PUNCH,\
+	PIN_MISSILE,\
+	FIRE_PUNCH,\
+	TOXIC,\
+	HORN_DRILL,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BUBBLEBEAM,\
+	AURORA_BEAM,\
+	ICE_BEAM,\
+	BLIZZARD,\
+	HYPER_BEAM,\
+	THUNDERPUNCH,\
+	ROLLING_KICK,\
+	BARRIER,\
+	DRAGON_RAGE,\
+	THUNDERBOLT,\
+	THUNDER,\
+	EARTHQUAKE,\
+	CRABHAMMER,\
+	DIG,\
+	KINESIS,\ ; FIREWALL
+	SWORDS_DANCE,\
+	BIDE,\
+	BARRAGE,\
+	FIRE_BLAST,\
+	FLAMETHROWER,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	ROCK_SLIDE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	SURF,\
+	STRENGTH
 	; end
 
-	db 0 ; padding
+	dw BANK(RhydonPicFront), BANK(RhydonPicBack)
+
+	dw 1, RhydonPicBack

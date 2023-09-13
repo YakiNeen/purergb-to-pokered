@@ -8,16 +8,41 @@
 	db 70 ; base exp
 
 	INCBIN "gfx/pokemon/front/paras.pic", 0, 1 ; sprite dimensions
-	dw ParasPicFront, ParasPicBack
+	dw ParasPicFront, ParasPicBackSW
 
-	db SCRATCH, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db SCRATCH, ABSORB, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm SWORDS_DANCE, TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  \
-	     RAGE,         MEGA_DRAIN,   SOLARBEAM,    DIG,          MIMIC,        \
-	     DOUBLE_TEAM,  REFLECT,      BIDE,         SKULL_BASH,   REST,         \
-	     SUBSTITUTE,   CUT
+	tmhm \
+	LEECH_SEED,\
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	AMNESIA,\
+	BARRIER,\
+	RAZOR_LEAF,\
+	SOLARBEAM,\
+	EARTHQUAKE,\
+	CRABHAMMER,\
+	DIG,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	LIGHT_SCREEN,\
+	SLUDGE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(ParasPicFront), BANK(ParasPicBack)
+
+	dw 1, ParasPicBack

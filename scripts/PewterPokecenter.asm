@@ -1,4 +1,5 @@
 PewterPokecenter_Script:
+	call SetLastBlackoutMap ; PureRGBnote: ADDED: set blackout map on entering pokemon center
 	call Serial_TryEstablishingExternallyClockedConnection
 	jp EnableAutoTextBoxDrawing
 
@@ -21,17 +22,17 @@ PewterPokecenterJigglypuffText:
 	ld a, TRUE
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 
 	ld a, SFX_STOP_ALL_MUSIC
-	call PlaySound
+	rst _PlaySound
 	ld c, 32
-	call DelayFrames
+	rst _DelayFrames
 
 	ld hl, .FacingDirections
 	ld de, wJigglypuffFacingDirections
 	ld bc, .FacingDirectionsEnd - .FacingDirections
-	call CopyData
+	rst _CopyData
 
 	ld a, [wSprite03StateData1ImageIndex]
 	ld hl, wJigglypuffFacingDirections
@@ -55,12 +56,12 @@ PewterPokecenterJigglypuffText:
 	ld hl, wJigglypuffFacingDirections
 	ld de, wJigglypuffFacingDirections - 1
 	ld bc, .FacingDirectionsEnd - .FacingDirections
-	call CopyData
+	rst _CopyData
 	ld a, [wJigglypuffFacingDirections - 1]
 	ld [wJigglypuffFacingDirections + 3], a
 	pop hl
 	ld c, 24
-	call DelayFrames
+	rst _DelayFrames
 	ld a, [wChannelSoundIDs]
 	ld b, a
 	ld a, [wChannelSoundIDs + CHAN2]
@@ -68,9 +69,9 @@ PewterPokecenterJigglypuffText:
 	jr nz, .spinMovementLoop
 
 	ld c, 48
-	call DelayFrames
+	rst _DelayFrames
 	call PlayDefaultMusic
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _PewterPokecenterJigglypuffText

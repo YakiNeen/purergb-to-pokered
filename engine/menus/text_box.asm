@@ -148,6 +148,31 @@ DisplayMoneyBox:
 CurrencyString:
 	db "      ¥@"
 
+; PureRGBnote: ADDED: new text box type - this one's for displaying how many color changes are left when talking to the color change NPC.
+DisplayAmountLeftBox:
+	ld hl, wd730
+	set 6, [hl]
+	ld a, AMOUNT_LEFT_BOX_TEMPLATE
+	ld [wTextBoxID], a
+	call DisplayTextBoxID
+	hlcoord 13, 1
+	ld b, 1
+	ld c, 6
+	call ClearScreenArea
+	hlcoord 10, 1
+	ld de, wUnusedC000
+	lb bc, 1, 2
+	call PrintNumber
+	hlcoord 12, 1
+	ld de, AmountLeftString
+	call PlaceString
+	ld hl, wd730
+	res 6, [hl]
+	ret
+
+AmountLeftString:
+	db "× Left@"
+
 DoBuySellQuitMenu:
 	ld a, [wd730]
 	set 6, a ; no printing delay
@@ -302,7 +327,7 @@ DisplayTwoOptionMenu:
 	pop hl
 	ld [wFlags_0xcd60], a
 	ld a, SFX_PRESS_AB
-	call PlaySound
+	rst _PlaySound
 	jr .pressedAButton
 .notNoYesMenu
 	xor a
@@ -320,7 +345,7 @@ DisplayTwoOptionMenu:
 	ld a, CHOSE_FIRST_ITEM
 	ld [wMenuExitMethod], a
 	ld c, 15
-	call DelayFrames
+	rst _DelayFrames
 	call TwoOptionMenu_RestoreScreenTiles
 	and a
 	ret
@@ -331,7 +356,7 @@ DisplayTwoOptionMenu:
 	ld a, CHOSE_SECOND_ITEM
 	ld [wMenuExitMethod], a
 	ld c, 15
-	call DelayFrames
+	rst _DelayFrames
 	call TwoOptionMenu_RestoreScreenTiles
 	scf
 	ret

@@ -1,3 +1,5 @@
+; PureRGBnote: MOVED: a bunch of code was moved from this file to other banks or commented out since it was unused.
+
 ; stores hl in [wTrainerHeaderPtr]
 StoreTrainerHeaderPointer::
 	ld a, h
@@ -28,15 +30,17 @@ ExecuteCurMapScriptInTable::
 	ld a, [wCurMapScript]
 	ret
 
-LoadGymLeaderAndCityName::
-	push de
-	ld de, wGymCityName
-	ld bc, $11
-	call CopyData   ; load city name
-	pop hl
-	ld de, wGymLeaderName
-	ld bc, NAME_LENGTH
-	jp CopyData     ; load gym leader name
+; PureRGBnote: CHANGED: removed this function because it's a waste of wram space when it can be loaded right when reading gym statues
+;LoadGymLeaderAndCityName::
+;	push de
+;	ld de, wGymCityName
+;	ld bc, $11
+;	rst _CopyData   ; load city name
+;	pop hl
+;	ld de, wGymLeaderName
+;	ld bc, NAME_LENGTH
+;	rst _CopyData     ; load gym leader name
+;	ret
 
 ; reads specific information from trainer header (pointed to at wTrainerHeaderPtr)
 ; a: offset in header data
@@ -70,11 +74,11 @@ ReadTrainerHeaderInfo::
 	jr z, .readPointer ; read after battle text
 	cp $8
 	jr z, .readPointer ; read end battle text
-	cp $a
-	jr nz, .done
-	ld a, [hli]        ; read end battle text (2) but override the result afterwards (XXX why, bug?)
-	ld d, [hl]
-	ld e, a
+;	cp $a
+;	jr nz, .done
+;	ld a, [hli]        ; read end battle text (2) but override the result afterwards (XXX why, bug?)
+;	ld d, [hl]
+;	ld e, a
 	jr .done
 .readPointer
 	ld a, [hli]
@@ -83,9 +87,6 @@ ReadTrainerHeaderInfo::
 .done
 	pop de
 	ret
-
-TrainerFlagAction::
-	predef_jump FlagActionPredef
 
 TalkToTrainer::
 	call StoreTrainerHeaderPointer
@@ -102,13 +103,14 @@ TalkToTrainer::
 	jr z, .trainerNotYetFought     ; test trainer's flag
 	ld a, $6
 	call ReadTrainerHeaderInfo     ; print after battle text
-	jp PrintText
+	rst _PrintText
+	ret
 .trainerNotYetFought
 	ld a, $4
 	call ReadTrainerHeaderInfo     ; print before battle text
-	call PrintText
-	ld a, $a
-	call ReadTrainerHeaderInfo     ; (?) does nothing apparently (maybe bug in ReadTrainerHeaderInfo)
+	rst _PrintText
+	;ld a, $a
+	;call ReadTrainerHeaderInfo     ; (?) does nothing apparently (maybe bug in ReadTrainerHeaderInfo)
 	push de
 	ld a, $8
 	call ReadTrainerHeaderInfo     ; read end battle text
@@ -202,6 +204,8 @@ EndTrainerBattle::
 	ld a, [wEnemyMonOrTrainerClass]
 	cp OPP_ID_OFFSET
 	jr nc, .skipRemoveSprite    ; test if trainer was fought (in that case skip removing the corresponding sprite)
+	; code that removes overworld pokemon like articuno, mewtwo, snorlax, etc. when defeated
+	; TODO: hide extra object if in extra map???
 	ld hl, wMissableObjectList
 	ld de, $2
 	ld a, [wSpriteIndex]
@@ -259,7 +263,8 @@ SetSpritePosition2::
 	ld hl, _SetSpritePosition2
 SpritePositionBankswitch::
 	ld b, BANK(_GetSpritePosition1) ; BANK(_GetSpritePosition2), BANK(_SetSpritePosition1), BANK(_SetSpritePosition2)
-	jp Bankswitch ; indirect jump to one of the four functions
+	rst _Bankswitch ; indirect jump to one of the four functions
+	ret
 
 CheckForEngagingTrainers::
 	xor a
@@ -333,10 +338,11 @@ EngageMapTrainer::
 	ld e, a
 	add hl, de     ; seek to engaged trainer data
 	ld a, [hli]    ; load trainer class
+	ld [wWhichTrainerClass], a ; PureRGBnote: ADDED: persists after battle complete, used for drawing trainer sprites after battle
 	ld [wEngagedTrainerClass], a
 	ld a, [hl]     ; load trainer mon set
 	ld [wEngagedTrainerSet], a
-	jp PlayTrainerMusic
+	jpfar PlayTrainerMusic ; PureRGBnote: MOVED: playtrainermusic was moved to another bank
 
 PrintEndBattleText::
 	push hl
@@ -353,7 +359,7 @@ PrintEndBattleText::
 	push hl
 	farcall SaveTrainerName
 	ld hl, TrainerEndBattleText
-	call PrintText
+	rst _PrintText
 	pop hl
 	pop af
 	ldh [hLoadedROMBank], a
@@ -383,62 +389,15 @@ TrainerEndBattleText::
 	text_asm
 	call GetSavedEndBattleTextPointer
 	call TextCommandProcessor
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 ; only engage with the trainer if the player is not already
 ; engaged with another trainer
 ; XXX unused?
-CheckIfAlreadyEngaged::
-	ld a, [wFlags_0xcd60]
-	bit 0, a
-	ret nz
-	call EngageMapTrainer
-	xor a
-	ret
-
-PlayTrainerMusic::
-	ld a, [wEngagedTrainerClass]
-	cp OPP_RIVAL1
-	ret z
-	cp OPP_RIVAL2
-	ret z
-	cp OPP_RIVAL3
-	ret z
-	ld a, [wGymLeaderNo]
-	and a
-	ret nz
-	xor a
-	ld [wAudioFadeOutControl], a
-	ld a, SFX_STOP_ALL_MUSIC
-	call PlaySound
-	ld a, BANK(Music_MeetEvilTrainer)
-	ld [wAudioROMBank], a
-	ld [wAudioSavedROMBank], a
-	ld a, [wEngagedTrainerClass]
-	ld b, a
-	ld hl, EvilTrainerList
-.evilTrainerListLoop
-	ld a, [hli]
-	cp $ff
-	jr z, .noEvilTrainer
-	cp b
-	jr nz, .evilTrainerListLoop
-	ld a, MUSIC_MEET_EVIL_TRAINER
-	jr .PlaySound
-.noEvilTrainer
-	ld hl, FemaleTrainerList
-.femaleTrainerListLoop
-	ld a, [hli]
-	cp $ff
-	jr z, .maleTrainer
-	cp b
-	jr nz, .femaleTrainerListLoop
-	ld a, MUSIC_MEET_FEMALE_TRAINER
-	jr .PlaySound
-.maleTrainer
-	ld a, MUSIC_MEET_MALE_TRAINER
-.PlaySound
-	ld [wNewSoundID], a
-	jp PlaySound
-
-INCLUDE "data/trainers/encounter_types.asm"
+;CheckIfAlreadyEngaged::
+;	ld a, [wFlags_0xcd60]
+;	bit 0, a
+;	ret nz
+;	call EngageMapTrainer
+;	xor a
+;	ret

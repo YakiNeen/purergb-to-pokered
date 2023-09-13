@@ -12,7 +12,7 @@ Route16FlyHouseBrunetteGirlText:
 	ld hl, .HM02ExplanationText
 	jr nz, .got_item
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	lb bc, HM_FLY, 1
 	call GiveItem
 	jr nc, .bag_full
@@ -22,8 +22,8 @@ Route16FlyHouseBrunetteGirlText:
 .bag_full
 	ld hl, .HM02NoRoomText
 .got_item
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .Text:
 	text_far _Route16FlyHouseBrunetteGirlText
@@ -45,11 +45,11 @@ Route16FlyHouseBrunetteGirlText:
 Route16FlyHouseFearowText:
 	text_asm
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	ld a, FEAROW
 	call PlayCry
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _Route16FlyHouseFearowText

@@ -5,16 +5,31 @@
 
 	db BUG, POISON ; type
 	db 120 ; catch rate
-	db 71 ; base exp
+	db 85 ; base exp
 
 	INCBIN "gfx/pokemon/front/kakuna.pic", 0, 1 ; sprite dimensions
-	dw KakunaPicFront, KakunaPicBack
+	dw KakunaPicFront, KakunaPicBackSW
 
-	db HARDEN, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db POISON_STING, STRING_SHOT, HARDEN, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm
+	tmhm \
+	PIN_MISSILE,\
+	TOXIC,\
+	DOUBLE_EDGE,\
+	BARRIER,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	SLUDGE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(KakunaPicFront), BANK(KakunaPicBack)
+
+	dw 1, KakunaPicBack

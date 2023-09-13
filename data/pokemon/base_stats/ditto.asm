@@ -1,14 +1,14 @@
 	db DEX_DITTO ; pokedex id
 
-	db  48,  48,  48,  48,  48
+	db  90,  48,  48,  48,  48
 	;   hp  atk  def  spd  spc
 
 	db NORMAL, NORMAL ; type
-	db 35 ; catch rate
-	db 61 ; base exp
+	db 45 ; catch rate
+	db 95 ; base exp
 
 	INCBIN "gfx/pokemon/front/ditto.pic", 0, 1 ; sprite dimensions
-	dw DittoPicFront, DittoPicBack
+	dw DittoPicFront, DittoPicBackSW
 
 	db TRANSFORM, NO_MOVE, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
@@ -17,4 +17,6 @@
 	tmhm
 	; end
 
-	db 0 ; padding
+	dw BANK(DittoPicFront), BANK(DittoPicBack)
+
+	dw 1, DittoPicBack

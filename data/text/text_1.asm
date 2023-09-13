@@ -13,6 +13,18 @@ _CardKeyFailText::
 	line "CARD KEY!"
 	done
 
+_CardKeyDoneText::
+	text "All the CARD KEY"
+	line "doors have been"
+	cont "opened!"
+	
+	para "Don't need this"
+	line "CARD KEY anymore."
+
+	para "<PLAYER> left it"
+	line "in the card slot!"
+	done
+
 _TrainerNameText::
 	text_ram wcd6d
 	text ": @"
@@ -36,14 +48,19 @@ _ExclamationText::
 	text "!"
 	done
 
-_GroundRoseText::
-	text "Ground rose up"
-	line "somewhere!"
-	done
+;_GroundRoseText:: ; unused
+;	text "Ground rose up"
+;	line "somewhere!"
+;	done
 
 _BoulderText::
 	text "This requires"
 	line "STRENGTH to move!"
+	done
+
+_StrengthActive::
+	text "This boulder"
+	line "can be moved!"
 	done
 
 _MartSignText::
@@ -64,6 +81,15 @@ _FoundItemText::
 	text "!@"
 	text_end
 
+_FoundMultipleItemText::
+	text "<PLAYER> found"
+	line "@"
+	text_ram wStringBuffer
+	text " ×@"
+	text_ram wTempStore1
+	text "!@"
+	text_end
+
 _NoMoreRoomForItemText::
 	text "No more room for"
 	line "items!"
@@ -79,7 +105,7 @@ _OaksAideHiText::
 	text_start
 	line "kinds of #MON,"
 	cont "I'm supposed to"
-	cont "give you an"
+	cont "give you this"
 	cont "@"
 	text_ram wOaksAideRewardItemName
 	text "!"

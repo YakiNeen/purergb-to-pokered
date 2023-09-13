@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: function updated so holding B when talking to the pokemon center nurse speeds up the healing process.
+;                     wUnusedC000 is set earlier in pokemon center code and indicates whether to speed things up or not.
 AnimateHealingMachine:
 	ld de, PokeCenterFlashingMonitorAndHealBall
 	ld hl, vChars0 tile $7c
@@ -12,14 +14,18 @@ AnimateHealingMachine:
 	push af
 	ld a, $e0
 	ldh [rOBP1], a
+	call UpdateGBCPal_OBP1
 	ld hl, wShadowOAMSprite33
 	ld de, PokeCenterOAMData
 	call CopyHealingMachineOAM
+	ld c, 30
+	ld a, [wUnusedC000]
+	and a
+	jr nz, .noFadeout ; NEW: if you're holding b when you start talking to the nurse, it'll do healing faster
 	ld a, 4
 	ld [wAudioFadeOutControl], a
-	ld a, SFX_STOP_ALL_MUSIC
-	ld [wNewSoundID], a
-	call PlaySound
+.noFadeout
+	call StopAllMusic
 .waitLoop
 	ld a, [wAudioFadeOutControl]
 	and a ; is fade-out finished?
@@ -29,9 +35,16 @@ AnimateHealingMachine:
 .partyLoop
 	call CopyHealingMachineOAM
 	ld a, SFX_HEALING_MACHINE
-	call PlaySound
+	rst _PlaySound
+	ld a, [wUnusedC000]
+	and a
+	jr nz, .shortDelay ; NEW: if you're holding b when you start talking to the nurse, it'll do healing faster
 	ld c, 30
-	call DelayFrames
+	jr .doDelay
+.shortDelay
+	ld c, 5
+.doDelay	
+	rst _DelayFrames
 	dec b
 	jr nz, .partyLoop
 	ld a, [wAudioROMBank]
@@ -40,13 +53,13 @@ AnimateHealingMachine:
 	jr nz, .next
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	ld a, BANK(Music_PkmnHealed)
 	ld [wAudioROMBank], a
 .next
 	ld a, MUSIC_PKMN_HEALED
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	ld d, $28
 	call FlashSprite8Times
 .waitLoop2
@@ -54,9 +67,10 @@ AnimateHealingMachine:
 	cp MUSIC_PKMN_HEALED ; is the healed music still playing?
 	jr z, .waitLoop2 ; if so, check gain
 	ld c, 32
-	call DelayFrames
+	rst _DelayFrames
 	pop af
 	ldh [rOBP1], a
+	call UpdateGBCPal_OBP1 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	pop hl
 	pop af
 	ld [hl], a
@@ -66,15 +80,14 @@ PokeCenterFlashingMonitorAndHealBall:
 	INCBIN "gfx/overworld/heal_machine.2bpp"
 
 PokeCenterOAMData:
-	; heal machine monitor
-	dbsprite  6,  4,  4,  4, $7c, OAM_OBP1
-	; poke balls 1-6
-	dbsprite  6,  5,  0,  3, $7d, OAM_OBP1
-	dbsprite  7,  5,  0,  3, $7d, OAM_OBP1 | OAM_HFLIP
-	dbsprite  6,  6,  0,  0, $7d, OAM_OBP1
-	dbsprite  7,  6,  0,  0, $7d, OAM_OBP1 | OAM_HFLIP
-	dbsprite  6,  6,  0,  5, $7d, OAM_OBP1
-	dbsprite  7,  6,  0,  5, $7d, OAM_OBP1 | OAM_HFLIP
+; shinpokerednote: gbcnote: updated for GBC
+	db $24,$34,$7C,$14 ; heal machine monitor
+	db $2B,$30,$7D,$14 ; pokeballs 1-6
+	db $2B,$38,$7D,$34
+	db $30,$30,$7D,$14
+	db $30,$38,$7D,$34
+	db $35,$30,$7D,$14
+	db $35,$38,$7D,$34
 
 ; d = value to xor with palette
 FlashSprite8Times:
@@ -83,8 +96,9 @@ FlashSprite8Times:
 	ldh a, [rOBP1]
 	xor d
 	ldh [rOBP1], a
+	call UpdateGBCPal_OBP1 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	dec b
 	jr nz, .loop
 	ret

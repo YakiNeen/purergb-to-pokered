@@ -8,16 +8,41 @@
 	db 205 ; base exp
 
 	INCBIN "gfx/pokemon/front/tentacruel.pic", 0, 1 ; sprite dimensions
-	dw TentacruelPicFront, TentacruelPicBack
+	dw TentacruelPicFront, TentacruelPicBackSW
 
-	db ACID, SUPERSONIC, WRAP, NO_MOVE ; level 1 learnset
-	db GROWTH_SLOW ; growth rate
+	db ACID, BUBBLE, NO_MOVE, NO_MOVE ; level 1 learnset
+	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm SWORDS_DANCE, TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  BUBBLEBEAM,   \
-	     WATER_GUN,    ICE_BEAM,     BLIZZARD,     HYPER_BEAM,   RAGE,         \
-	     MEGA_DRAIN,   MIMIC,        DOUBLE_TEAM,  REFLECT,      BIDE,         \
-	     SKULL_BASH,   REST,         SUBSTITUTE,   CUT,          SURF
+	tmhm \
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BUBBLEBEAM,\
+	AURORA_BEAM,\
+	ICE_BEAM,\
+	BLIZZARD,\
+	HYPER_BEAM,\
+	AMNESIA,\
+	BARRIER,\
+	DIG,\
+	MEGA_DRAIN,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	LIGHT_SCREEN,\
+	PSYBEAM,\
+	SLUDGE,\
+	GLARE,\
+	SUBSTITUTE,\
+	SURF,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(TentacruelPicFront), BANK(TentacruelPicBack)
+
+	dw TentacruelPicFrontAlt, TentacruelPicBack

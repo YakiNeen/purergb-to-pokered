@@ -1,23 +1,47 @@
 	db DEX_DODRIO ; pokedex id
 
-	db  60, 110,  70, 100,  60
+	db  70, 115,  70, 105,  60
 	;   hp  atk  def  spd  spc
 
-	db NORMAL, FLYING ; type
+	db GROUND, FLYING ; type
 	db 45 ; catch rate
 	db 158 ; base exp
 
 	INCBIN "gfx/pokemon/front/dodrio.pic", 0, 1 ; sprite dimensions
-	dw DodrioPicFront, DodrioPicBack
+	dw DodrioPicFront, DodrioPicBackSW
 
-	db PECK, GROWL, FURY_ATTACK, NO_MOVE ; level 1 learnset
+	db PECK, DOUBLE_KICK, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm WHIRLWIND,    TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  \
-	     HYPER_BEAM,   RAGE,         MIMIC,        DOUBLE_TEAM,  REFLECT,      \
-	     BIDE,         SKULL_BASH,   SKY_ATTACK,   REST,         TRI_ATTACK,   \
-	     SUBSTITUTE,   FLY
+	tmhm \
+	RAZOR_WIND,\ ; ROOST
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	HYPER_BEAM,\
+	HI_JUMP_KICK,\
+	ROLLING_KICK,\
+	BARRIER,\
+	EARTHQUAKE,\
+	DIG,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	SKY_ATTACK,\
+	THUNDER_WAVE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLY,\
+	STRENGTH
 	; end
 
-	db 0 ; padding
+	dw BANK(DodrioPicFront), BANK(DodrioPicBack)
+
+	dw 1, DodrioPicBack

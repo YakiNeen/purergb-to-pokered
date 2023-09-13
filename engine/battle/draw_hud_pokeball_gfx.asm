@@ -27,6 +27,10 @@ SetupOwnPartyPokeballs:
 	ld [hl], a
 	ld a, 8
 	ld [wHUDPokeballGfxOffsetX], a
+;;;;;;;;;; shinpokerednote: gbcnote: oam updates from yellow version
+	xor a
+	ld [wdef5], a
+;;;;;;;;;;
 	ld hl, wShadowOAM
 	jp WritePokeballOAMData
 
@@ -41,6 +45,10 @@ SetupEnemyPartyPokeballs:
 	ld [hl], $20
 	ld a, -8
 	ld [wHUDPokeballGfxOffsetX], a
+;;;;;;;;;; shinpokerednote: gbcnote: oam updates from yellow version
+	ld a, $1
+	ld [wdef5], a
+;;;;;;;;;;
 	ld hl, wShadowOAMSprite06
 	jp WritePokeballOAMData
 
@@ -104,7 +112,9 @@ WritePokeballOAMData:
 	ld [hli], a
 	ld a, [de]
 	ld [hli], a
-	xor a
+;;;;;;;;;; shinpokerednote: gbcnote: oam updates from yellow version
+	ld a, [wdef5]
+;;;;;;;;;;
 	ld [hli], a
 	ld a, [wBaseCoordX]
 	ld b, a
@@ -120,7 +130,7 @@ PlacePlayerHUDTiles:
 	ld hl, PlayerBattleHUDGraphicsTiles
 	ld de, wHUDGraphicsTiles
 	ld bc, $3
-	call CopyData
+	rst _CopyData
 	hlcoord 18, 10
 	ld de, -1
 	jr PlaceHUDTiles
@@ -135,7 +145,7 @@ PlaceEnemyHUDTiles:
 	ld hl, EnemyBattleHUDGraphicsTiles
 	ld de, wHUDGraphicsTiles
 	ld bc, $3
-	call CopyData
+	rst _CopyData
 	hlcoord 1, 2
 	ld de, $1
 	jr PlaceHUDTiles
@@ -174,6 +184,10 @@ SetupPlayerAndEnemyPokeballs:
 	ld [hl], $40
 	ld a, 8
 	ld [wHUDPokeballGfxOffsetX], a
+;;;;;;;;;; shinpokerednote: gbcnote: oam updates from yellow version
+	xor a
+	ld [wdef5], a
+;;;;;;;;;;
 	ld hl, wShadowOAM
 	call WritePokeballOAMData
 	ld hl, wEnemyMons
@@ -183,6 +197,10 @@ SetupPlayerAndEnemyPokeballs:
 	ld a, $50
 	ld [hli], a
 	ld [hl], $68
+;;;;;;;;;; shinpokerednote: gbcnote: oam updates from yellow version
+	ld a, $1
+	ld [wdef5], a
+;;;;;;;;;;
 	ld hl, wShadowOAMSprite06
 	jp WritePokeballOAMData
 

@@ -20,7 +20,13 @@ DEF BASE_BACKPIC     rw
 DEF BASE_MOVES       rb NUM_MOVES
 DEF BASE_GROWTH_RATE rb
 DEF BASE_TMHM        rb (NUM_TM_HM + 7) / 8
-                     rb_skip
+;;;;;;;;;; PureRGBnote: ADDED: some new properties on the pokemon base data struct for sprite rendering changes/options
+DEF BASE_PICBANK     rw
+DEF BASE_BACKPICBANK rw
+DEF BASE_ALTFRONTPIC rw
+DEF BASE_ALTBACKPIC  rw
+;;;;;;;;;;
+          
 DEF BASE_DATA_SIZE EQU _RS
 
 ; party_struct members (see macros/ram.asm)

@@ -1,4 +1,8 @@
+; PureRGBnote: ADDED: CHANGED: some item effects were changed or new ones were added
+
 UseItem_::
+	xor a
+	ld [wListMenuHoverTextType], a ; PureRGBnote: ADDED: if we used an item we don't need to display TM text afterwards.
 	ld a, 1
 	ld [wActionResultOrTookBattleTurn], a ; initialise to success value
 	ld a, [wcf91] ;contains item_ID
@@ -21,7 +25,7 @@ ItemUsePtrTable:
 	dw ItemUseBall       ; ULTRA_BALL
 	dw ItemUseBall       ; GREAT_BALL
 	dw ItemUseBall       ; POKE_BALL
-	dw ItemUseTownMap    ; TOWN_MAP
+	dw ItemUseBall    	 ; HYPER_BALL
 	dw ItemUseBicycle    ; BICYCLE
 	dw ItemUseSurfboard  ; out-of-battle Surf effect
 	dw ItemUseBall       ; SAFARI_BALL
@@ -37,17 +41,17 @@ ItemUsePtrTable:
 	dw ItemUseMedicine   ; HYPER_POTION
 	dw ItemUseMedicine   ; SUPER_POTION
 	dw ItemUseMedicine   ; POTION
-	dw ItemUseBait       ; BOULDERBADGE
-	dw ItemUseRock       ; CASCADEBADGE
-	dw UnusableItem      ; THUNDERBADGE
-	dw UnusableItem      ; RAINBOWBADGE
-	dw UnusableItem      ; SOULBADGE
-	dw UnusableItem      ; MARSHBADGE
-	dw UnusableItem      ; VOLCANOBADGE
-	dw UnusableItem      ; EARTHBADGE
+	dw ItemUseBait       ; SAFARI_BAIT
+	dw ItemUseRock       ; SAFARI_ROCK
+	dw ValuableItem 	 ; OLD_COIN
+	dw UseTopSecretKey  ; TOPSECRETKEY
+	dw UnusableItem      ; UNUSED_ITEM3
+	dw UnusableItem      ; UNUSED_ITEM4
+	dw UnusableItem      ; UNUSED_ITEM5
+	dw UnusableItem      ; UNUSED_ITEM6
 	dw ItemUseEscapeRope ; ESCAPE_ROPE
 	dw ItemUseRepel      ; REPEL
-	dw UnusableItem      ; OLD_AMBER
+	dw FossilItem        ; OLD_AMBER
 	dw ItemUseEvoStone   ; FIRE_STONE
 	dw ItemUseEvoStone   ; THUNDER_STONE
 	dw ItemUseEvoStone   ; WATER_STONE
@@ -57,16 +61,16 @@ ItemUsePtrTable:
 	dw ItemUseVitamin    ; CARBOS
 	dw ItemUseVitamin    ; CALCIUM
 	dw ItemUseVitamin    ; RARE_CANDY
-	dw UnusableItem      ; DOME_FOSSIL
-	dw UnusableItem      ; HELIX_FOSSIL
+	dw FossilItem        ; DOME_FOSSIL
+	dw FossilItem        ; HELIX_FOSSIL
 	dw UnusableItem      ; SECRET_KEY
-	dw UnusableItem
+	dw ItemUsePocketAbra ; POCKET_ABRA
 	dw UnusableItem      ; BIKE_VOUCHER
 	dw ItemUseXAccuracy  ; X_ACCURACY
 	dw ItemUseEvoStone   ; LEAF_STONE
 	dw ItemUseCardKey    ; CARD_KEY
-	dw UnusableItem      ; NUGGET
-	dw UnusableItem      ; ??? PP_UP
+	dw ValuableItem      ; NUGGET
+	dw ItemUseApexChip   ; APEX_CHIP
 	dw ItemUsePokedoll   ; POKE_DOLL
 	dw ItemUseMedicine   ; FULL_HEAL
 	dw ItemUseMedicine   ; REVIVE
@@ -80,22 +84,22 @@ ItemUsePtrTable:
 	dw ItemUseMedicine   ; SODA_POP
 	dw ItemUseMedicine   ; LEMONADE
 	dw UnusableItem      ; S_S_TICKET
-	dw UnusableItem      ; GOLD_TEETH
+	dw ItemNotYours      ; GOLD_TEETH
 	dw ItemUseXStat      ; X_ATTACK
 	dw ItemUseXStat      ; X_DEFEND
 	dw ItemUseXStat      ; X_SPEED
 	dw ItemUseXStat      ; X_SPECIAL
-	dw ItemUseCoinCase   ; COIN_CASE
-	dw ItemUseOaksParcel ; OAKS_PARCEL
+	dw ItemNotYours      ; LOST_WALLET (used to be coin case)
+	dw ItemNotYours      ; OAKS_PARCEL
 	dw ItemUseItemfinder ; ITEMFINDER
 	dw UnusableItem      ; SILPH_SCOPE
 	dw ItemUsePokeflute  ; POKE_FLUTE
 	dw UnusableItem      ; LIFT_KEY
-	dw UnusableItem      ; EXP_ALL
+	dw ItemUseBoosterChip; BOOSTER_CHIP
 	dw ItemUseOldRod     ; OLD_ROD
 	dw ItemUseGoodRod    ; GOOD_ROD
 	dw ItemUseSuperRod   ; SUPER_ROD
-	dw ItemUsePPUp       ; PP_UP (real one)
+	dw ItemUsePPUp       ; PP_UP
 	dw ItemUsePPRestore  ; ETHER
 	dw ItemUsePPRestore  ; MAX_ETHER
 	dw ItemUsePPRestore  ; ELIXER
@@ -106,7 +110,7 @@ ItemUseBall:
 ; Balls can't be used out of battle.
 	ld a, [wIsInBattle]
 	and a
-	jp z, ItemUseNotTime
+	jp z, ItemUseInBattle ; PureRGBnote: ADDED: text indicating the item should be used in battle.
 
 ; Balls can't catch trainers' Pokémon.
 	dec a
@@ -144,7 +148,7 @@ ItemUseBall:
 
 	call LoadScreenTilesFromBuffer1
 	ld hl, ItemUseText00
-	call PrintText
+	rst _PrintText
 
 ; If the player is fighting an unidentified ghost, set the value that indicates
 ; the Pokémon can't be caught and skip the capture calculations.
@@ -160,7 +164,7 @@ ItemUseBall:
 	ld hl, wGrassRate
 	ld de, wPlayerName
 	ld bc, NAME_LENGTH
-	call CopyData ; save the player's name in the Wild Monster data (part of the Cinnabar Island Missingno. glitch)
+	rst _CopyData ; save the player's name in the Wild Monster data (part of the Cinnabar Island Missingno. glitch)
 	jp .captured
 
 .notOldManBattle
@@ -171,8 +175,15 @@ ItemUseBall:
 	jr nz, .loop
 	ld a, [wEnemyMonSpecies2]
 	cp RESTLESS_SOUL
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak can be caught if you have silph scope in your bag.
+	jp nz, .loop
+	push bc
+	ld b, SILPH_SCOPE
+	call IsItemInBag
+	pop bc
+	jr z, .loop
+;;;;;;;;;;
 	ld b, $10 ; can't be caught value
-	jp z, .setAnimData
 
 ; Get the first random number. Let it be called Rand1.
 ; Rand1 must be within a certain range according the kind of ball being thrown.
@@ -194,6 +205,12 @@ ItemUseBall:
 	cp MASTER_BALL
 	jp z, .captured
 
+;;;;;;;;;; PureRGBnote: ADDED: effect for the new Hyper ball item.
+	cp HYPER_BALL
+	jr z, .hyperBallCheck
+.loopreturn	
+;;;;;;;;;;
+
 ; Anything will do for the basic Poké Ball.
 	cp POKE_BALL
 	jr z, .checkForAilments
@@ -212,7 +229,27 @@ ItemUseBall:
 	ld a, 150
 	cp b
 	jr c, .loop
-
+	jr .checkForAilments
+;;;;;;;;;; PureRGBnote: ADDED: effect for the new Hyper ball item.
+.hyperBallCheck
+	ld a, [wEnemyMonActualCatchRate]
+	cp 26 
+	jp nc, .captured ;Hyper Ball always captures pokemon with catch rate >25
+	push hl
+	push bc
+	; if the catch rate is 25 or lower it will guarantee catching if the pokemon has <1/3 health.
+	ld a, 3
+	ld [wUnusedC000], a ; store 1/3 in the fraction to check
+	callfar AICheckIfHPBelowFractionStore
+	pop bc
+	pop hl
+	ld a, [wUnusedC000] ; wUnusedC000 contains the result of AICheckIfHPBelowFractionPredef
+	and a
+	ld a, 0
+	ld [wUnusedC000], a ; reset this variable so it doesn't mess with other places that use it
+	jp nz, .captured
+	jr .loopreturn
+;;;;;;;;;;
 .checkForAilments
 ; Pokémon can be caught more easily with a status ailment.
 ; Depending on the status ailment, a certain value will be subtracted from
@@ -250,14 +287,18 @@ ItemUseBall:
 	ldh [hMultiplier], a
 	call Multiply
 
-; Determine BallFactor. It's 8 for Great Balls and 12 for the others.
+; Determine BallFactor. It's 8 for Great Balls / Hyper Balls and 12 for the others.
 	ld a, [wcf91]
+	ld b, 8
 	cp GREAT_BALL
-	ld a, 12
-	jr nz, .skip1
-	ld a, 8
-
+	jr z, .skip1
+;;;;;;;;;;; PureRGBnote: ADDED: hyper ball has the same ballfactor as great ball
+	cp HYPER_BALL
+	jr z, .skip1
+;;;;;;;;;;;
+	ld b, 12
 .skip1
+	ld a, b
 ; Note that the results of all division operations are floored.
 
 ; Calculate (MaxHP * 255) / BallFactor.
@@ -335,7 +376,7 @@ ItemUseBall:
 ; Determine BallFactor2.
 ; Poké Ball:         BallFactor2 = 255
 ; Great Ball:        BallFactor2 = 200
-; Ultra/Safari Ball: BallFactor2 = 150
+; Ultra/Safari/Hyper Ball: BallFactor2 = 150
 	ld a, [wcf91]
 	ld b, 255
 	cp POKE_BALL
@@ -417,11 +458,10 @@ ItemUseBall:
 
 .skipShakeCalculations
 	ld c, 20
-	call DelayFrames
+	rst _DelayFrames
 
-; Do the animation.
-	ld a, TOSS_ANIM
-	ld [wAnimationID], a
+	; Do the animation.
+	call MapBallToAnimation ; PureRGBnote: CHANGED: choose which toss animation to use before entering animation code
 	xor a
 	ldh [hWhoseTurn], a
 	ld [wAnimationType], a
@@ -513,15 +553,30 @@ ItemUseBall:
 	ld [wd11e], a
 	ld a, [wBattleType]
 	dec a ; is this the old man battle?
-	jr z, .oldManCaughtMon ; if so, don't give the player the caught Pokémon
+	jp z, .oldManCaughtMon ; if so, don't give the player the caught Pokémon
 
 	ld hl, ItemUseBallText05
-	call PrintText
+	rst _PrintText
+	
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak can be caught and the event will complete if you do so
+	ld a, [wCurMap]
+	cp POKEMON_TOWER_6F
+	jr nz, .notGhostMarowak
+	ld a, [wEnemyMonSpecies2]
+	cp RESTLESS_SOUL
+	jp nz, .notGhostMarowak
+	SetEvent EVENT_CAUGHT_GHOST_MAROWAK
+.notGhostMarowak
+;;;;;;;;;;
 
 ; Add the caught Pokémon to the Pokédex.
 	predef IndexToPokedex
 	ld a, [wd11e]
-	dec a
+;;;;;;;;;; PureRGBnote: ADDED: need specific behaviour when catching missingno since it has no pokedex data
+	and a ; is it missingno?
+	jr z, .skipShowingPokedexData ; don't mark in pokedex if so
+	dec a ; pokedex is shifted by 1 because missingno is first
+;;;;;;;;;;
 	ld c, a
 	ld b, FLAG_TEST
 	ld hl, wPokedexOwned
@@ -539,7 +594,7 @@ ItemUseBall:
 	jr nz, .skipShowingPokedexData ; if so, don't show the Pokédex data
 
 	ld hl, ItemUseBallText06
-	call PrintText
+	rst _PrintText
 	call ClearSprites
 	ld a, [wEnemyMonSpecies]
 	ld [wd11e], a
@@ -549,12 +604,33 @@ ItemUseBall:
 	ld a, [wPartyCount]
 	cp PARTY_LENGTH ; is party full?
 	jr z, .sendToBox
-	xor a ; PLAYER_PARTY_DATA
+;;;;;;;;;; PureRGBnote: ADDED: when in bills garden, if a pikachu is caught, skip nicknaming automatically.
+	ld a, [wCurMap]
+	cp BILLS_GARDEN
+	ld a, 0 ; PLAYER_PARTY_DATA
+	jr nz, .notBillsGarden
+	ld a, [wEnemyMonSpecies]
+	cp PIKACHU
+	ld a, 0
+	jr nz, .notBillsGarden
+	ld a, %10000000 ; PLAYER_PARTY_DATA but will skip nicknaming
+.notBillsGarden
+	push af
+;;;;;;;;;;
 	ld [wMonDataLocation], a
 	call ClearSprites
 	call AddPartyMon
+;;;;;;;;;; PureRGBnote: ADDED: when in bills garden, if a pikachu is caught, force it to have the nickname PIKABLU
+	pop af
+	and a
+	jr z, .done
+	callfar PikabluNicknameLoadQuick
+	call GetReceivedMonPointer
+	ld hl, wcd6d 
+	ld bc, NAME_LENGTH
+	rst _CopyData
+;;;;;;;;;;
 	jr .done
-
 .sendToBox
 	call ClearSprites
 	call SendNewMonToBox
@@ -563,14 +639,15 @@ ItemUseBall:
 	jr nz, .printTransferredToPCText
 	ld hl, ItemUseBallText08
 .printTransferredToPCText
-	call PrintText
+	rst _PrintText
+	call PrintRemainingBoxSpacePrompt ; PureRGBnote: ADDED: 
 	jr .done
 
 .oldManCaughtMon
 	ld hl, ItemUseBallText05
 
 .printMessage
-	call PrintText
+	rst _PrintText
 	call ClearSprites
 
 .done
@@ -621,6 +698,17 @@ ItemUseBallText08:
 	text_far _ItemUseBallText08
 	text_end
 
+NoBoxSlotsLeftText:
+;"0 slots left in Box X! Time to change boxes!"
+	text_far _NoBoxSlotsLeftText
+	text_end
+
+BoxSlotsLeftText:
+;"X slots left in box X"
+	text_far _BoxSlotsLeftText
+	text_end
+
+
 ItemUseBallText06:
 ;"New DEX data will be added..."
 ;play sound
@@ -629,11 +717,57 @@ ItemUseBallText06:
 	text_promptbutton
 	text_end
 
+;;;;;;;;;; PureRGBnote: ADDED: maps item ID to which pokeball toss animation will be used.
+MapBallToAnimation: 
+	ld a, [wcf91]
+	ld hl, BallAnimationMap - 1
+	ld c, a
+	ld b, 0
+	add hl, bc 
+	ld a, [hl]
+	ld [wAnimationID], a
+	ld [wUnusedC000], a ; identifies to a couple places that we're doing a ball toss animation (and which)
+	ret
+
+BallAnimationMap: ; this uses item indices, if item indices change then this won't work
+	db MASTERTOSS_ANIM
+	db ULTRATOSS_ANIM
+	db GREATTOSS_ANIM
+	db TOSS_ANIM
+	db HYPERTOSS_ANIM
+	db 0
+	db 0
+	db SAFARITOSS_ANIM
+;;;;;;;;;;
+
 ItemUseTownMap:
 	ld a, [wIsInBattle]
 	and a
 	jp nz, ItemUseNotTime
 	farjp DisplayTownMap
+
+;;;;;;;;;; PureRGBnote: ADDED: functions that enable the booster chip item. Makes all pokemon gain boosted EXP when turned on.
+ItemUseBoosterChip:
+	ld a, [wIsInBattle]
+	and a
+	jp nz, ItemUseNotTime
+	ld a, 1
+	ld [wBoosterChipActive], a
+	ld a, SFX_SWITCH
+	call PlaySoundWaitForCurrent
+	ld hl, BoosterChipInstalledText
+	rst _PrintText
+	ld a, BOOSTER_CHIP
+	ldh [hItemToRemoveID], a
+	farcall RemoveItemByID
+	ret
+
+BoosterChipInstalledText::
+	text_far _BoosterChipInstalledText
+	sound_get_item_1
+	text_promptbutton
+	text_end
+;;;;;;;;;;
 
 ItemUseBicycle:
 	ld a, [wIsInBattle]
@@ -649,8 +783,17 @@ ItemUseBicycle:
 	call ItemUseReloadOverworldData
 	xor a
 	ld [wWalkBikeSurfState], a ; change player state to walking
-	call PlayDefaultMusic ; play walking music
-	ld hl, GotOffBicycleText
+;;;;;;;;;; PureRGBnote: ADDED: bike music can be turned off via the options.
+	ld a, [wOptions2]
+	bit BIT_BIKE_MUSIC, a
+	call z, PlayDefaultMusic ; play walking music
+;;;;;;;;;;
+;;;;;;;;;; PureRGBnote: CHANGED: the text telling you "got on bike" and "got off bike" each only display once per playthrough to be less annoying
+	CheckEvent EVENT_SAW_GOT_OFF_BIKE_TEXT 
+	jr nz, .done 
+	SetEvent EVENT_SAW_GOT_OFF_BIKE_TEXT
+	ld hl, GotOffBicycleText ; this text only displays once to be less annoying
+;;;;;;;;;;
 	jr .printText
 .tryToGetOnBike
 	call IsBikeRidingAllowed
@@ -660,8 +803,20 @@ ItemUseBicycle:
 	ldh [hJoyHeld], a ; current joypad state
 	inc a
 	ld [wWalkBikeSurfState], a ; change player state to bicycling
-	ld hl, GotOnBicycleText
-	call PlayDefaultMusic ; play bike riding music
+;;;;;;;;;; PureRGBnote: ADDED: bike music can be turned off via the options.
+	ld a, [wOptions2]
+	bit BIT_BIKE_MUSIC, a
+	call z, PlayDefaultMusic ; play bike riding music
+;;;;;;;;;;
+;;;;;;;;;; PureRGBnote: CHANGED: the text telling you "got on bike" and "got off bike" each only display once per playthrough to be less annoying
+	CheckEvent EVENT_SAW_GOT_ON_BIKE_TEXT
+	jr nz, .done 
+	SetEvent EVENT_SAW_GOT_ON_BIKE_TEXT
+	ld hl, GotOnBicycleText ; this text only displays once to be less annoying
+;;;;;;;;;;
+	jr .printText
+.done
+	ret
 .printText
 	jp PrintText
 
@@ -669,8 +824,9 @@ ItemUseBicycle:
 ItemUseSurfboard:
 	ld a, [wWalkBikeSurfState]
 	ld [wWalkBikeSurfStateCopy], a
-	cp 2 ; is the player already surfing?
-	jr z, .tryToStopSurfing
+	cp SURFING ; is the player already surfing?
+	jr z, .alreadySurfing ; don't do anything if so ; PureRGBnote: CHANGED: can't use surf to "get back on land", this feature is bugged anyway
+	;jr z, .tryToStopSurfing
 .tryToSurf
 	call IsNextTileShoreOrWater
 	jp c, SurfingAttemptFailed
@@ -684,45 +840,49 @@ ItemUseSurfboard:
 	ld a, 2
 	ld [wWalkBikeSurfState], a ; change player state to surfing
 	call PlayDefaultMusic ; play surfing music
+;;;;;;;;;; PureRGBnote: ADDED: flag to indicate we are in the "able to surf" state (needed for autosurf functionality)
+	ld hl, wd728
+	set 2, [hl]
+;;;;;;;;;;
 	ld hl, SurfingGotOnText
 	jp PrintText
-.tryToStopSurfing
-	xor a
-	ldh [hSpriteIndexOrTextID], a
-	ld d, 16 ; talking range in pixels (normal range)
-	call IsSpriteInFrontOfPlayer2
-	res 7, [hl]
-	ldh a, [hSpriteIndexOrTextID]
-	and a ; is there a sprite in the way?
-	jr nz, .cannotStopSurfing
-	ld hl, TilePairCollisionsWater
-	call CheckForTilePairCollisions
-	jr c, .cannotStopSurfing
-	ld hl, wTilesetCollisionPtr ; pointer to list of passable tiles
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a ; hl now points to passable tiles
-	ld a, [wTileInFrontOfPlayer] ; tile in front of the player
-	ld b, a
-.passableTileLoop
-	ld a, [hli]
-	cp b
-	jr z, .stopSurfing
-	cp $ff
-	jr nz, .passableTileLoop
-.cannotStopSurfing
-	ld hl, SurfingNoPlaceToGetOffText
+;.tryToStopSurfing ; PureRGBnote: CHANGED: can't use surf to "get back on land", this feature is bugged anyway - you can get stuck on water by trying to get off while facing right when an NPC is to the right of you
+;	xor a
+;	ldh [hSpriteIndexOrTextID], a
+;	ld d, 16 ; talking range in pixels (normal range)
+;	call IsSpriteInFrontOfPlayer2
+;	res 7, [hl]
+;	ldh a, [hSpriteIndexOrTextID]
+;	and a ; is there a sprite in the way?
+;	jr nz, .cannotStopSurfing
+;	ld hl, TilePairCollisionsWater
+;	call CheckForTilePairCollisions
+;	jr c, .cannotStopSurfing
+;	ld hl, wTilesetCollisionPtr ; pointer to list of passable tiles
+;	ld a, [hli]
+;	ld h, [hl]
+;	ld l, a ; hl now points to passable tiles
+;	ld a, [wTileInFrontOfPlayer] ; tile in front of the player
+;	ld b, a
+;.passableTileLoop
+;	ld a, [hli]
+;	cp b
+;	jr z, .stopSurfing
+;	cp $ff
+;	jr nz, .passableTileLoop
+.alreadySurfing
+	ld hl, AlreadySurfingText
 	jp PrintText
-.stopSurfing
-	call .makePlayerMoveForward
-	ld hl, wd730
-	set 7, [hl]
-	xor a
-	ld [wWalkBikeSurfState], a ; change player state to walking
-	dec a
-	ld [wJoyIgnore], a
-	call PlayDefaultMusic ; play walking music
-	jp LoadWalkingPlayerSpriteGraphics
+;.stopSurfing ; PureRGBnote: CHANGED: can't use surf to "get back on land", this feature is bugged anyway
+;	call .makePlayerMoveForward
+;	ld hl, wd730
+;	set 7, [hl]
+;	xor a
+;	ld [wWalkBikeSurfState], a ; change player state to walking
+;	dec a
+;	ld [wJoyIgnore], a
+;	call PlayDefaultMusic ; play walking music
+;	jp LoadWalkingPlayerSpriteGraphics
 ; uses a simulated button press to make the player move forward
 .makePlayerMoveForward
 	ld a, [wPlayerDirection] ; direction the player is going
@@ -739,9 +899,7 @@ ItemUseSurfboard:
 .storeSimulatedButtonPress
 	ld a, b
 	ld [wSimulatedJoypadStatesEnd], a
-	xor a
-	ld [wWastedByteCD39], a
-	inc a
+	ld a, 1
 	ld [wSimulatedJoypadStatesIndex], a
 	ret
 
@@ -749,8 +907,8 @@ SurfingGotOnText:
 	text_far _SurfingGotOnText
 	text_end
 
-SurfingNoPlaceToGetOffText:
-	text_far _SurfingNoPlaceToGetOffText
+AlreadySurfingText:
+	text_far _AlreadySurfingText
 	text_end
 
 ItemUsePokedex:
@@ -796,6 +954,12 @@ ItemUseEvoStone:
 	ld [wActionResultOrTookBattleTurn], a ; item not used
 	pop af
 	ret
+
+ItemUseApexChip: ; PureRGBnote: ADDED: code for item that maximizes DVs of a pokemon.
+	ld a, [wIsInBattle]
+	and a
+	jp nz, ItemUseNotTime
+	jp ItemUseMedicine
 
 ItemUseVitamin:
 	ld a, [wIsInBattle]
@@ -857,7 +1021,7 @@ ItemUseMedicine:
 .checkItemType
 	ld a, [wcf91]
 	cp REVIVE
-	jr nc, .healHP ; if it's a Revive or Max Revive
+	jp nc, .healHP ; if it's a Revive or Max Revive
 	cp FULL_HEAL
 	jr z, .cureStatusAilment ; if it's a Full Heal
 	cp HP_UP
@@ -890,6 +1054,12 @@ ItemUseMedicine:
 	and c ; does the pokemon have a status ailment the item can cure?
 	jp z, .healingItemNoEffect
 ; if the pokemon has a status the item can heal
+;;;;;;;;;; PureRGBnote: ADDED: code that helps make the trainer AI not predict healing statuses perfectly and reapplying the same turn.
+	ld a, 1
+	ld [wAIMoveSpamAvoider], a
+	ld a, [wBattleMonStatus]
+	ld [wAITargetMonStatus], a
+;;;;;;;;;;
 	xor a
 	ld [hl], a ; remove the status ailment in the party data
 	ld a, b
@@ -898,18 +1068,28 @@ ItemUseMedicine:
 	cp d ; is pokemon the item was used on active in battle?
 	jp nz, .doneHealing
 ; if it is active in battle
-	xor a
-	ld [wBattleMonStatus], a ; remove the status ailment in the in-battle pokemon data
+;;;;;;;;;; shinpokerednote: FIXED: reset burn and paralyze stat drops on healing
 	push hl
 	ld hl, wPlayerBattleStatus3
 	res BADLY_POISONED, [hl] ; heal Toxic status
+	ldh a, [hWhoseTurn]
+	push af
+	xor a	;forcibly set it to the player's turn
+	ldh [hWhoseTurn], a
+	callfar UndoBurnParStats	;undo brn/par stat changes
+	pop af
+	ldh [hWhoseTurn], a
 	pop hl
+	xor a
+	ld [wBattleMonStatus], a ; remove the status ailment in the in-battle pokemon data
+	ld [wPlayerToxicCounter], a	;clear toxic counter
+;;;;;;;;;;
 	ld bc, wPartyMon1Stats - wPartyMon1Status
 	add hl, bc ; hl now points to party stats
 	ld de, wBattleMonStats
 	ld bc, NUM_STATS * 2
-	call CopyData ; copy party stats to in-battle stat data
-	predef DoubleOrHalveSelectedStats
+	;rst _CopyData ; copy party stats to in-battle stat data
+	;predef DoubleOrHalveSelectedStats ; shinpokerednote: FIXED: these function calls are redundant after the above code block
 	jp .doneHealing
 .healHP
 	inc hl ; hl = address of current HP
@@ -1085,9 +1265,9 @@ ItemUseMedicine:
 	cp SUPER_POTION
 	ld b, 200 ; Hyper Potion heal amount
 	jr c, .addHealAmount
-	ld b, 50 ; Super Potion heal amount
+	ld b, 100 ; Super Potion heal amount ; PureRGBnote: CHANGED: super potion heals 100 now instead of 50
 	jr z, .addHealAmount
-	ld b, 20 ; Potion heal amount
+	ld b, 50 ; Potion heal amount ; PureRGBnote: CHANGED: super potion heals 50 now instead of 20
 .addHealAmount
 	pop de
 	pop hl
@@ -1155,8 +1335,26 @@ ItemUseMedicine:
 	jr nz, .updateInBattleData
 	ld bc, wPartyMon1Status - (wPartyMon1MaxHP + 1)
 	add hl, bc
+;;;;;;;;;; shinpokerednote: FIXED: reset burn and paralyze stat drops on healing via full restore
+	ld a, [wIsInBattle]
+	and a
+	jr z, .clearParBrn	;do not adjust the stats if not currently in battle
+	push hl
+	push de
+	ldh a, [hWhoseTurn]
+	push af
+	xor a	;forcibly set it to the player's turn
+	ldh [hWhoseTurn], a
+	callfar UndoBurnParStats	;undo brn/par stat changes
+	pop af
+	ldh [hWhoseTurn], a
+	pop de
+	pop hl
+.clearParBrn
+;;;;;;;;;;
 	xor a
 	ld [hl], a ; remove the status ailment in the party data
+	ld [wPlayerToxicCounter], a	; shinpokerednote: FIXED: clear toxic counter
 .updateInBattleData
 	ld h, d
 	ld l, e
@@ -1233,7 +1431,7 @@ ItemUseMedicine:
 	ld a, 1
 	ldh [hAutoBGTransferEnabled], a
 	ld c, 50
-	call DelayFrames
+	rst _DelayFrames
 	call WaitForTextScrollButtonPress
 	jr .done
 .canceledItemUse
@@ -1270,6 +1468,8 @@ ItemUseMedicine:
 	ld a, [wcf91]
 	cp RARE_CANDY
 	jp z, .useRareCandy
+	cp APEX_CHIP
+	jp z, .useApexChip ; PureRGBnote: ADDED: specific code for using an apex chip
 	push hl
 	sub HP_UP
 	add a
@@ -1280,12 +1480,12 @@ ItemUseMedicine:
 	jr nc, .noCarry2
 	inc h
 .noCarry2
-	ld a, 10
+	ld a, 34 ; 10 ; PureRGBnote: CHANGED: vitamins are ~3.4 times as effective
 	ld b, a
 	ld a, [hl] ; a = MSB of stat experience of the appropriate stat
 	cp 100 ; is there already at least 25600 (256 * 100) stat experience?
 	jr nc, .vitaminNoEffect ; if so, vitamins can't add any more
-	add b ; add 2560 (256 * 10) stat experience
+	add b ; add ; PureRGBnote: CHANGED: now 8704 EXP (256*34) stat experience OLD: 2560 (256 * 10) 
 	jr nc, .noCarry3 ; a carry should be impossible here, so this will always jump
 	ld a, 255
 .noCarry3
@@ -1309,16 +1509,23 @@ ItemUseMedicine:
 .gotStatName
 	ld de, wStringBuffer
 	ld bc, 10
-	call CopyData ; copy the stat's name to wStringBuffer
+	rst _CopyData ; copy the stat's name to wStringBuffer
 	ld a, SFX_HEAL_AILMENT
-	call PlaySound
+	rst _PlaySound
 	ld hl, VitaminStatRoseText
-	call PrintText
+	rst _PrintText
 	jp RemoveUsedItem
+;;;;;;;;;; PureRGBnote: CHANGED: text for rare candy and vitamin "had no effect" differ now, with the vitamin one indicating it can't be raised further via items specifically.
+.rareCandyNoEffect
+	pop hl
+	ld hl, RareCandyNoEffectText
+	jr .printNoEffect
 .vitaminNoEffect
 	pop hl
 	ld hl, VitaminNoEffectText
-	call PrintText
+.printNoEffect
+;;;;;;;;;;
+	rst _PrintText
 	jp GBPalWhiteOut
 .recalculateStats
 	ld bc, wPartyMon1Stats - wPartyMon1
@@ -1335,7 +1542,7 @@ ItemUseMedicine:
 	add hl, bc ; hl now points to level
 	ld a, [hl] ; a = level
 	cp MAX_LEVEL
-	jr z, .vitaminNoEffect ; can't raise level above 100
+	jr z, .rareCandyNoEffect ; can't raise level above 100
 	inc a
 	ld [hl], a ; store incremented level
 	ld [wCurEnemyLVL], a
@@ -1416,6 +1623,65 @@ ItemUseMedicine:
 	pop af
 	ld [wWhichPokemon], a
 	jp RemoveUsedItem
+;;;;;;;;;; PureRGBnote: ADDED: code for maximizing DVs after using an apex chip and displaying the usage text.
+.useApexChip	
+	push hl
+	ld bc, wPartyMon1DVs - wPartyMon1
+	add hl, bc ; hl now points to DVs
+	ld a, $FF
+	cp [hl] ; is the first byte of their DVs maxed
+	jr z, .secondCompare
+	jr .setDVs
+.secondCompare
+	inc hl
+	cp [hl] ; is the second byte of their DVs maxed
+	jr z, .alreadyUsedApex ; if so, assume we already used an apex chip on the pokemon
+	dec hl
+.setDVs
+	ld [hli], a ; set first byte of DVs to max
+	ld [hl], a  ; set second byte of DVs to max
+	pop hl
+	push hl
+	call .recalculateStats
+	pop hl
+	ld bc, (wPartyMon1MaxHP) - wPartyMon1
+	add hl, bc ; hl now points to MSB of recalculated max HP
+	ld a, [hli]
+	ld b, a
+	ld a, [hld]
+	ld c, a
+	
+	; set current hp to new max hp
+	ld de, (wPartyMon1HP) - wPartyMon1MaxHP
+	add hl, de ; hl now points to MSB of current HP
+	ld a, b
+	ld [hli], a
+	ld a, c
+	ld [hld], a
+
+	ld hl, ApexChipPutOnPokeballText
+	rst _PrintText
+	ld hl, ApexChipDVsMaxedText
+	rst _PrintText
+	jp RemoveUsedItem
+.alreadyUsedApex
+	pop hl
+	ld hl, ApexChipAlreadyUsedText
+	rst _PrintText
+	jp GBPalWhiteOut
+
+ApexChipPutOnPokeballText:
+	text_far _ApexChipPutOnPokeballText
+	text_end
+
+ApexChipDVsMaxedText:
+	text_far _ApexChipDVsMaxedText
+	text_end
+
+ApexChipAlreadyUsedText:
+	text_far _ApexChipAlreadyUsedText
+	text_end
+;;;;;;;;;;
 
 VitaminStatRoseText:
 	text_far _VitaminStatRoseText
@@ -1425,11 +1691,15 @@ VitaminNoEffectText:
 	text_far _VitaminNoEffectText
 	text_end
 
+RareCandyNoEffectText:
+	text_far _RareCandyNoEffectText
+	text_end
+
 INCLUDE "data/battle/stat_names.asm"
 
 ItemUseBait:
 	ld hl, ThrewBaitText
-	call PrintText
+	rst _PrintText
 	ld hl, wEnemyMonActualCatchRate ; catch rate
 	srl [hl] ; halve catch rate
 	ld a, BAIT_ANIM
@@ -1439,7 +1709,7 @@ ItemUseBait:
 
 ItemUseRock:
 	ld hl, ThrewRockText
-	call PrintText
+	rst _PrintText
 	ld hl, wEnemyMonActualCatchRate ; catch rate
 	ld a, [hl]
 	add a ; double catch rate
@@ -1504,11 +1774,8 @@ ItemUseEscapeRope:
 	set 6, [hl]
 	ld hl, wd72e
 	res 4, [hl]
-	ResetEvent EVENT_IN_SAFARI_ZONE
-	xor a
-	ld [wNumSafariBalls], a
-	ld [wSafariZoneGateCurScript], a ; SCRIPT_SAFARIZONEGATE_DEFAULT
-	inc a
+	callfar ClearSafariFlags ; PureRGBnote: CHANGED: new function to clear safari flags on warping or flying out of it
+	ld a, 1
 	ld [wEscapedFromBattle], a
 	ld [wActionResultOrTookBattleTurn], a ; item used
 	ld a, [wPseudoItemID]
@@ -1516,12 +1783,86 @@ ItemUseEscapeRope:
 	ret nz ; if so, return
 	call ItemUseReloadOverworldData
 	ld c, 30
-	call DelayFrames
+	rst _DelayFrames
 	jp RemoveUsedItem
 .notUsable
 	jp ItemUseNotTime
 
 INCLUDE "data/tilesets/escape_rope_tilesets.asm"
+
+; PureRGBnote: ADDED: code for teleporting via the pocket abra item. Has some unique text including the abra's nickname and sound effects.
+ItemUsePocketAbra:
+	ld a, [wIsInBattle]
+	and a
+	jp nz, ItemUseNotTime
+	ld hl, .wantToTeleportText
+	rst _PrintText
+	call YesNoChoice
+	ld a, [wCurrentMenuItem]
+	and a
+	jr z, .yes
+.no
+	ld hl, .pocketAbraNo
+	rst _PrintText
+	ret
+.yes
+	ld hl, wd732
+	set 3, [hl]
+	set 6, [hl]
+	ld hl, wd72e
+	set 1, [hl]
+	res 4, [hl]
+	callfar ClearSafariFlags
+	call ItemUseReloadOverworldData
+	call Random
+	cp 200
+	jr nc, .flavor1
+	cp 150
+	jr nc, .flavor2
+	cp 100
+	jr nc, .flavor3
+	cp 50
+	jr nc, .flavor4
+	ld hl, .pocketAbraFlavorText5
+.done
+	rst _PrintText
+	call StopMusic
+	ld a, ABRA
+	call PlayCry
+	ret
+.flavor1
+	ld hl, .pocketAbraFlavorText1
+	jr .done
+.flavor2
+	ld hl, .pocketAbraFlavorText2
+	jr .done
+.flavor3
+	ld hl, .pocketAbraFlavorText3
+	jr .done
+.flavor4
+	ld hl, .pocketAbraFlavorText4
+	jr .done
+.wantToTeleportText
+	text_far _WantToTeleportText
+	text_end
+.pocketAbraNo
+	text_far _PocketAbraNo
+	text_end
+.pocketAbraFlavorText1
+	text_far _PocketAbraFlavorText1
+	text_end
+.pocketAbraFlavorText2
+	text_far _PocketAbraFlavorText2
+	text_end
+.pocketAbraFlavorText3
+	text_far _PocketAbraFlavorText3
+	text_end
+.pocketAbraFlavorText4
+	text_far _PocketAbraFlavorText4
+	text_end
+.pocketAbraFlavorText5
+	text_far _PocketAbraFlavorText5
+	text_end
 
 ItemUseRepel:
 	ld b, 100
@@ -1538,69 +1879,68 @@ ItemUseRepelCommon:
 ItemUseXAccuracy:
 	ld a, [wIsInBattle]
 	and a
-	jp z, ItemUseNotTime
+	jp z, ItemUseInBattle ; PureRGBnote: CHANGED: text that displays when using out of battle indicates it's for use in battle
 	ld hl, wPlayerBattleStatus2
 	set USING_X_ACCURACY, [hl] ; X Accuracy bit
 	jp PrintItemUseTextAndRemoveItem
 
 ; This function is bugged and never works. It always jumps to ItemUseNotTime.
-; The Card Key is handled in a different way.
+; The Card Key is handled in a different way. ; PureRGBnote: CHANGED: unused code commented out
 ItemUseCardKey:
-	xor a
-	ld [wUnusedD71F], a
-	call GetTileAndCoordsInFrontOfPlayer
-	ld a, [GetTileAndCoordsInFrontOfPlayer]
-	cp $18
-	jr nz, .next0
-	ld hl, CardKeyTable1
-	jr .next1
-.next0
-	cp $24
-	jr nz, .next2
-	ld hl, CardKeyTable2
-	jr .next1
-.next2
-	cp $5e
-	jp nz, ItemUseNotTime
-	ld hl, CardKeyTable3
-.next1
-	ld a, [wCurMap]
-	ld b, a
-.loop
-	ld a, [hli]
-	cp -1
-	jp z, ItemUseNotTime
-	cp b
-	jr nz, .nextEntry1
-	ld a, [hli]
-	cp d
-	jr nz, .nextEntry2
-	ld a, [hli]
-	cp e
-	jr nz, .nextEntry3
-	ld a, [hl]
-	ld [wUnusedD71F], a
-	jr .done
-.nextEntry1
-	inc hl
-.nextEntry2
-	inc hl
-.nextEntry3
-	inc hl
-	jr .loop
-.done
-	ld hl, ItemUseText00
-	call PrintText
-	ld hl, wd728
-	set 7, [hl]
-	ret
+	jp ItemUseNotTime
+;	xor a
+;	call GetTileAndCoordsInFrontOfPlayer
+;	ld a, [GetTileAndCoordsInFrontOfPlayer]
+;	cp $18
+;	jr nz, .next0
+;	ld hl, CardKeyTable1
+;	jr .next1
+;.next0
+;	cp $24
+;	jr nz, .next2
+;	ld hl, CardKeyTable2
+;	jr .next1
+;.next2
+;	cp $5e
+;	jp nz, ItemUseNotTime
+;	ld hl, CardKeyTable3
+;.next1
+;	ld a, [wCurMap]
+;	ld b, a
+;.loop
+;	ld a, [hli]
+;	cp -1
+;	jp z, ItemUseNotTime
+;	cp b
+;	jr nz, .nextEntry1
+;	ld a, [hli]
+;	cp d
+;	jr nz, .nextEntry2
+;	ld a, [hli]
+;	cp e
+;	jr nz, .nextEntry3
+;	ld a, [hl]
+;	jr .done
+;.nextEntry1
+;	inc hl
+;.nextEntry2
+;	inc hl
+;.nextEntry3
+;	inc hl
+;	jr .loop
+;.done
+;	ld hl, ItemUseText00
+;	rst _PrintText
+;	ld hl, wd728
+;	set 7, [hl]
+;	ret
 
-INCLUDE "data/events/card_key_coords.asm"
+;INCLUDE "data/events/card_key_coords.asm"
 
 ItemUsePokedoll:
 	ld a, [wIsInBattle]
 	dec a
-	jp nz, ItemUseNotTime
+	jp nz, ItemUseInBattle ; PureRGBnote: CHANGED: text that displays when using out of battle indicates it's for use in battle
 	ld a, $01
 	ld [wEscapedFromBattle], a
 	jp PrintItemUseTextAndRemoveItem
@@ -1608,9 +1948,9 @@ ItemUsePokedoll:
 ItemUseGuardSpec:
 	ld a, [wIsInBattle]
 	and a
-	jp z, ItemUseNotTime
+	jp z, ItemUseInBattle ; PureRGBnote: CHANGED: text that displays when using out of battle indicates it's for use in battle
 	ld hl, wPlayerBattleStatus2
-	set PROTECTED_BY_MIST, [hl] ; Mist bit
+	set STAT_DOWN_IMMUNITY, [hl] ; Mist bit
 	jp PrintItemUseTextAndRemoveItem
 
 ItemUseSuperRepel:
@@ -1624,7 +1964,7 @@ ItemUseMaxRepel:
 ItemUseDireHit:
 	ld a, [wIsInBattle]
 	and a
-	jp z, ItemUseNotTime
+	jp z, ItemUseInBattle ; PureRGBnote: CHANGED: text that displays when using out of battle indicates it's for use in battle
 	ld hl, wPlayerBattleStatus2
 	set GETTING_PUMPED, [hl] ; Focus Energy bit
 	jp PrintItemUseTextAndRemoveItem
@@ -1633,7 +1973,7 @@ ItemUseXStat:
 	ld a, [wIsInBattle]
 	and a
 	jr nz, .inBattle
-	call ItemUseNotTime
+	call ItemUseInBattle ; PureRGBnote: CHANGED: text that displays when using out of battle indicates it's for use in battle
 	ld a, 2
 	ld [wActionResultOrTookBattleTurn], a ; item not used
 	ret
@@ -1678,7 +2018,7 @@ ItemUsePokeflute:
 	call ArePlayerCoordsInArray
 	jr nc, .noSnorlaxToWakeUp
 	ld hl, PlayedFluteHadEffectText
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_FIGHT_ROUTE12_SNORLAX
 	ret
 .notRoute12
@@ -1691,13 +2031,17 @@ ItemUsePokeflute:
 	call ArePlayerCoordsInArray
 	jr nc, .noSnorlaxToWakeUp
 	ld hl, PlayedFluteHadEffectText
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_FIGHT_ROUTE16_SNORLAX
 	ret
 .noSnorlaxToWakeUp
 	ld hl, PlayedFluteNoEffectText
 	jp PrintText
 .inBattle
+;;;;;;;;;; PureRGBnote: ADDED: prevents AI from instantly preferring reapplying sleep after having healed it
+	ld a, [wBattleMonStatus]
+	ld [wAITargetMonStatus], a
+;;;;;;;;;;
 	xor a
 	ld [wWereAnyMonsAsleep], a
 	ld b, ~SLP_MASK
@@ -1709,6 +2053,10 @@ ItemUsePokeflute:
 ; if it's a trainer battle
 	ld hl, wEnemyMon1Status
 	call WakeUpEntireParty
+;;;;;;;;;; PureRGBnote: ADDED: prevents AI from instantly preferring reapplying sleep after having healed it
+	ld a, 1
+	ld [wAIMoveSpamAvoider], a ; load this value so the AI doesn't spam status moves right after you heal them
+;;;;;;;;;;
 .skipWakingUpEnemyParty
 	ld hl, wBattleMonStatus
 	ld a, [hl]
@@ -1716,6 +2064,19 @@ ItemUsePokeflute:
 	ld [hl], a
 	ld hl, wEnemyMonStatus
 	ld a, [hl]
+
+;;;;;;;;;; shinpokerednote: FIXED: There is an oversight here. 
+;;;;;;;;;; wWereAnyMonsAsleep can never get set off of a wild pokemon.
+;;;;;;;;;; As a result, the wrong message plays when only the wild pokemon is woken up.
+;;;;;;;;;; Need to check and set wWereAnyMonsAsleep here in order to fix it.
+	push af
+	and SLP_MASK ; is pokemon asleep?
+	jr z, .notAsleep
+	ld a, 1
+	ld [wWereAnyMonsAsleep], a ; indicate that a pokemon had to be woken up
+.notAsleep
+	pop af
+;;;;;;;;;;
 	and b ; remove Sleep status
 	ld [hl], a
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
@@ -1725,9 +2086,9 @@ ItemUsePokeflute:
 	jp z, PrintText ; if no pokemon were asleep
 ; if some pokemon were asleep
 	ld hl, PlayedFluteHadEffectText
-	call PrintText
-	ld a, [wLowHealthAlarm]
-	and $80
+	rst _PrintText
+	ld a, [wLowHealthTonePairs]
+	bit 7, a ; set if low health alarm sound is currently playing
 	jr nz, .skipMusic
 	call WaitForSoundToFinish ; wait for sound to end
 	farcall Music_PokeFluteInBattle ; play in-battle pokeflute music
@@ -1794,7 +2155,7 @@ PlayedFluteHadEffectText:
 	jr nz, .done
 ; play out-of-battle pokeflute music
 	ld a, SFX_STOP_ALL_MUSIC
-	call PlaySound
+	rst _PlaySound
 	ld a, SFX_POKEFLUTE
 	ld c, BANK(SFX_Pokeflute)
 	call PlayMusic
@@ -1804,7 +2165,7 @@ PlayedFluteHadEffectText:
 	jr z, .musicWaitLoop
 	call PlayDefaultMusic ; start playing normal music again
 .done
-	jp TextScriptEnd ; end text
+	rst TextScriptEnd ; end text
 
 ItemUseCoinCase:
 	ld a, [wIsInBattle]
@@ -1817,25 +2178,42 @@ CoinCaseNumCoinsText:
 	text_far _CoinCaseNumCoinsText
 	text_end
 
-ItemUseOldRod:
+; PureRGBnote: CHANGED: now has 50% chance of landing goldeen and 50% chance of landing magikarp.
+ItemUseOldRod: 
 	call FishingInit
 	jp c, ItemUseNotTime
-	lb bc, 5, MAGIKARP
-	ld a, $1 ; set bite
-	jr RodResponse
-
-ItemUseGoodRod:
-	call FishingInit
-	jp c, ItemUseNotTime
-.RandomLoop
 	call Random
-	srl a
-	jr c, .SetBite
+	and 1
+	jr z, .goldeen
+	lb bc, 10, MAGIKARP
+	jr .done
+.goldeen
+	lb bc, 10, GOLDEEN
+.done
+	ld a, $1 ; set bite
+	jp RodResponse
+
+; PureRGBnote: CHANGED: now lands a different set of pokemon depending if you're fishing in a lake/pond/river or the ocean.
+ItemUseGoodRod: 
+	call FishingInit
+	jp c, ItemUseNotTime
+	call Random
 	and %11
-	cp 2
-	jr nc, .RandomLoop
-	; choose which monster appears
+	and a
+	jr z, .SetBite ;25% chance of no bite
+	; choose which good rod pokemon table
+	ld a, [wCurMap]
+	ld c, a
+	call IsMapOceanMap
+	jr c, .ocean
 	ld hl, GoodRodMons
+	jr .gotMons
+.ocean
+	ld hl, GoodRodMonsOcean	
+.gotMons
+	; now choose which pokemon in the table
+	call Random
+	and %11
 	add a
 	ld c, a
 	ld b, 0
@@ -1844,14 +2222,14 @@ ItemUseGoodRod:
 	inc hl
 	ld c, [hl]
 	and a
+	ld a, 1
 .SetBite
-	ld a, 0
-	rla
-	xor 1
 	jr RodResponse
 
 INCLUDE "data/wild/good_rod.asm"
+INCLUDE "data/maps/ocean_maps.asm"
 
+; PureRGBnote: ADDED: super rod can land alternate palette pokemon depending on where you fish.
 ItemUseSuperRod:
 	call FishingInit
 	jp c, ItemUseNotTime
@@ -1869,6 +2247,13 @@ RodResponse:
 	ld [wCurEnemyLVL], a
 	ld a, c ; species
 	ld [wCurOpponent], a
+	; store fishing item index so we can reload it next time we open the item menu outside battle
+	ld a, [wBagSavedMenuItem]
+	ld [wSavedFishingItem], a
+	ld a, [wListScrollOffset]
+	ld [wSavedFishingItemOffset], a
+	ld a, 2
+	ld [wExtraSavedStartMenuIndex], a ; ITEM menu saved index saved for use after battle
 
 .next
 	ld hl, wWalkBikeSurfState
@@ -1898,20 +2283,21 @@ FishingInit:
 	jr z, .surfing
 	call ItemUseReloadOverworldData
 	ld hl, ItemUseText00
-	call PrintText
+	rst _PrintText
 	ld a, SFX_HEAL_AILMENT
-	call PlaySound
-	ld c, 80
-	call DelayFrames
+	rst _PlaySound
+	ld c, 20 ; PureRGBnote: CHANGED: reduce the artificial delay on initiating fishing.
+	rst _DelayFrames
 	and a
 	ret
 .surfing
 	scf ; can't fish when surfing
 	ret
 
-ItemUseOaksParcel:
+ItemNotYours:
 	jp ItemUseNotYoursToUse
 
+; PureRGBnote: CHANGED: ADDED: itemfinder will make you face in the direction of the item it detected. 
 ItemUseItemfinder:
 	ld a, [wIsInBattle]
 	and a
@@ -1921,16 +2307,61 @@ ItemUseItemfinder:
 	ld hl, ItemfinderFoundNothingText
 	jr nc, .printText ; if no hidden items
 	ld c, 4
+	ld a, [wItemFinderItemDirection]
+	and a ; a = 0 means we're on top of the item
+	jr z, .loop2
 .loop
+	; default audio effect for itemfinder
 	ld a, SFX_HEALING_MACHINE
 	call PlaySoundWaitForCurrent
 	ld a, SFX_PURCHASE
 	call PlaySoundWaitForCurrent
 	dec c
 	jr nz, .loop
+	jr .doneLoop
+.loop2
+	; audio effect if right on top of the hidden item
+	ld a, SFX_PURCHASE
+	call PlaySoundWaitForCurrent
+	dec c
+	jr nz, .loop2
+.doneLoop
+	; say itemfinder found an item if we haven't seen this text yet
+	ld a, [wSawItemFinderText]
+	and a
+	jr nz, .doDirectionFacing ; already have seen the text since restarting the cartridge
 	ld hl, ItemfinderFoundItemText
+	rst _PrintText
+	ld a, 1
+	ld [wSawItemFinderText], a ; PureRGBnote: CHANGED: only display the "yes! itemfinder found an item!" text once per game restart
+.doDirectionFacing
+	ld a, [wItemFinderItemDirection]
+	and a ; a = 0 means we're on top of the item
+	jr z, .onTopOfItem2
+	; if we're not on top of the item, face the best direction to indicate where it is
+	ld [wPlayerMovingDirection], a
+	ld a, SFX_ARROW_TILES
+	call PlaySoundWaitForCurrent
+	xor a
+	ld [wEmotionBubbleSpriteIndex], a
+	ld a, QUESTION_BUBBLE
+  	ld [wWhichEmotionBubble], a
+	predef EmotionBubbleQuick
+	jr .done
+.onTopOfItem2
+	; if we're on top of the item, show an exclamation bubble
+	ld a, SFX_SWAP
+	call PlaySoundWaitForCurrent
+	ld a, EXCLAMATION_BUBBLE
+  	ld [wWhichEmotionBubble], a
+	xor a
+	ld [wEmotionBubbleSpriteIndex], a
+	predef EmotionBubble
+	jr .done
 .printText
-	jp PrintText
+	rst _PrintText
+.done	
+	ret
 
 ItemfinderFoundItemText:
 	text_far _ItemfinderFoundItemText
@@ -1970,7 +2401,7 @@ ItemUsePPRestore:
 	jr c, .printWhichTechniqueMessage ; if so, print the raise PP message
 	ld hl, RestorePPWhichTechniqueText ; otherwise, print the restore PP message
 .printWhichTechniqueMessage
-	call PrintText
+	rst _PrintText
 	xor a
 	ld [wPlayerMoveListIndex], a
 	callfar MoveSelectionMenu ; move selection menu
@@ -1996,17 +2427,17 @@ ItemUsePPRestore:
 	cp 3 << 6 ; have 3 PP Ups already been used?
 	jr c, .PPNotMaxedOut
 	ld hl, PPMaxedOutText
-	call PrintText
+	rst _PrintText
 	jr .chooseMove
 .PPNotMaxedOut
 	ld a, [hl]
-	add 1 << 6 ; increase PP Up count by 1
+	add 3 << 6 ; increase PP Up count by 3 (maximizes PP) ; PureRGBnote: CHANGED: PP up maximizes PP on a move in one usage
 	ld [hl], a
 	ld a, 1 ; 1 PP Up used
-	ld [wd11e], a
+	ld [wUsingPPUp], a
 	call RestoreBonusPP ; add the bonus PP to current PP
 	ld hl, PPIncreasedText
-	call PrintText
+	rst _PrintText
 .done
 	pop af
 	ld [wWhichPokemon], a
@@ -2024,12 +2455,12 @@ ItemUsePPRestore:
 	call AddNTimes
 	ld de, wBattleMonPP
 	ld bc, 4
-	call CopyData ; copy party data to in-battle data
+	rst _CopyData ; copy party data to in-battle data
 .skipUpdatingInBattleData
 	ld a, SFX_HEAL_AILMENT
-	call PlaySound
+	rst _PlaySound
 	ld hl, PPRestoredText
-	call PrintText
+	rst _PrintText
 	jr .done
 .useEther
 	call .restorePP
@@ -2145,6 +2576,16 @@ PPRestoredText:
 UnusableItem:
 	jp ItemUseNotTime
 
+; PureRGBnote: ADDED: text for items that should be sold and have no other use
+ValuableItem:
+	ld hl, ItemUseValuableText
+	jp ItemUseFailed
+
+; PureRGBnote: ADDED: text for fossils indicating they may be better deposited into the PC until a use for them is found.
+FossilItem:
+	ld hl, ItemUseFossilText
+	jp ItemUseFailed
+
 ItemUseTMHM:
 	ld a, [wIsInBattle]
 	and a
@@ -2164,12 +2605,26 @@ ItemUseTMHM:
 	call CopyToStringBuffer
 	pop af
 	ld hl, BootedUpTMText
-	jr nc, .printBootedUpMachineText
+;;;;;;;;;; PureRGBnote: ADDED: booting up a TM or HM both have a little sound effect now
+	jr nc, .playTMSound
 	ld hl, BootedUpHMText
+.playHMSound
+	push hl
+	ld a, SFX_ENTER_PC
+	jr .printBootedUpMachineText
+.playTMSound
+	push hl
+	ld a, SFX_59
 .printBootedUpMachineText
-	call PrintText
+	call PlaySoundWaitForCurrent ; play a sound for booting up a HM
+	call WaitForSoundToFinish
+	ld a, SFX_LEDGE
+	call PlaySoundWaitForCurrent 
+	pop hl
+;;;;;;;;;;
+	rst _PrintText
 	ld hl, TeachMachineMoveText
-	call PrintText
+	rst _PrintText
 	hlcoord 14, 7
 	lb bc, 8, 15
 	ld a, TWO_OPTION_MENU
@@ -2178,6 +2633,10 @@ ItemUseTMHM:
 	ld a, [wCurrentMenuItem]
 	and a
 	jr z, .useMachine
+;;;;;;;;;; Vimescarrotnote: FIXED: fixes a rare bug where booting up a TM and then going back can freeze up the game on booting up another
+    ld a, ITEM_NAME
+    ld [wNameListType], a; if you decide not to use the machine, change the list type back to item list.
+;;;;;;;;;;
 	ld a, 2
 	ld [wActionResultOrTookBattleTurn], a ; item not used
 	ret
@@ -2190,7 +2649,7 @@ ItemUseTMHM:
 	ld hl, wStringBuffer
 	ld de, wTempMoveNameBuffer
 	ld bc, 14
-	call CopyData ; save the move name because DisplayPartyMenu will overwrite it
+	rst _CopyData ; save the move name because DisplayPartyMenu will overwrite it
 	ld a, $ff
 	ld [wUpdateSpritesEnabled], a
 	ld a, TMHM_PARTY_MENU
@@ -2200,7 +2659,7 @@ ItemUseTMHM:
 	ld hl, wTempMoveNameBuffer
 	ld de, wStringBuffer
 	ld bc, 14
-	call CopyData
+	rst _CopyData
 	pop af
 	jr nc, .checkIfAbleToLearnMove
 ; if the player canceled teaching the move
@@ -2224,11 +2683,12 @@ ItemUseTMHM:
 	ld a, SFX_DENIED
 	call PlaySoundWaitForCurrent
 	ld hl, MonCannotLearnMachineMoveText
-	call PrintText
+	rst _PrintText
 	jr .chooseMon
 .checkIfAlreadyLearnedMove
 	callfar CheckIfMoveIsKnown ; check if the pokemon already knows the move
 	jr c, .chooseMon
+	SetEvent FLAG_LEARNING_TM_MOVE
 	predef LearnMove ; teach move
 	pop af
 	ld [wcf91], a
@@ -2260,9 +2720,9 @@ MonCannotLearnMachineMoveText:
 
 PrintItemUseTextAndRemoveItem:
 	ld hl, ItemUseText00
-	call PrintText
+	rst _PrintText
 	ld a, SFX_HEAL_AILMENT
-	call PlaySound
+	rst _PlaySound
 	call WaitForTextScrollButtonPress ; wait for button press
 
 RemoveUsedItem:
@@ -2279,6 +2739,11 @@ ItemUseNotTime:
 	ld hl, ItemUseNotTimeText
 	jr ItemUseFailed
 
+; PureRGBnote: ADDED: text for items that are meant for use in battle indicating that
+ItemUseInBattle:
+	ld hl, ItemUseInBattleText
+	jr ItemUseFailed
+
 ItemUseNotYoursToUse:
 	ld hl, ItemUseNotYoursToUseText
 	jr ItemUseFailed
@@ -2287,13 +2752,13 @@ ThrowBallAtTrainerMon:
 	call RunDefaultPaletteCommand
 	call LoadScreenTilesFromBuffer1 ; restore saved screen
 	call Delay3
-	ld a, TOSS_ANIM
-	ld [wAnimationID], a
+	; PureRGBnote: ADDED: choose which toss animation to use before entering the animation code
+	call MapBallToAnimation
 	predef MoveAnimation ; do animation
 	ld hl, ThrowBallAtTrainerMonText1
-	call PrintText
+	rst _PrintText
 	ld hl, ThrowBallAtTrainerMonText2
-	call PrintText
+	rst _PrintText
 	jr RemoveUsedItem
 
 NoCyclingAllowedHere:
@@ -2314,6 +2779,18 @@ ItemUseFailed:
 
 ItemUseNotTimeText:
 	text_far _ItemUseNotTimeText
+	text_end
+
+ItemUseValuableText:
+	text_far _ItemUseValuableText
+	text_end
+
+ItemUseFossilText:
+	text_far _ItemUseFossilText
+	text_end
+
+ItemUseInBattleText:
+	text_far _ItemUseInBattleText
 	text_end
 
 ItemUseNotYoursToUseText:
@@ -2436,9 +2913,9 @@ AddBonusPP:
 .addAmount
 	add b
 	ld b, a
-	ld a, [wUsingPPUp]
-	dec a ; is the player using a PP Up right now?
-	jr z, .done ; if so, only add the bonus once
+	;ld a, [wUsingPPUp] ; PureRGBnote: CHANGED: PP UPs max out PP in one go
+	;dec a ; is the player using a PP Up right now?
+	;jr z, .ppUP ; if so, only add the bonus three times
 	dec c
 	jr nz, .loop
 .done
@@ -2555,7 +3032,7 @@ TossItem_::
 	call GetItemName
 	call CopyToStringBuffer
 	ld hl, IsItOKToTossItemText
-	call PrintText
+	rst _PrintText
 	hlcoord 14, 7
 	lb bc, 8, 15
 	ld a, TWO_OPTION_MENU
@@ -2574,15 +3051,19 @@ TossItem_::
 	ld [wd11e], a
 	call GetItemName
 	call CopyToStringBuffer
+;;;;;;;;;; PureRGBnote: ADDED: sound effect when throwing away an item
+	ld a, SFX_TELEPORT_ENTER_2
+	rst _PlaySound
+;;;;;;;;;;
 	ld hl, ThrewAwayItemText
-	call PrintText
+	rst _PrintText
 	pop hl
 	and a
 	ret
 .tooImportantToToss
 	push hl
 	ld hl, TooImportantToTossText
-	call PrintText
+	rst _PrintText
 	pop hl
 	scf
 	ret
@@ -2618,7 +3099,7 @@ IsKeyItem_::
 	ld de, wBuffer
 	ld bc, 15 ; only 11 bytes are actually used
 	ASSERT 15 >= (NUM_ITEMS + 7) / 8
-	call CopyData
+	rst _CopyData
 	pop af
 	dec a
 	ld c, a
@@ -2676,7 +3157,7 @@ SendNewMonToBox:
 	push bc
 	push hl
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop hl
 	ld d, h
 	ld e, l
@@ -2689,7 +3170,7 @@ SendNewMonToBox:
 	ld hl, wPlayerName
 	ld de, wBoxMonOT
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld a, [wBoxCount]
 	dec a
 	jr z, .skip2
@@ -2710,7 +3191,7 @@ SendNewMonToBox:
 	push bc
 	push hl
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop hl
 	ld d, h
 	ld e, l
@@ -2720,10 +3201,24 @@ SendNewMonToBox:
 	dec b
 	jr nz, .loop3
 .skip2
+;;;;;;;;;; PureRGBnote: ADDED: when in bills garden, if a pikachu is caught, skip nicknaming automatically.
+	ld a, [wCurMap]
+	cp BILLS_GARDEN
+	jr nz, .notBillsGarden
+	callfar PikabluNicknameLoad
+	jr nz, .notBillsGarden
+	push de
+	ld de, wBoxMonNicks
+	callfar ForceLoadNickname
+	pop de
+	jr .skipAskName
+.notBillsGarden
+;;;;;;;;;;
 	ld hl, wBoxMonNicks
 	ld a, NAME_MON_SCREEN
 	ld [wNamingScreenType], a
 	predef AskName
+.skipAskName
 	ld a, [wBoxCount]
 	dec a
 	jr z, .skip3
@@ -2744,7 +3239,7 @@ SendNewMonToBox:
 	push bc
 	push hl
 	ld bc, wBoxMon2 - wBoxMon1
-	call CopyData
+	rst _CopyData
 	pop hl
 	ld d, h
 	ld e, l
@@ -2754,12 +3249,18 @@ SendNewMonToBox:
 	dec b
 	jr nz, .loop4
 .skip3
+;;;;;;;;;; PureRGBnote: Reset the enemy pokemon's types in case they were remapped during battle
+	ld a, [wMonHType1]
+	ld [wEnemyMonType1], a
+	ld a, [wMonHType2]
+	ld [wEnemyMonType2], a
+;;;;;;;;;;
 	ld a, [wEnemyMonLevel]
 	ld [wEnemyMonBoxLevel], a
 	ld hl, wEnemyMon
 	ld de, wBoxMon1
 	ld bc, wEnemyMonDVs - wEnemyMon
-	call CopyData
+	rst _CopyData
 	ld hl, wPlayerID
 	ld a, [hli]
 	ld [de], a
@@ -2807,21 +3308,26 @@ SendNewMonToBox:
 ; checks if the tile in front of the player is a shore or water tile
 ; used for surfing and fishing
 ; unsets carry if it is, sets carry if not
-IsNextTileShoreOrWater:
+IsNextTileShoreOrWater::
 	ld a, [wCurMapTileset]
 	ld hl, WaterTilesets
 	ld de, 1
 	call IsInArray
-	jr nc, .notShoreOrWater
+	jr nc, WaterTileSetIsNextTileShoreOrWater.notShoreOrWater
+	; fall through
+WaterTileSetIsNextTileShoreOrWater::
 	ld a, [wCurMapTileset]
 	cp SHIP_PORT ; Vermilion Dock tileset
-	ld a, [wTileInFrontOfPlayer] ; tile in front of player
 	jr z, .skipShoreTiles ; if it's the Vermilion Dock tileset
+	cp CAVERN ; PureRGBnote: ADDED: fixes an issue with the unused tiles in the cavern tileset causing surf incorrectly (they are used now)
+	jr z, .skipShoreTiles
+	ld a, [wTileInFrontOfPlayer] ; tile in front of player
 	cp $48 ; eastern shore tile in Safari Zone
 	jr z, .shoreOrWater
 	cp $32 ; usual eastern shore tile
 	jr z, .shoreOrWater
 .skipShoreTiles
+	ld a, [wTileInFrontOfPlayer] ; tile in front of player
 	cp $14 ; water tile
 	jr z, .shoreOrWater
 .notShoreOrWater
@@ -2858,15 +3364,30 @@ ReadSuperRodData:
 	inc hl ; point to data
 	ld e, $0 ; no bite yet
 
+	call Random
+;;;;;;;;;; PureRGBnote: CHANGED: fishing rods now have a hard 1/4 chance of not catching a pokemon instead of a repeated 1/2 chance.
+	and %11 ; 2-bit random number
+	and a
+	ret z ; 25% chance of no battle (25% chance of 2 bits being 00)
+;;;;;;;;;;
+
+;;;;;;;;;; PureRGBnote: ADDED: alt palette pokemon can show up when fishing in places with the super rod.
 .RandomLoop
 	call Random
-	srl a
-	ret c ; 50% chance of no battle
-
 	and %11 ; 2-bit random number
 	cp b
 	jr nc, .RandomLoop ; if a is greater than the number of mons, regenerate
 
+	ld b, a
+	push hl
+	push af
+	ld a, b
+	add 20 ; fishing group indices start at bit 20 of the palette flag array
+	ld [wIsAltPalettePkmn], a ; index from 20 to 23 to indicate which palette flag to check
+	callfar CheckWildPokemonPalettes ; stores the palette flag if the given pokemon should be alt palette
+	pop af
+	pop hl
+;;;;;;;;;;
 	; get the mon
 	add a
 	ld c, a
@@ -2886,51 +3407,65 @@ ItemUseReloadOverworldData:
 	call LoadCurrentMapView
 	jp UpdateSprites
 
-; creates a list at wBuffer of maps where the mon in [wd11e] can be found.
-; this is used by the pokedex to display locations the mon can be found on the map.
-FindWildLocationsOfMon:
-	ld hl, WildDataPointers
-	ld de, wBuffer
-	ld c, $0
-.loop
-	inc hl
-	ld a, [hld]
-	inc a
-	jr z, .done
-	push hl
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ld a, [hli]
-	and a
-	call nz, CheckMapForMon ; land
-	ld a, [hli]
-	and a
-	call nz, CheckMapForMon ; water
-	pop hl
-	inc hl
-	inc hl
-	inc c
-	jr .loop
-.done
-	ld a, $ff ; list terminator
-	ld [de], a
+;;;;;;;;;; pureRGBnote: ADDED: text indicating your box is full or how much is left
+PrintRemainingBoxSpacePrompt:
+	call PrintRemainingBoxSpace
+	ld hl, TextScriptPromptButton
+	jp TextCommandProcessor
+
+PrintRemainingBoxSpace:
+	ld hl, wBoxNumString
+	ld a, [wCurrentBoxNum]
+	and %01111111 ; last bit of wCurrentBoxNum is used as a flag and should be ignored
+	inc a ; wCurrentBoxNum starts at 0 but we want 1
+	call Load2DigitNumberBelow20
+	ld a, [wBoxCount]
+	cp MONS_PER_BOX
+	jr nz, .notFullBox
+	ld hl, NoBoxSlotsLeftText
+	rst _PrintText
+	ret
+.notFullBox
+	ld h, a
+	ld a, MONS_PER_BOX
+	sub h
+	ld hl, w2CharStringBuffer
+	call Load2DigitNumberBelow20
+	ld hl, BoxSlotsLeftText
+	rst _PrintText
 	ret
 
-CheckMapForMon:
-	inc hl
-	ld b, NUM_WILDMONS
-.loop
-	ld a, [wd11e]
-	cp [hl]
-	jr nz, .nextEntry
-	ld a, c
-	ld [de], a
-	inc de
-.nextEntry
-	inc hl
-	inc hl
-	dec b
-	jr nz, .loop
-	dec hl
+Load2DigitNumberBelow20:
+	cp 10
+	jr c, .singleDigit
+	sub 10
+	push af
+	ld a, "1"
+	ld [hli], a
+	pop af
+.singleDigit
+	add NUMBER_CHAR_OFFSET
+	ld [hli], a
+	ld a, "@"
+	ld [hl], a
 	ret
+;;;;;;;;;;
+
+GetReceivedMonPointer:
+	ld hl, wPartyMonNicks
+	ld bc, NAME_LENGTH
+	ld a, [wPartyCount]
+	dec a
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ret
+
+; PureRGBnote: ADDED: text topsecretkey (small hint)
+UseTopSecretKey:
+	ld hl, TopSecretKeyText
+	jp ItemUseFailed
+
+TopSecretKeyText:
+	text_far _TopSecretKeyText
+	text_end

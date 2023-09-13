@@ -7,27 +7,12 @@ CinnabarGym_Script:
 
 CinnabarGymSetMapAndTiles:
 	ld hl, wCurrentMapScriptFlags
-	bit 6, [hl]
 	res 6, [hl]
-	push hl
-	call nz, .LoadNames
-	pop hl
 	bit 5, [hl]
 	res 5, [hl]
 	call nz, UpdateCinnabarGymGateTileBlocks
 	ResetEvent EVENT_2A7
 	ret
-
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "CINNABAR ISLAND@"
-
-.LeaderName:
-	db "BLAINE@"
 
 CinnabarGymResetScripts:
 	xor a ; SCRIPT_CINNABARGYM_DEFAULT
@@ -54,7 +39,7 @@ CinnabarGymDefaultScript:
 	and a
 	ret z
 	ldh [hSpriteIndex], a
-	cp CINNABARGYM_SUPER_NERD3
+	cp CINNABARGYM_SUPER_NERD2
 	jr nz, .not_super_nerd3
 	ld a, PLAYER_DIR_DOWN
 	ld [wPlayerMovingDirection], a
@@ -110,7 +95,7 @@ CinnabarGymOpenGateScript:
 	jr nz, .asm_7581b
 	call WaitForSoundToFinish
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	call WaitForSoundToFinish
 .asm_7581b
 	ld a, [wTrainerHeaderFlagBit]
@@ -137,6 +122,10 @@ CinnabarGymOpenGateScript:
 	ret
 
 CinnabarGymBlainePostBattleScript:
+	call UpdateCinnabarGymGateTileBlocks
+	ld hl, wCurrentMapScriptFlags
+	res 3, [hl]
+	call GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here after battle
 	ld a, [wIsInBattle]
 	cp $ff
 	jp z, CinnabarGymResetScripts
@@ -148,7 +137,7 @@ CinnabarGymReceiveTM38:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_BLAINE
-	lb bc, TM_FIRE_BLAST, 1
+	lb bc, TM_BLAINE, 1
 	call GiveItem
 	jr nc, .BagFull
 	ld a, TEXT_CINNABARGYM_BLAINE_RECEIVED_TM38
@@ -168,22 +157,18 @@ CinnabarGymReceiveTM38:
 
 	; deactivate gym trainers
 	SetEventRange EVENT_BEAT_CINNABAR_GYM_TRAINER_0, EVENT_BEAT_CINNABAR_GYM_TRAINER_6
-
-	ld hl, wCurrentMapScriptFlags
-	set 5, [hl]
-
 	jp CinnabarGymResetScripts
 
 CinnabarGym_TextPointers:
 	def_text_pointers
 	dw_const CinnabarGymBlaineText,                 TEXT_CINNABARGYM_BLAINE
 	dw_const CinnabarGymSuperNerd1,                 TEXT_CINNABARGYM_SUPER_NERD1
+	dw_const CinnabarGymBurglar1,                   TEXT_CINNABARGYM_BURGLAR1
 	dw_const CinnabarGymSuperNerd2,                 TEXT_CINNABARGYM_SUPER_NERD2
-	dw_const CinnabarGymSuperNerd3,                 TEXT_CINNABARGYM_SUPER_NERD3
-	dw_const CinnabarGymSuperNerd4,                 TEXT_CINNABARGYM_SUPER_NERD4
-	dw_const CinnabarGymSuperNerd5,                 TEXT_CINNABARGYM_SUPER_NERD5
-	dw_const CinnabarGymSuperNerd6,                 TEXT_CINNABARGYM_SUPER_NERD6
-	dw_const CinnabarGymSuperNerd7,                 TEXT_CINNABARGYM_SUPER_NERD7
+	dw_const CinnabarGymBurglar2,                   TEXT_CINNABARGYM_BURGLAR2
+	dw_const CinnabarGymFirefighter1,               TEXT_CINNERBARGYM_FIREFIGHTER1
+	dw_const CinnabarGymBurglar3,                   TEXT_CINNABARGYM_BURGLAR3
+	dw_const CinnabarGymFirefighter2,               TEXT_CINNERBARGYM_FIREFIGHTER2
 	dw_const CinnabarGymGymGuideText,               TEXT_CINNABARGYM_GYM_GUIDE
 	dw_const CinnabarGymBlaineVolcanoBadgeInfoText, TEXT_CINNABARGYM_BLAINE_VOLCANO_BADGE_INFO
 	dw_const CinnabarGymBlaineReceivedTM38Text,     TEXT_CINNABARGYM_BLAINE_RECEIVED_TM38
@@ -207,7 +192,7 @@ CinnabarGymStartBattleScript:
 .not_blaine
 	ld [wCinnabarGymCurScript], a
 	ld [wCurMapScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CinnabarGymBlaineText:
 	text_asm
@@ -217,14 +202,14 @@ CinnabarGymBlaineText:
 	jr nz, .afterBeat
 	call z, CinnabarGymReceiveTM38
 	call DisableWaitingAfterTextDisplay
-	jp TextScriptEnd
+	rst TextScriptEnd
 .afterBeat
 	ld hl, .PostBattleAdviceText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 .beforeBeat
 	ld hl, .PreBattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .ReceivedVolcanoBadgeText
 	ld de, .ReceivedVolcanoBadgeText
 	call SaveEndBattleTextPointers
@@ -266,15 +251,15 @@ CinnabarGymSuperNerd1:
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_0
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
 	text_far _CinnabarGymSuperNerd1BattleText
@@ -288,21 +273,49 @@ CinnabarGymSuperNerd1:
 	text_far _CinnabarGymSuperNerd1AfterBattleText
 	text_end
 
-CinnabarGymSuperNerd2:
+CinnabarGymBurglar1:
 	text_asm
 	call CinnabarGymSetTrainerHeader
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_1
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
+
+.BattleText:
+	text_far _CinnabarGymBurglar1BattleText
+	text_end
+
+.EndBattleText:
+	text_far _CinnabarGymBurglar1EndBattleText
+	text_end
+
+.AfterBattleText:
+	text_far _CinnabarGymBurglar1AfterBattleText
+	text_end
+
+CinnabarGymSuperNerd2:
+	text_asm
+	call CinnabarGymSetTrainerHeader
+	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_2
+	jr nz, .defeated
+	ld hl, .BattleText
+	rst _PrintText
+	ld hl, .EndBattleText
+	ld de, .EndBattleText
+	call SaveEndBattleTextPointers
+	jp CinnabarGymStartBattleScript
+.defeated
+	ld hl, .AfterBattleText
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
 	text_far _CinnabarGymSuperNerd2BattleText
@@ -316,162 +329,187 @@ CinnabarGymSuperNerd2:
 	text_far _CinnabarGymSuperNerd2AfterBattleText
 	text_end
 
-CinnabarGymSuperNerd3:
-	text_asm
-	call CinnabarGymSetTrainerHeader
-	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_2
-	jr nz, .defeated
-	ld hl, .BattleText
-	call PrintText
-	ld hl, .EndBattleText
-	ld de, .EndBattleText
-	call SaveEndBattleTextPointers
-	jp CinnabarGymStartBattleScript
-.defeated
-	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
-
-.BattleText:
-	text_far _CinnabarGymSuperNerd3BattleText
-	text_end
-
-.EndBattleText:
-	text_far _CinnabarGymSuperNerd3EndBattleText
-	text_end
-
-.AfterBattleText:
-	text_far _CinnabarGymSuperNerd3AfterBattleText
-	text_end
-
-CinnabarGymSuperNerd4:
+CinnabarGymBurglar2:
 	text_asm
 	call CinnabarGymSetTrainerHeader
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_3
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
-	text_far _CinnabarGymSuperNerd4BattleText
+	text_far _CinnabarGymBurglar2BattleText
 	text_end
 
 .EndBattleText:
-	text_far _CinnabarGymSuperNerd4EndBattleText
+	text_far _CinnabarGymBurglar2EndBattleText
 	text_end
 
 .AfterBattleText:
-	text_far _CinnabarGymSuperNerd4AfterBattleText
+	text_far _CinnabarGymBurglar2AfterBattleText
 	text_end
 
-CinnabarGymSuperNerd5:
+CinnabarGymFirefighter1:
 	text_asm
 	call CinnabarGymSetTrainerHeader
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_4
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
-	text_far _CinnabarGymSuperNerd5BattleText
+	text_far _CinnabarGymFirefighter1BattleText
 	text_end
 
 .EndBattleText:
-	text_far _CinnabarGymSuperNerd5EndBattleText
+	text_far _CinnabarGymFirefighter1EndBattleText
 	text_end
 
 .AfterBattleText:
-	text_far _CinnabarGymSuperNerd5AfterBattleText
+	text_far _CinnabarGymFirefighter1AfterBattleText
 	text_end
 
-CinnabarGymSuperNerd6:
+CinnabarGymBurglar3:
 	text_asm
 	call CinnabarGymSetTrainerHeader
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_5
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
-	text_far _CinnabarGymSuperNerd6BattleText
+	text_far _CinnabarGymBurglar3BattleText
 	text_end
 
 .EndBattleText:
-	text_far _CinnabarGymSuperNerd6EndBattleText
+	text_far _CinnabarGymBurglar3EndBattleText
 	text_end
 
 .AfterBattleText:
-	text_far _CinnabarGymSuperNerd6AfterBattleText
+	text_far _CinnabarGymBurglar3AfterBattleText
 	text_end
 
-CinnabarGymSuperNerd7:
+CinnabarGymFirefighter2:
 	text_asm
 	call CinnabarGymSetTrainerHeader
 	CheckEvent EVENT_BEAT_CINNABAR_GYM_TRAINER_6
 	jr nz, .defeated
 	ld hl, .BattleText
-	call PrintText
+	rst _PrintText
 	ld hl, .EndBattleText
 	ld de, .EndBattleText
 	call SaveEndBattleTextPointers
 	jp CinnabarGymStartBattleScript
 .defeated
 	ld hl, .AfterBattleText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .BattleText:
-	text_far _CinnabarGymSuperNerd7BattleText
+	text_far _CinnabarGymFirefighter2BattleText
 	text_end
 
 .EndBattleText:
-	text_far _CinnabarGymSuperNerd7EndBattleText
+	text_far _CinnabarGymFirefighter2EndBattleText
 	text_end
 
 .AfterBattleText:
-	text_far _CinnabarGymSuperNerd7AfterBattleText
+	text_far _CinnabarGymFirefighter2AfterBattleText
 	text_end
 
-CinnabarGymGymGuideText:
+CinnabarGymGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	CheckEvent EVENT_BEAT_BLAINE
 	jr nz, .afterBeat
-	ld hl, .ChampInMakingText
+	ld hl, ChampInMakingText
+	rst _PrintText
 	jr .done
 .afterBeat
-	ld hl, .BeatBlaineText
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS ; have to hear about apex chips to receive them after that
+	jr z, .donePrompt
+	ld hl, CinnabarGymGuidePostBattleTextPrompt
+	rst _PrintText
+	CheckEvent EVENT_GOT_CINNABAR_APEX_CHIPS
+	jr nz, .alreadyApexChips
+.giveApexChips
+	ld hl, GymGuideMoreApexChipText7
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsText7
+	rst _PrintText
+	ld hl, CinnabarGymGuideApexChipFireText
+	rst _PrintText
+	SetEvent EVENT_GOT_CINNABAR_APEX_CHIPS
+.alreadyApexChips
+	ld hl, AlreadyReceivedApexChipsText7
+	rst _PrintText
+	jr .done
+.BagFull
+	ld hl, ApexNoRoomText7
+	rst _PrintText
 .done
-	call PrintText
-	jp TextScriptEnd
+	rst TextScriptEnd
+.donePrompt
+	ld hl, CinnabarGymGuidePostBattleText
+	rst _PrintText
+	jr .done
 
-.ChampInMakingText:
+ReceivedApexChipsText7:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+ApexNoRoomText7:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+GymGuideMoreApexChipText7:
+	text_far _GymGuideMoreApexChipText
+	text_end
+
+AlreadyReceivedApexChipsText7:
+	text_far _AlreadyReceivedApexChipsText
+	text_end
+
+CinnabarGymGuideApexChipFireText:
+	text_far _CinnabarGymGuideApexChipFireText
+	text_end
+
+ChampInMakingText:
 	text_far _CinnabarGymGymGuideChampInMakingText
 	text_end
 
-.BeatBlaineText:
+CinnabarGymGuidePostBattleText:
 	text_far _CinnabarGymGymGuideBeatBlaineText
+	text_end
+
+CinnabarGymGuidePostBattleTextPrompt:
+	text_far _CinnabarGymGymGuideBeatBlaineText
+	text_promptbutton
 	text_end

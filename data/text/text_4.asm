@@ -20,6 +20,10 @@ _PlayerBlackedOutText::
 _RepelWoreOffText::
 	text "REPEL's effect"
 	line "wore off."
+	prompt
+
+_RepelUseAnotherText::
+	text "Use another?"
 	done
 
 _PokemartBuyingGreetingText::
@@ -92,7 +96,7 @@ _LearnedMove1Text::
 _WhichMoveToForgetText::
 	text "Which move should"
 	next "be forgotten?"
-	done
+	prompt
 
 _AbandonLearningText::
 	text "Abandon learning"
@@ -117,8 +121,14 @@ _TryingToLearnText::
 	cont "@"
 	text_ram wStringBuffer
 	text "!"
+	prompt
 
-	para "But, @"
+_ButCantLearnMoreThanFourMoves::
+	text "But, @"
+	text_end
+
+_CantLearnMoreThanFourMoves::
+	text "@"
 	text_ram wLearnMoveMonName
 	text_start
 	line "can't learn more"
@@ -130,6 +140,11 @@ _TryingToLearnText::
 	text_ram wStringBuffer
 	text "?"
 	done
+
+_PressStartToLearnText::
+	text "Press START to"
+	line "select a move.@"
+	text_end
 
 _OneTwoAndText::
 	text "1, 2 and...@"
@@ -151,10 +166,10 @@ _ForgotAndText::
 	para "And..."
 	prompt
 
-_HMCantDeleteText::
-	text "HM techniques"
-	line "can't be deleted!"
-	prompt
+;_HMCantDeleteText::
+;	text "HM techniques"
+;	line "can't be deleted!"
+;	prompt
 
 _PokemonCenterWelcomeText::
 	text "Welcome to our"
@@ -173,6 +188,11 @@ _ShallWeHealYourPokemonText::
 _NeedYourPokemonText::
 	text "OK. We'll need"
 	line "your #MON."
+	done
+
+_PokemonCenterFastWelcomeText::
+	text "We'll heal your"
+	line "#MON quick."
 	done
 
 _PokemonFightingFitText::

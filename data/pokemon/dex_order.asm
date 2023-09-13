@@ -173,14 +173,14 @@ PokedexOrder:
 	db DEX_AERODACTYL
 	db 0 ; MISSINGNO.
 	db DEX_MAGNEMITE
-	db 0 ; MISSINGNO.
-	db 0 ; MISSINGNO.
+	db DEX_MEWTWO ; Armored Mewtwo
+	db DEX_HAUNTER ; Powered Haunter
 	db DEX_CHARMANDER
 	db DEX_SQUIRTLE
 	db DEX_CHARMELEON
 	db DEX_WARTORTLE
 	db DEX_CHARIZARD
-	db 0 ; MISSINGNO.
+	db DEX_MISSINGNO ; real missingno
 	db 0 ; MISSINGNO.
 	db 0 ; MISSINGNO.
 	db 0 ; MISSINGNO.

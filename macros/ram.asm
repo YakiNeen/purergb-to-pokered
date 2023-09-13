@@ -14,7 +14,9 @@ MACRO box_struct
 \1Type::
 \1Type1::      db
 \1Type2::      db
-\1CatchRate::  db
+; PureRGBnote: CHANGED: various flags (used to be CatchRate but this was unused) 
+; bit 0 = flag to use alternate color palette
+\1Flags::      db 
 \1Moves::      ds NUM_MOVES
 \1OTID::       dw
 \1Exp::        ds 3
@@ -47,7 +49,9 @@ MACRO battle_struct
 \1Type::
 \1Type1::      db
 \1Type2::      db
-\1CatchRate::  db
+; PureRGBnote: CHANGED: flags (used to be CatchRate but this was unused) 
+; bit 0 = flag to use alternate color palette
+\1Flags::      db
 \1Moves::      ds NUM_MOVES
 \1DVs::        ds 2
 \1Level::      db

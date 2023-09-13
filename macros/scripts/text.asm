@@ -7,6 +7,7 @@ DEF done   EQUS "db \"<DONE>\""   ; End a text box.
 DEF prompt EQUS "db \"<PROMPT>\"" ; Prompt the player to end a text box (initiating some other event).
 
 DEF page   EQUS "db \"<PAGE>\","         ; Start a new Pokédex page.
+DEF bage   EQUS "db \"<BAGE>\","         ; same as page, but can watch multiple buttons instead of just a / b
 DEF dex    EQUS "db \"<DEXEND>\", \"@\"" ; End a Pokédex entry.
 
 
@@ -102,9 +103,9 @@ MACRO sound_pokedex_rating
 	db TX_SOUND_POKEDEX_RATING
 ENDM
 
-	const TX_SOUND_GET_ITEM_1_DUPLICATE ; $0f
-MACRO sound_get_item_1_duplicate
-	db TX_SOUND_GET_ITEM_1_DUPLICATE
+	const TX_SOUND_CRY_SNORLAX ; $0f
+MACRO sound_cry_snorlax
+	db TX_SOUND_CRY_SNORLAX
 ENDM
 
 	const TX_SOUND_GET_ITEM_2 ; $10
@@ -137,9 +138,9 @@ MACRO sound_cry_pidgeot
 	db TX_SOUND_CRY_PIDGEOT
 ENDM
 
-	const TX_SOUND_CRY_DEWGONG ; $16
-MACRO sound_cry_dewgong
-	db TX_SOUND_CRY_DEWGONG
+	const TX_SOUND_CRY_MEOWTH ; $16
+MACRO sound_cry_meowth
+	db TX_SOUND_CRY_MEOWTH
 ENDM
 
 	const TX_FAR ; $17

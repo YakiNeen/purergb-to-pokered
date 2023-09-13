@@ -7,7 +7,7 @@ FarCopyData2::
 	ldh a, [hROMBankTemp]
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
-	call CopyData
+	rst _CopyData
 	pop af
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
@@ -27,12 +27,56 @@ FarCopyData3::
 	ld d, h
 	ld e, l
 	pop hl
-	call CopyData
+	rst _CopyData
 	pop de
 	pop hl
 	pop af
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
+	ret
+
+; this version of FarCopyData is used when loading maps to get everything loaded without having to disable LCD
+FarCopyData4::
+	ldh [hROMBankTemp], a
+	ldh a, [hLoadedROMBank]
+	push af
+	ldh a, [hROMBankTemp]
+	ldh [hLoadedROMBank], a
+	ld [MBC1RomBank], a
+	call CheckSpecialCopyData
+	pop af
+	ldh [hLoadedROMBank], a
+	ld [MBC1RomBank], a
+	ret
+
+CheckSpecialCopyData:
+	push af
+	ldh a, [hFlagsFFFA]
+	bit 3, a
+	jr nz, .specialCopy
+	pop af
+	rst _CopyData
+	ret
+.specialCopy
+	pop af
+	; fall through
+
+SpecialCopyData:
+	di	;prevent vblank functions from running
+.waitVRAM
+	ldh a, [rSTAT]		;2 cycles - read from stat register to get the mode
+	and %10				;4 cycles
+	jr nz, .waitVRAM	;6 cycles to pass or 10 to loop
+; Copy bc bytes from hl to de.
+	ld a, [hli]			;4 cycles
+	ld [de], a			;2 cycles
+;this should result in 9 cycles of wiggle-room in the worst case
+	inc de
+	dec bc
+	ei	;re-enable vblank functions
+	ld a, c
+	or b
+	jr nz, SpecialCopyData
 	ret
 
 FarCopyDataDouble::
@@ -93,7 +137,7 @@ CopyVideoData::
 
 .done
 	ldh [hVBlankCopySize], a
-	call DelayFrame
+	rst _DelayFrame
 	ldh a, [hROMBankTemp]
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
@@ -104,7 +148,7 @@ CopyVideoData::
 .keepgoing
 	ld a, 8
 	ldh [hVBlankCopySize], a
-	call DelayFrame
+	rst _DelayFrame
 	ld a, c
 	sub 8
 	ld c, a
@@ -142,7 +186,7 @@ CopyVideoDataDouble::
 
 .done
 	ldh [hVBlankCopyDoubleSize], a
-	call DelayFrame
+	rst _DelayFrame
 	ldh a, [hROMBankTemp]
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
@@ -153,7 +197,7 @@ CopyVideoDataDouble::
 .keepgoing
 	ld a, 8
 	ldh [hVBlankCopyDoubleSize], a
-	call DelayFrame
+	rst _DelayFrame
 	ld a, c
 	sub 8
 	ld c, a
@@ -186,17 +230,18 @@ CopyScreenTileBufferToVRAM::
 	ld hl, $600 * 0
 	decoord 0, 6 * 0
 	call .setup
-	call DelayFrame
+	rst _DelayFrame
 
 	ld hl, $600 * 1
 	decoord 0, 6 * 1
 	call .setup
-	call DelayFrame
+	rst _DelayFrame
 
 	ld hl, $600 * 2
 	decoord 0, 6 * 2
 	call .setup
-	jp DelayFrame
+	rst _DelayFrame
+	ret
 
 .setup
 	ld a, d

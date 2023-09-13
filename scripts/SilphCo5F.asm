@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo5F_Script:
 	call SilphCo5FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -55,15 +57,32 @@ SilphCo5F_SetUnlockedSilphCoDoorsScript:
 	cp $1
 	jr nz, .unlock_door1
 	SetEventReuseHL EVENT_SILPH_CO_5_UNLOCKED_DOOR1
+	callfar CheckAllCardKeyEvents
+	jp Load5FCheckCardKeyText
 	ret
 .unlock_door1
 	cp $2
 	jr nz, .unlock_door2
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_5_UNLOCKED_DOOR2, EVENT_SILPH_CO_5_UNLOCKED_DOOR1
-	ret
+	callfar CheckAllCardKeyEvents
+	jp Load5FCheckCardKeyText
 .unlock_door2
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_5_UNLOCKED_DOOR3, EVENT_SILPH_CO_5_UNLOCKED_DOOR1
+	callfar CheckAllCardKeyEvents
+	jp Load5FCheckCardKeyText
+
+Load5FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO5F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo5Text12:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo5F_ScriptPointers:
 	def_script_pointers
@@ -78,12 +97,13 @@ SilphCo5F_TextPointers:
 	dw_const SilphCo5FScientistText,      TEXT_SILPHCO5F_SCIENTIST
 	dw_const SilphCo5FRockerText,         TEXT_SILPHCO5F_ROCKER
 	dw_const SilphCo5FRocket2Text,        TEXT_SILPHCO5F_ROCKET2
-	dw_const PickUpItemText,              TEXT_SILPHCO5F_TM_TAKE_DOWN
-	dw_const PickUpItemText,              TEXT_SILPHCO5F_PROTEIN
-	dw_const PickUpItemText,              TEXT_SILPHCO5F_CARD_KEY
+	dw_const PickUpItemText,              TEXT_SILPHCO5F_ITEM1
+	dw_const PickUpItemText,              TEXT_SILPHCO5F_ITEM2
+	dw_const PickUpItemText,              TEXT_SILPHCO5F_ITEM3
 	dw_const SilphCo5FPokemonReport1Text, TEXT_SILPHCO5F_POKEMON_REPORT1
 	dw_const SilphCo5FPokemonReport2Text, TEXT_SILPHCO5F_POKEMON_REPORT2
 	dw_const SilphCo5FPokemonReport3Text, TEXT_SILPHCO5F_POKEMON_REPORT3
+	dw_const SilphCo5Text12,              TEXT_SILPHCO5F_CARD_KEY_DONE
 
 SilphCo5TrainerHeaders:
 	def_trainers 2
@@ -102,7 +122,7 @@ SilphCo5FSilphWorkerMText:
 	ld hl, .ThatsYouRightText
 	ld de, .YoureOurHeroText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .ThatsYouRightText:
 	text_far _SilphCo5FSilphWorkerMThatsYouRightText
@@ -116,7 +136,7 @@ SilphCo5FRocket1Text:
 	text_asm
 	ld hl, SilphCo5TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo5FRocket1BattleText:
 	text_far _SilphCo5FRocket1BattleText
@@ -134,7 +154,7 @@ SilphCo5FScientistText:
 	text_asm
 	ld hl, SilphCo5TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo5FScientistBattleText:
 	text_far _SilphCo5FScientistBattleText
@@ -152,7 +172,7 @@ SilphCo5FRockerText:
 	text_asm
 	ld hl, SilphCo5TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo5FRockerBattleText:
 	text_far _SilphCo5FRockerBattleText
@@ -170,7 +190,7 @@ SilphCo5FRocket2Text:
 	text_asm
 	ld hl, SilphCo5TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo5FRocket2BattleText:
 	text_far _SilphCo5FRocket2BattleText

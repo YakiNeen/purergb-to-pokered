@@ -2,7 +2,7 @@ SoftReset::
 	call StopAllSounds
 	call GBPalWhiteOut
 	ld c, 32
-	call DelayFrames
+	rst _DelayFrames
 	; fallthrough
 
 Init::
@@ -54,7 +54,7 @@ DEF rLCDC_DEFAULT EQU %11100011
 	call ClearVram
 
 	ld hl, HRAM_Begin
-	ld bc, HRAM_End - HRAM_Begin
+	ld bc, hHRAMend - HRAM_Begin ; shinpokerednote: gbcnote: don't clear hgbc
 	call FillMemory
 
 	call ClearSprites
@@ -95,6 +95,10 @@ DEF rLCDC_DEFAULT EQU %11100011
 
 	ei
 
+;;;;;;;;;; PureRGBnote: ADDED: load options configuration from SRAM on boot of the game so we can respect the color/sprite settings.
+	callfar CopyOptionsFromSRAM
+;;;;;;;;;;
+
 	predef LoadSGB
 
 	ld a, BANK(SFX_Shooting_Star)
@@ -107,7 +111,10 @@ DEF rLCDC_DEFAULT EQU %11100011
 	dec a
 	ld [wUpdateSpritesEnabled], a
 
-	predef PlayIntro
+IF DEF(_DEBUG)
+	;jpfar DebugMenu ; PureRGBnote: ADDED: uncomment this to instantly enter debug mode on starting the game in the debug rom
+ENDC
+	predef PlayIntro 
 
 	call DisableLCD
 	call ClearVram
@@ -134,4 +141,4 @@ StopAllSounds::
 	ld [wNewSoundID], a
 	ld [wLastMusicSoundID], a
 	dec a
-	jp PlaySound
+	jp StopAllMusic

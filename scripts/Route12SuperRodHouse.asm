@@ -1,58 +1,54 @@
+; PureRGBnote: CHANGED: since Old rod is obtained in cerulean and good rod in vermilion now, this fishing guru will give either
+; the SUPER ROD or the FISHING GUIDE depending on which of the last two gurus you talked to first.
 Route12SuperRodHouse_Script:
 	jp EnableAutoTextBoxDrawing
 
 Route12SuperRodHouse_TextPointers:
 	def_text_pointers
 	dw_const Route12SuperRodHouseFishingGuruText, TEXT_ROUTE12SUPERRODHOUSE_FISHING_GURU
+	dw_const Route12FishingGuide,                 TEXT_ROUTE12SUPERRODHOUSE_FISHING_GUIDE
 
 Route12SuperRodHouseFishingGuruText:
 	text_asm
-	ld a, [wd728]
-	bit 5, a ; received super rod?
-	jr nz, .got_item
-	ld hl, .DoYouLikeToFishText
-	call PrintText
-	call YesNoChoice
-	ld a, [wCurrentMenuItem]
-	and a
-	jr nz, .refused
-	lb bc, SUPER_ROD, 1
-	call GiveItem
-	jr nc, .bag_full
-	ld hl, wd728
-	set 5, [hl] ; received super rod
-	ld hl, .ReceivedSuperRodText
+	CheckEvent EVENT_GOT_ROUTE12_FISHING_GURU_ITEM
+	jr nz, .printEndText
+	ld hl, Route12GuruIntro
+	rst _PrintText
+	callfar LastTwoGurusScript
 	jr .done
-.bag_full
-	ld hl, .NoRoomText
+.printEndText
+	ld a, [wOptions2] ; PureRGBnote: ADDED: this NPC will talk about how super rod can catch alternate palette pokemon, but only if the feature is enabled.
+	bit BIT_ALT_PKMN_PALETTES, a ; do we have alt palettes enabled
+	jr z, .noColorText
+	ld hl, Route12GuruEndColor
+	rst _PrintText
+	ld hl, Route12GuruColorInfo
+	rst _PrintText
 	jr .done
-.refused
-	ld hl, .ThatsDisappointingText
-	jr .done
-.got_item
-	ld hl, .TryFishingText
+.noColorText
+	ld hl, Route12GuruEnd
+	rst _PrintText
 .done
-	call PrintText
-	jp TextScriptEnd
+	rst TextScriptEnd
 
-.DoYouLikeToFishText:
-	text_far _Route12SuperRodHouseFishingGuruDoYouLikeToFishText
+Route12GuruIntro:
+	text_far _Route12GuruIntro
 	text_end
 
-.ReceivedSuperRodText:
-	text_far _Route12SuperRodHouseFishingGuruReceivedSuperRodText
-	sound_get_item_1
-	text_far _Route12SuperRodHouseFishingGuruFishingWayOfLifeText
+Route12GuruEnd:
+	text_far _Route12GuruEnd
 	text_end
 
-.ThatsDisappointingText:
-	text_far _Route12SuperRodHouseFishingGuruThatsDisappointingText
+Route12GuruEndColor:
+	text_far _Route12GuruEnd
+	text_promptbutton
 	text_end
 
-.TryFishingText:
-	text_far _Route12SuperRodHouseFishingGuruTryFishingText
+Route12GuruColorInfo:
+	text_far _Route12GuruColor
 	text_end
 
-.NoRoomText:
-	text_far _Route12SuperRodHouseFishingGuruNoRoomText
-	text_end
+Route12FishingGuide:
+	text_asm
+	callfar LastTwoGurusFishingGuideBookText
+	rst TextScriptEnd

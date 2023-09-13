@@ -115,7 +115,7 @@ _Route20Swimmer7EndBattleText::
 _Route20Swimmer7AfterBattleText::
 	text "Will my pearls"
 	line "grow bigger"
-	cont "inside CLOYSTER?"
+	cont "in a CLOYSTER?"
 	done
 
 _Route20Swimmer8BattleText::

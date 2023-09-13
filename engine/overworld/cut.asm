@@ -27,6 +27,7 @@ UsedCut:
 
 .canCut
 	ld [wCutTile], a
+	callfar CheckSetCutEvents
 	ld a, 1
 	ld [wActionResultOrTookBattleTurn], a ; used cut
 	ld a, [wWhichPokemon]
@@ -47,7 +48,7 @@ UsedCut:
 	xor a
 	ldh [hWY], a
 	ld hl, UsedCutText
-	call PrintText
+	rst _PrintText
 	call LoadScreenTilesFromBuffer2
 	ld hl, wd730
 	res 6, [hl]
@@ -61,7 +62,7 @@ UsedCut:
 	ld a, $1
 	ld [wUpdateSpritesEnabled], a
 	ld a, SFX_CUT
-	call PlaySound
+	rst _PlaySound
 	ld a, $90
 	ldh [hWY], a
 	call UpdateSprites
@@ -76,6 +77,7 @@ InitCutAnimOAM:
 	ld [wWhichAnimationOffsets], a
 	ld a, %11100100
 	ldh [rOBP1], a
+	call UpdateGBCPal_OBP1 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld a, [wCutTile]
 	cp $52
 	jr z, .grass
@@ -123,8 +125,9 @@ WriteCutOrBoulderDustAnimationOAMBlock:
 	jp WriteOAMBlock
 
 CutOrBoulderDustAnimationTilesAndAttributes:
-	dbsprite  2, -1,  0,  4, $fd, OAM_OBP1
-	dbsprite  2, -1,  0,  6, $ff, OAM_OBP1
+; shinpokerednote: gbcnote: updated attributes for GBC
+	db $FC,$14,$FD,$14
+	db $FE,$14,$FF,$14
 
 GetCutOrBoulderDustAnimationOffsets:
 	ld hl, wSpritePlayerStateData1YPixels

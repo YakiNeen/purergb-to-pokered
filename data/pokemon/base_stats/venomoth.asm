@@ -1,6 +1,6 @@
 	db DEX_VENOMOTH ; pokedex id
 
-	db  70,  65,  60,  90,  90
+	db  70,  85,  70,  90,  90
 	;   hp  atk  def  spd  spc
 
 	db BUG, POISON ; type
@@ -8,16 +8,41 @@
 	db 138 ; base exp
 
 	INCBIN "gfx/pokemon/front/venomoth.pic", 0, 1 ; sprite dimensions
-	dw VenomothPicFront, VenomothPicBack
+	dw VenomothPicFront, VenomothPicBackSW
 
-	db TACKLE, DISABLE, POISONPOWDER, LEECH_LIFE ; level 1 learnset
+	db TACKLE, DISABLE, POISON_STING, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm RAZOR_WIND,   WHIRLWIND,    TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  \
-	     HYPER_BEAM,   RAGE,         MEGA_DRAIN,   SOLARBEAM,    PSYCHIC_M,    \
-	     TELEPORT,     MIMIC,        DOUBLE_TEAM,  REFLECT,      BIDE,         \
-	     SWIFT,        REST,         PSYWAVE,      SUBSTITUTE
+	tmhm \
+	RAZOR_WIND,\ ; ROOST
+	LEECH_SEED,\
+	PIN_MISSILE,\
+	TOXIC,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	HYPER_BEAM,\
+	AMNESIA,\
+	BARRIER,\
+	SOLARBEAM,\
+	PSYCHIC_M,\
+	MEGA_DRAIN,\
+	KINESIS,\ ; FIREWALL
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	SKY_ATTACK,\
+	LIGHT_SCREEN,\
+	PSYBEAM,\
+	SLUDGE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLY,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(VenomothPicFront), BANK(VenomothPicBack)
+
+	dw 1, VenomothPicBack

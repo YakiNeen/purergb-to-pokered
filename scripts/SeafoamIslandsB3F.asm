@@ -1,5 +1,6 @@
 SeafoamIslandsB3F_Script:
 	call EnableAutoTextBoxDrawing
+	call CheckShowFossil ; PureRGBnote: ADDED: the fossil you didn't get in mt moon will be available here.
 	ld hl, wFlags_0xcd60
 	bit 7, [hl]
 	res 7, [hl]
@@ -30,6 +31,8 @@ SeafoamIslandsB3F_Script:
 	ld a, [wObjectToShow]
 	ld [wMissableObjectIndex], a
 	predef ShowObject
+	ld d, 1
+	callfar BoulderHoleDropEffect
 	jr .asm_465ed
 .asm_465dc
 	ld a, SEAFOAM_ISLANDS_B4F
@@ -43,6 +46,28 @@ SeafoamIslandsB3F_Script:
 	ld hl, SeafoamIslandsB3F_ScriptPointers
 	ld a, [wSeafoamIslandsB3FCurScript]
 	jp CallFunctionInTable
+
+CheckShowFossil:
+; TODO: reduce how much this runs? move to when you get the first fossil?
+	CheckEvent EVENT_GOT_DOME_FOSSIL
+	jr nz, .hideDomeFossil
+	jr .next
+.hideDomeFossil
+	ld a, HS_SEAFOAM_ISLANDS_B3F_DOME_FOSSIL
+	ld [wMissableObjectIndex], a
+	predef HideObject
+.next
+	CheckEvent EVENT_GOT_HELIX_FOSSIL
+	jr nz, .hideHelixFossil
+	jr .done
+.hideHelixFossil
+	ld a, HS_SEAFOAM_ISLANDS_B3F_HELIX_FOSSIL
+	ld [wMissableObjectIndex], a
+	predef HideObject	
+.done
+	ret
+
+
 
 Seafoam4HolesCoords:
 	dbmapcoord  3, 16
@@ -143,10 +168,18 @@ SeafoamIslandsB3FObjectMoving2Script:
 	ret
 
 SeafoamIslandsB3F_TextPointers:
-	def_text_pointers
+    def_text_pointers
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER1
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER2
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER3
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER4
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER5
 	dw_const BoulderText, TEXT_SEAFOAMISLANDSB3F_BOULDER6
+	dw_const PickUpFossilText, TEXT_SEAFOAMISLANDSB3F_DOME_FOSSIL
+	dw_const PickUpFossilText, TEXT_SEAFOAMISLANDSB3F_HELIX_FOSSIL
+
+PickUpFossilText:
+	text_asm
+	SetEvent EVENT_SEAFOAM_FOUND_OTHER_FOSSIL
+	predef PickUpItem
+	rst TextScriptEnd

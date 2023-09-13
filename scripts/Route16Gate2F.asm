@@ -11,8 +11,8 @@ Route16Gate2F_TextPointers:
 Route16Gate2FLittleBoyText:
 	text_asm
 	ld hl, .Text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .Text:
 	text_far _Route16Gate2FLittleBoyText
@@ -21,8 +21,8 @@ Route16Gate2FLittleBoyText:
 Route16Gate2FLittleGirlText:
 	text_asm
 	ld hl, .Text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .Text:
 	text_far _Route16Gate2FLittleGirlText

@@ -40,8 +40,9 @@ _SSAnne2FRivalDefeatedText::
 	prompt
 
 _SSAnne2FRivalVictoryText::
-	text "<PLAYER>! What are"
-	line "you, seasick?"
+	text "<PLAYER>!"
+	line "What are you,"
+	cont "seasick?"
 
 	para "You should shape"
 	line "up, pal!"

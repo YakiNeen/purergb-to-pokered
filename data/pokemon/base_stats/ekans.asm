@@ -5,19 +5,44 @@
 
 	db POISON, POISON ; type
 	db 255 ; catch rate
-	db 62 ; base exp
+	db 90 ; base exp
 
 	INCBIN "gfx/pokemon/front/ekans.pic", 0, 1 ; sprite dimensions
-	dw EkansPicFront, EkansPicBack
+	dw EkansPicFront, EkansPicBackSW
 
-	db WRAP, LEER, NO_MOVE, NO_MOVE ; level 1 learnset
+	db WRAP, LEER, POISON_STING, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        BODY_SLAM,    TAKE_DOWN,    DOUBLE_EDGE,  RAGE,         \
-	     MEGA_DRAIN,   EARTHQUAKE,   FISSURE,      DIG,          MIMIC,        \
-	     DOUBLE_TEAM,  BIDE,         SKULL_BASH,   REST,         ROCK_SLIDE,   \
-	     SUBSTITUTE,   STRENGTH
+	tmhm \
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BARRIER,\
+	EARTHQUAKE,\
+	DIG,\
+	MEGA_DRAIN,\
+	KINESIS,\ ; FIREWALL
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	LOVELY_KISS,\
+	LIGHT_SCREEN,\
+	SLUDGE,\
+	ROCK_SLIDE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(EkansPicFront), BANK(EkansPicBack)
+
+	dw 1, EkansPicBack

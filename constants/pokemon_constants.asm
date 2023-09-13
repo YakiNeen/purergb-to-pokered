@@ -180,14 +180,14 @@
 	const AERODACTYL         ; $AB
 	const_skip               ; $AC
 	const MAGNEMITE          ; $AD
-	const_skip               ; $AE
-	const_skip               ; $AF
+	const ARMORED_MEWTWO     ; $AE
+	const POWERED_HAUNTER    ; $AF
 	const CHARMANDER         ; $B0
 	const SQUIRTLE           ; $B1
 	const CHARMELEON         ; $B2
 	const WARTORTLE          ; $B3
 	const CHARIZARD          ; $B4
-	const_skip               ; $B5
+	const MISSINGNO          ; $B5 ; PureRGBnote: ADDED: real missingno
 	const FOSSIL_KABUTOPS    ; $B6
 	const FOSSIL_AERODACTYL  ; $B7
 	const MON_GHOST          ; $B8

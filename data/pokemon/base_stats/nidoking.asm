@@ -4,23 +4,57 @@
 	;   hp  atk  def  spd  spc
 
 	db POISON, GROUND ; type
-	db 45 ; catch rate
+	db 65 ; catch rate
 	db 195 ; base exp
 
 	INCBIN "gfx/pokemon/front/nidoking.pic", 0, 1 ; sprite dimensions
-	dw NidokingPicFront, NidokingPicBack
+	dw NidokingPicFront, NidokingPicBackSW
 
-	db TACKLE, HORN_ATTACK, POISON_STING, THRASH ; level 1 learnset
+	db TACKLE, LEER, THRASH, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm MEGA_PUNCH,   MEGA_KICK,    TOXIC,        HORN_DRILL,   BODY_SLAM,    \
-	     TAKE_DOWN,    DOUBLE_EDGE,  BUBBLEBEAM,   WATER_GUN,    ICE_BEAM,     \
-	     BLIZZARD,     HYPER_BEAM,   PAY_DAY,      SUBMISSION,   COUNTER,      \
-	     SEISMIC_TOSS, RAGE,         THUNDERBOLT,  THUNDER,      EARTHQUAKE,   \
-	     FISSURE,      MIMIC,        DOUBLE_TEAM,  REFLECT,      BIDE,         \
-	     FIRE_BLAST,   SKULL_BASH,   REST,         ROCK_SLIDE,   SUBSTITUTE,   \
-	     SURF,         STRENGTH
+	tmhm \
+	ICE_PUNCH,\
+	PIN_MISSILE,\
+	FIRE_PUNCH,\
+	TOXIC,\
+	HORN_DRILL,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BUBBLEBEAM,\
+	AURORA_BEAM,\
+	ICE_BEAM,\
+	BLIZZARD,\
+	HYPER_BEAM,\
+	THUNDERPUNCH,\
+	ROLLING_KICK,\
+	BARRIER,\
+	DRAGON_RAGE,\
+	THUNDERBOLT,\
+	THUNDER,\
+	EARTHQUAKE,\
+	DIG,\
+	KINESIS,\ ; FIREWALL
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	FIRE_BLAST,\
+	FLAMETHROWER,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	LIGHT_SCREEN,\
+	SLUDGE,\
+	ROCK_SLIDE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	SURF,\
+	STRENGTH,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(NidokingPicFront), BANK(NidokingPicBack)
+
+	dw 1, NidokingPicBack

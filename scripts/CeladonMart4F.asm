@@ -19,3 +19,5 @@ CeladonMart4FYoungsterText:
 CeladonMart4FCurrentFloorSignText:
 	text_far _CeladonMart4FCurrentFloorSignText
 	text_end
+
+INCLUDE "data/items/marts/celadon4F.asm"

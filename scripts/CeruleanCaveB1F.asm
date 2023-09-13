@@ -16,8 +16,8 @@ CeruleanCaveB1F_ScriptPointers:
 CeruleanCaveB1F_TextPointers:
 	def_text_pointers
 	dw_const CeruleanCaveB1FMewtwoText, TEXT_CERULEANCAVEB1F_MEWTWO
-	dw_const PickUpItemText,            TEXT_CERULEANCAVEB1F_ULTRA_BALL
-	dw_const PickUpItemText,            TEXT_CERULEANCAVEB1F_MAX_REVIVE
+	dw_const PickUpItemText,            TEXT_CERULEANCAVEB1F_ITEM1
+	dw_const PickUpItemText,            TEXT_CERULEANCAVEB1F_ITEM2
 
 CeruleanCaveB1FTrainerHeaders:
 	def_trainers
@@ -29,7 +29,7 @@ CeruleanCaveB1FMewtwoText:
 	text_asm
 	ld hl, MewtwoTrainerHeader
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MewtwoBattleText:
 	text_far _MewtwoBattleText
@@ -37,4 +37,4 @@ MewtwoBattleText:
 	ld a, MEWTWO
 	call PlayCry
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	rst TextScriptEnd

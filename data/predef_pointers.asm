@@ -16,7 +16,7 @@ PredefPointers::
 	add_predef ScaleSpriteByTwo
 	add_predef LoadMonBackPic
 	add_predef CopyDownscaledMonTiles
-	add_predef JumpMoveEffect, $03 ; wrong bank
+	add_predef EmotionBubbleQuick
 	add_predef HealParty
 	add_predef MoveAnimation
 	add_predef DivideBCDPredef
@@ -32,15 +32,15 @@ PredefPointers::
 	add_predef ApplyOutOfBattlePoisonDamage
 	add_predef AnyPartyAlive
 	add_predef ShowObject
-	add_predef ShowObject2
 	add_predef ReplaceTileBlock
 	add_predef InitPlayerData2
 	add_predef LoadTilesetHeader
 	add_predef LearnMoveFromLevelUp
 	add_predef LearnMove
 	add_predef GetQuantityOfItemInBag
-	add_predef CheckForHiddenObjectOrBookshelfOrCardKeyDoor, $03 ; home bank
-	add_predef GiveItem, $03 ; home bank
+	add_predef GetIndexOfItemInBag
+	add_predef ShowExtraObject
+	add_predef HideExtraObject
 	add_predef ChangeBGPalColor0_4Frames
 	add_predef FindPathToPlayer
 	add_predef PredefShakeScreenVertically
@@ -50,7 +50,7 @@ PredefPointers::
 	add_predef UpdateHPBar
 	add_predef HPBarLength
 	add_predef Diploma_TextBoxBorder
-	add_predef DoubleOrHalveSelectedStats
+	add_predef UndoBurnParStats
 	add_predef ShowPokedexMenu
 	add_predef EvolutionAfterBattle
 	add_predef SaveSAVtoSRAM0
@@ -64,8 +64,8 @@ PredefPointers::
 	add_predef GetMoveSoundB
 	add_predef FlashScreen
 	add_predef GetTileAndCoordsInFrontOfPlayer
-	add_predef StatusScreen
-	add_predef StatusScreen2
+	add_predef StatusScreenOriginal
+	add_predef StatusScreenLoop
 	add_predef InternalClockTradeAnim
 	add_predef TrainerEngage
 	add_predef IndexToPokedex
@@ -87,7 +87,7 @@ PredefPointers::
 	add_predef LoadTownMap_Nest
 	add_predef PrintMonType
 	add_predef EmotionBubble
-	add_predef EmptyFunc ; return immediately
+	add_predef SetAttackAnimPal
 	add_predef AskName
 	add_predef PewterGuys
 	add_predef SaveSAVtoSRAM2
@@ -97,8 +97,8 @@ PredefPointers::
 	add_predef DoInGameTradeDialogue
 	add_predef HallOfFamePC
 	add_predef DisplayDexRating
-	add_predef _LeaveMapAnim, $1E ; wrong bank
-	add_predef EnterMapAnim, $1E ; wrong bank
+	add_predef ReplaceTileBlockNoRedraw
+	add_predef BGLayerScrollingUpdate
 	add_predef GetTileTwoStepsInFrontOfPlayer
 	add_predef CheckForCollisionWhenPushingBoulder
 	add_predef PrintStrengthTxt
@@ -109,3 +109,10 @@ PredefPointers::
 	add_predef DrawHP2
 	add_predef DisplayElevatorFloorMenu
 	add_predef OaksAideScript
+	add_predef PickUpItemQuantity
+	add_predef CheckPriorityPredef
+	add_predef FarLoadTownMapEntry
+	add_predef SaveScreenTileAreaToBuffer3
+	add_predef LoadScreenTileAreaFromBuffer3
+	add_predef CopyMenuSpritesVideoDataFar
+	

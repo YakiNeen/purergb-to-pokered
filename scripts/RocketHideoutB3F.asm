@@ -27,7 +27,7 @@ RocketHideoutB3FDefaultScript:
 	set 7, [hl]
 	call StartSimulatingJoypadStates
 	ld a, SFX_ARROW_TILES
-	call PlaySound
+	rst _PlaySound
 	ld a, A_BUTTON | B_BUTTON | SELECT | START | D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
 	ld a, SCRIPT_ROCKETHIDEOUTB3F_PLAYER_SPINNING
@@ -129,8 +129,8 @@ RocketHideoutB3F_TextPointers:
 	def_text_pointers
 	dw_const RocketHideoutB3FRocket1Text, TEXT_ROCKETHIDEOUTB3F_ROCKET1
 	dw_const RocketHideoutB3FRocket2Text, TEXT_ROCKETHIDEOUTB3F_ROCKET2
-	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB3F_TM_DOUBLE_EDGE
-	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB3F_RARE_CANDY
+	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB3F_ITEM1
+	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB3F_ITEM2
 
 RocketHideout3TrainerHeaders:
 	def_trainers
@@ -144,7 +144,7 @@ RocketHideoutB3FRocket1Text:
 	text_asm
 	ld hl, RocketHideout3TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB3FRocket1BattleText:
 	text_far _RocketHideoutB3FRocket1BattleText
@@ -162,7 +162,7 @@ RocketHideoutB3FRocket2Text:
 	text_asm
 	ld hl, RocketHideout3TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB3FRocket2BattleText:
 	text_far _RocketHideout3BattleTxt

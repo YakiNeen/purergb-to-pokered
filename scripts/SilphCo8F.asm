@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo8F_Script:
 	call SilphCo8FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -68,7 +70,22 @@ SilphCo8F_UnlockedDoorEventScript:
 	and a
 	ret z
 	SetEvent EVENT_SILPH_CO_8_UNLOCKED_DOOR
+	callfar CheckAllCardKeyEvents
+	jp Load8FCheckCardKeyText
+
+
+Load8FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO8F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo8Text5:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo8F_ScriptPointers:
 	def_script_pointers
@@ -82,6 +99,7 @@ SilphCo8F_TextPointers:
 	dw_const SilphCo8FRocket1Text,      TEXT_SILPHCO8F_ROCKET1
 	dw_const SilphCo8FScientistText,    TEXT_SILPHCO8F_SCIENTIST
 	dw_const SilphCo8FRocket2Text,      TEXT_SILPHCO8F_ROCKET2
+	dw_const SilphCo8Text5,             TEXT_SILPHCO8F_CARD_KEY_DONE
 
 SilphCo8TrainerHeaders:
 	def_trainers 2
@@ -100,8 +118,8 @@ SilphCo8FSilphWorkerMText:
 	jr nz, .beat_giovanni
 	ld hl, .SilphIsFinishedText
 .beat_giovanni
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .SilphIsFinishedText:
 	text_far __SilphCo8FSilphWorkerMThanksForSavingUsText
@@ -115,19 +133,19 @@ SilphCo8FRocket1Text:
 	text_asm
 	ld hl, SilphCo8TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo8FScientistText:
 	text_asm
 	ld hl, SilphCo8TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo8FRocket2Text:
 	text_asm
 	ld hl, SilphCo8TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo8FRocket1BattleText:
 	text_far _SilphCo8FRocket1BattleText

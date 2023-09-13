@@ -146,8 +146,8 @@ _Route19Swimmer8EndBattleText::
 
 _Route19Swimmer8AfterBattleText::
 	text "LAPRAS is so big,"
-	line "it must keep you"
-	cont "dry on water."
+	line "it keeps you dry"
+	cont "on water."
 	done
 
 _Route19SignText::

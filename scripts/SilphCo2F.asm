@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo2F_Script:
 	call SilphCo2FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -81,10 +83,27 @@ SilphCo2F_UnlockedDoorEventScript:
 	cp $1
 	jr nz, .unlock_door1
 	SetEventReuseHL EVENT_SILPH_CO_2_UNLOCKED_DOOR1
-	ret
+	ld a, TEXT_SILPHCO2F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	callfar CheckAllCardKeyEvents
+	jp Load2FCheckCardKeyText
 .unlock_door1
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_2_UNLOCKED_DOOR2, EVENT_SILPH_CO_2_UNLOCKED_DOOR1
+	callfar CheckAllCardKeyEvents
+	jp Load2FCheckCardKeyText
+
+Load2FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO2F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo2Text6:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo2F_ScriptPointers:
 	def_script_pointers
@@ -99,6 +118,7 @@ SilphCo2F_TextPointers:
 	dw_const SilphCo2FScientist2Text,   TEXT_SILPHCO2F_SCIENTIST2
 	dw_const SilphCo2FRocket1Text,      TEXT_SILPHCO2F_ROCKET1
 	dw_const SilphCo2FRocket2Text,      TEXT_SILPHCO2F_ROCKET2
+	dw_const SilphCo2Text6,             TEXT_SILPHCO2F_CARD_KEY_DONE
 
 SilphCo2TrainerHeaders:
 	def_trainers 2
@@ -117,8 +137,8 @@ SilphCo2FSilphWorkerFText:
 	CheckEvent EVENT_GOT_TM36
 	jr nz, .already_have_tm
 	ld hl, .PleaseTakeThisText
-	call PrintText
-	lb bc, TM_SELFDESTRUCT, 1
+	rst _PrintText
+	lb bc, TM_SILPH_CO_2F_HIDING_LADY, 1
 	call GiveItem
 	ld hl, .TM36NoRoomText
 	jr nc, .print_text
@@ -128,8 +148,8 @@ SilphCo2FSilphWorkerFText:
 .already_have_tm
 	ld hl, .TM36ExplanationText
 .print_text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .PleaseTakeThisText:
 	text_far SilphCo2FSilphWorkerFPleaseTakeThisText
@@ -152,25 +172,25 @@ SilphCo2FScientist1Text:
 	text_asm
 	ld hl, SilphCo2TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo2FScientist2Text:
 	text_asm
 	ld hl, SilphCo2TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo2FRocket1Text:
 	text_asm
 	ld hl, SilphCo2TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo2FRocket2Text:
 	text_asm
 	ld hl, SilphCo2TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo2FScientist1BattleText:
 	text_far _SilphCo2FScientist1BattleText

@@ -5,7 +5,7 @@
 ; MoveEffectPointerTable indexes (see data/moves/effects_pointers.asm)
 	const_def
 	const NO_ADDITIONAL_EFFECT       ; $00
-	const EFFECT_01                  ; $01 unused
+	const BIG_RECOIL_EFFECT          ; $01 ; PureRGBnote: ADDED: new effect, 50% recoil
 	const POISON_SIDE_EFFECT1        ; $02
 	const DRAIN_HP_EFFECT            ; $03
 	const BURN_SIDE_EFFECT1          ; $04
@@ -28,24 +28,24 @@
 	const SPECIAL_DOWN1_EFFECT       ; $15
 	const ACCURACY_DOWN1_EFFECT      ; $16
 	const EVASION_DOWN1_EFFECT       ; $17
-	const CONVERSION_EFFECT          ; $18
+	const TRI_ATTACK_EFFECT          ; $18 ; PureRGBnote: ADDED: new effect, 10% chance of burn / freeze / paralyze
 	const HAZE_EFFECT                ; $19
-	const BIDE_EFFECT                ; $1A
+	const TWO_OR_THREE_ATTACKS_EFFECT; $1A ; PureRGBnote: ADDED: new effect, 50% chance of 2 hits, 50% chance of 3
 	const THRASH_PETAL_DANCE_EFFECT  ; $1B
-	const SWITCH_AND_TELEPORT_EFFECT ; $1C
+	const TELEPORT_EFFECT            ; $1C
 	const TWO_TO_FIVE_ATTACKS_EFFECT ; $1D
-	const EFFECT_1E                  ; $1E unused
+	const BURN_EFFECT                ; $1E ; PureRGBnote: ADDED: new effect, burns the opponent, used in FIREWALL (kinesis)
 	const FLINCH_SIDE_EFFECT1        ; $1F
 	const SLEEP_EFFECT               ; $20
 	const POISON_SIDE_EFFECT2        ; $21
 	const BURN_SIDE_EFFECT2          ; $22
-	const_skip                       ; $23
+	const SPEED_UP_SIDE_EFFECT       ; $23 ; PureRGBnote: ADDED: new effect, used in meditate
 	const PARALYZE_SIDE_EFFECT2      ; $24
 	const FLINCH_SIDE_EFFECT2        ; $25
 	const OHKO_EFFECT                ; $26 moves like Horn Drill
 	const CHARGE_EFFECT              ; $27 moves like Solar Beam
 	const SUPER_FANG_EFFECT          ; $28
-	const SPECIAL_DAMAGE_EFFECT      ; $29 Seismic Toss, Night Shade, Sonic Boom, Dragon Rage, Psywave
+	const SPECIAL_DAMAGE_EFFECT      ; $29 Seismic Toss, Sonic Boom
 	const TRAPPING_EFFECT            ; $2A moves like Wrap
 	const FLY_EFFECT                 ; $2B
 	const ATTACK_TWICE_EFFECT        ; $2C
@@ -76,16 +76,18 @@
 	const DEFENSE_DOWN_SIDE_EFFECT   ; $45
 	const SPEED_DOWN_SIDE_EFFECT     ; $46
 	const SPECIAL_DOWN_SIDE_EFFECT   ; $47
-	const_skip                       ; $48
-	const_skip                       ; $49
-	const_skip                       ; $4A
-	const_skip                       ; $4B
+;;;;;;;;;; PureRGB: ADDED: new move effects
+	const ATTACK_UP_SIDE_EFFECT      ; $48 ; used in bide, sharpen, submission and meditate
+	const ATTACK_ACCURACY_UP1_EFFECT ; $49 ; used in sharpen
+	const ATTACK_DEFENSE_UP1_EFFECT  ; $4A ; used in bide
+	const CONFUSION_BIG_SIDE_EFFECT  ; $4B ; used in Whirlwind and Dizzy punch
+;;;;;;;;;;
 	const CONFUSION_SIDE_EFFECT      ; $4C
 	const TWINEEDLE_EFFECT           ; $4D
-	const_skip                       ; $4E
+	const ATTACK_SPECIAL_SPEED_UP1   ; $4E ; PureRGBnote: ADDED: new effect, used in meditate
 	const SUBSTITUTE_EFFECT          ; $4F
 	const HYPER_BEAM_EFFECT          ; $50
-	const RAGE_EFFECT                ; $51
+	const BONEMERANG_EFFECT          ; $51
 	const MIMIC_EFFECT               ; $52
 	const METRONOME_EFFECT           ; $53
 	const LEECH_SEED_EFFECT          ; $54

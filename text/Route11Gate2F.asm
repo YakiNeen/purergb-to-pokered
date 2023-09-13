@@ -7,9 +7,9 @@ _Route11Gate2FOaksAideItemfinderDescriptionText::
 	line "detect an item"
 	cont "close to you."
 
-	para "It can't pinpoint"
-	line "it, so you have"
-	cont "to look yourself!"
+	para "It can point you"
+	line "in the direction"
+	cont "of the item!"
 	done
 
 _Route11Gate2FLeftBinocularsSnorlaxText::

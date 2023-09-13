@@ -48,6 +48,23 @@ _ItemUseBallText08::
 	cont "someone's PC!"
 	prompt
 
+_NoBoxSlotsLeftText::
+	text "BOX @"
+	text_ram wBoxNumString
+	text" is now"
+	line "full."
+	para "Time to change"
+	line "boxes!@"
+	text_end
+
+_BoxSlotsLeftText::
+	text_ram w2CharStringBuffer
+	text " slots left in"
+	line "BOX @"
+	text_ram wBoxNumString
+	text ".@"
+	text_end
+
 _ItemUseBallText06::
 	text "New #DEX data"
 	line "will be added for"
@@ -63,10 +80,58 @@ _SurfingGotOnText::
 	text "!"
 	prompt
 
-_SurfingNoPlaceToGetOffText::
-	text "There's no place"
-	line "to get off!"
+_AlreadySurfingText::
+	text "You're already"
+	line "surfing."
 	prompt
+
+_ApexChipPutOnPokeballText::
+	text "You installed the"
+	line "APEX CHIP on"
+	para "@"
+	text_ram wcd6d
+	text "'s"
+	line "Poké Ball.@"
+	text_asm
+	ld a, SFX_SWITCH
+	rst _PlaySound
+	call WaitForSoundToFinish
+	ld c, 50
+	rst _DelayFrames
+	ld a, SFX_TRADE_MACHINE
+	rst _PlaySound
+	call WaitForSoundToFinish
+	ld c, 50
+	rst _DelayFrames
+	rst TextScriptEnd
+
+_ApexChipDVsMaxedText::
+	text_ram wcd6d
+	text "'s"
+	line "potential is"
+	cont "maximized!"
+	para "DVs are at max!"
+	prompt
+
+_ApexChipAlreadyUsedText::
+	text "There's already"
+	line "an APEX CHIP"
+	para "installed on"
+	line "@"
+	text_ram wcd6d
+	text "'s"
+	cont "Poké Ball."
+	prompt
+
+_BoosterChipInstalledText::
+	text "You plugged the"
+	line "BOOSTER CHIP into"
+	cont "your POKéBALL"
+	cont "belt."
+
+	para "All #MON will"
+	line "gain boosted EXP!@"
+	text_end
 
 _VitaminStatRoseText::
 	text_ram wcd6d
@@ -77,6 +142,12 @@ _VitaminStatRoseText::
 	prompt
 
 _VitaminNoEffectText::
+	text "Vitamins can't"
+	line "raise this stat"
+	cont "further."
+	prompt
+
+_RareCandyNoEffectText::
 	text "It won't have any"
 	line "effect."
 	prompt
@@ -191,6 +262,40 @@ _ItemUseNotTimeText::
 	text "OAK: <PLAYER>!"
 	line "This isn't the"
 	cont "time to use that! "
+	prompt
+
+_ItemUseValuableText::
+	text "Looks valuable!"
+	para "Selling it would"
+	line "be a good idea."
+	prompt
+
+_TopSecretKeyText::
+	text "This key looks"
+	line "similar to the"
+	cont "SECRET KEY."
+	para "It's a lot more"
+	line "worn though."
+	para "What's it open?"
+	para "Maybe a door on"
+	line "CINNABAR ISLAND?"
+	para "It says -B2F-"
+	line "on it."
+	prompt
+
+_ItemUseFossilText::
+	text "This fossil is"
+	line "fun to admire!"
+	para "Maybe putting it"
+	line "in the PC until"
+	cont "finding a use"
+	cont "for it is best."
+	prompt
+
+_ItemUseInBattleText::
+	text "This can only"
+	line "be used during"
+	cont "a #MON battle."
 	prompt
 
 _ItemUseNotYoursToUseText::

@@ -6,7 +6,7 @@ BattleTransition:
 	ldh [hWY], a
 	dec a
 	ld [wUpdateSpritesEnabled], a
-	call DelayFrame
+	rst _DelayFrame
 
 ; Determine which OAM block is being used by the enemy trainer sprite (if there
 ; is one).
@@ -163,6 +163,11 @@ BattleTransition_BlackScreen:
 	ldh [rBGP], a
 	ldh [rOBP0], a
 	ldh [rOBP1], a
+;;;;;;;;;; shinpokerednote: gbcnote: color support from yellow
+	call UpdateGBCPal_BGP
+	call UpdateGBCPal_OBP0
+	call UpdateGBCPal_OBP1
+;;;;;;;;;;
 	ret
 
 ; for non-dungeon trainer battles
@@ -192,7 +197,7 @@ BattleTransition_Spiral:
 	pop bc
 	dec c
 	jr nz, .innerLoop
-	call DelayFrame
+	rst _DelayFrame
 	dec b
 	jr nz, .loop
 .done
@@ -326,8 +331,9 @@ BattleTransition_FlashScreen_:
 	cp 1
 	jr z, .done
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: color support from yellow
 	ld c, 2
-	call DelayFrames
+	rst _DelayFrames
 	jr .loop
 .done
 	dec b
@@ -375,7 +381,7 @@ BattleTransition_Shrink:
 	ld a, $1
 	ldh [hAutoBGTransferEnabled], a
 	ld c, 6
-	call DelayFrames
+	rst _DelayFrames
 	pop bc
 	dec c
 	jr nz, .loop
@@ -426,7 +432,7 @@ BattleTransition_CopyTiles1:
 	push hl
 	push de
 	ld bc, SCREEN_WIDTH
-	call CopyData
+	rst _CopyData
 	pop hl
 	pop de
 	ld a, [wBattleTransitionCopyTilesOffset]

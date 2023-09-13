@@ -8,18 +8,32 @@
 	db 186 ; base exp
 
 	INCBIN "gfx/pokemon/front/alakazam.pic", 0, 1 ; sprite dimensions
-	dw AlakazamPicFront, AlakazamPicBack
+	dw AlakazamPicFront, AlakazamPicBackSW
 
-	db TELEPORT, CONFUSION, DISABLE, NO_MOVE ; level 1 learnset
+	db TELEPORT, PSYWAVE, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm MEGA_PUNCH,   MEGA_KICK,    TOXIC,        BODY_SLAM,    TAKE_DOWN,    \
-	     DOUBLE_EDGE,  HYPER_BEAM,   SUBMISSION,   COUNTER,      SEISMIC_TOSS, \
-	     RAGE,         DIG,          PSYCHIC_M,    TELEPORT,     MIMIC,        \
-	     DOUBLE_TEAM,  REFLECT,      BIDE,         METRONOME,    SKULL_BASH,   \
-	     REST,         THUNDER_WAVE, PSYWAVE,      TRI_ATTACK,   SUBSTITUTE,   \
-	     FLASH
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	HYPER_BEAM,\
+	ROLLING_KICK,\
+	DIG,\
+	PSYCHIC_M,\
+	REFLECT,\
+	BIDE,\
+	BARRAGE,\
+	KARATE_CHOP,\
+	MEDITATE,\
+	LIGHT_SCREEN,\
+	PSYBEAM,\
+	SUBSTITUTE,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(AlakazamPicFront), BANK(AlakazamPicBack)
+
+	dw 1, AlakazamPicBack

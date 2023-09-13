@@ -20,3 +20,5 @@ CeladonMart5FSailorText:
 CeladonMart5FCurrentFloorSignText:
 	text_far _CeladonMart5FCurrentFloorSignText
 	text_end
+
+INCLUDE "data/items/marts/celadon5F.asm"

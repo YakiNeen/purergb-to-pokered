@@ -3,21 +3,42 @@
 	db  40,  30,  50, 100,  55
 	;   hp  atk  def  spd  spc
 
-	db ELECTRIC, ELECTRIC ; type
+	db ELECTRIC, FIRE ; type
 	db 190 ; catch rate
 	db 103 ; base exp
 
 	INCBIN "gfx/pokemon/front/voltorb.pic", 0, 1 ; sprite dimensions
-	dw VoltorbPicFront, VoltorbPicBack
+	dw VoltorbPicFront, VoltorbPicBackSW
 
-	db TACKLE, SCREECH, NO_MOVE, NO_MOVE ; level 1 learnset
+	db TACKLE, THUNDERSHOCK, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        TAKE_DOWN,    RAGE,         THUNDERBOLT,  THUNDER,      \
-	     TELEPORT,     MIMIC,        DOUBLE_TEAM,  REFLECT,      BIDE,         \
-	     SELFDESTRUCT, SWIFT,        REST,         THUNDER_WAVE, EXPLOSION,    \
-	     SUBSTITUTE,   FLASH
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	AMNESIA,\
+	BARRIER,\
+	THUNDERBOLT,\
+	THUNDER,\
+	CRABHAMMER,\
+	MEGA_DRAIN,\
+	KINESIS,\ ; FIREWALL
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	LIGHT_SCREEN,\
+	THUNDER_WAVE,\
+	GLARE,\
+	SUBSTITUTE,\
+	FLASH
 	; end
 
-	db 0 ; padding
+
+	dw BANK(VoltorbPicFront), BANK(VoltorbPicBack)
+
+	dw VoltorbPicFrontAlt, VoltorbPicBack

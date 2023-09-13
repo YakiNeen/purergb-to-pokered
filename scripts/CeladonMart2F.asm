@@ -20,3 +20,5 @@ CeladonMart2FGirlText:
 CeladonMart2FCurrentFloorSignText:
 	text_far _CeladonMart2FCurrentFloorSignText
 	text_end
+
+INCLUDE "data/items/marts/celadon2F.asm"

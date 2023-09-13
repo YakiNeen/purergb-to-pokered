@@ -34,6 +34,7 @@ TypeEffects:
 	db ICE,          GRASS,        SUPER_EFFECTIVE
 	db ICE,          GROUND,       SUPER_EFFECTIVE
 	db ICE,          FLYING,       SUPER_EFFECTIVE
+	db ICE,          FIRE,         EFFECTIVE ; PureRGBnote: ADDED: this was added to facilitate customization of type matchups even though it seems redundant
 	db FIGHTING,     NORMAL,       SUPER_EFFECTIVE
 	db FIGHTING,     POISON,       NOT_VERY_EFFECTIVE
 	db FIGHTING,     FLYING,       NOT_VERY_EFFECTIVE
@@ -75,11 +76,18 @@ TypeEffects:
 	db ROCK,         BUG,          SUPER_EFFECTIVE
 	db ROCK,         ICE,          SUPER_EFFECTIVE
 	db GHOST,        NORMAL,       NO_EFFECT
-	db GHOST,        PSYCHIC_TYPE, NO_EFFECT
+	db GHOST,        PSYCHIC_TYPE, SUPER_EFFECTIVE ; PureRGBnote: CHANGED: ghost was made super effective against psychic by default.
 	db FIRE,         DRAGON,       NOT_VERY_EFFECTIVE
 	db WATER,        DRAGON,       NOT_VERY_EFFECTIVE
 	db ELECTRIC,     DRAGON,       NOT_VERY_EFFECTIVE
 	db GRASS,        DRAGON,       NOT_VERY_EFFECTIVE
 	db ICE,          DRAGON,       SUPER_EFFECTIVE
 	db DRAGON,       DRAGON,       SUPER_EFFECTIVE
+	db TRI,          FIRE, 		   NOT_VERY_EFFECTIVE
+	db TRI,          FLYING,       SUPER_EFFECTIVE
+	db TRI,          GRASS,        SUPER_EFFECTIVE
+	db TRI,          ELECTRIC,     NOT_VERY_EFFECTIVE
+	db TRI,          ROCK,         NOT_VERY_EFFECTIVE
+	db TRI,          BUG,          SUPER_EFFECTIVE
 	db -1 ; end
+

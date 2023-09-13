@@ -18,7 +18,7 @@ PokemonTower3F_TextPointers:
 	dw_const PokemonTower3FChanneler1Text, TEXT_POKEMONTOWER3F_CHANNELER1
 	dw_const PokemonTower3FChanneler2Text, TEXT_POKEMONTOWER3F_CHANNELER2
 	dw_const PokemonTower3FChanneler3Text, TEXT_POKEMONTOWER3F_CHANNELER3
-	dw_const PickUpItemText,               TEXT_POKEMONTOWER3F_ESCAPE_ROPE
+	dw_const PickUp5ItemText,              TEXT_POKEMONTOWER3F_ITEM1
 
 PokemonTower3TrainerHeaders:
 	def_trainers
@@ -34,19 +34,19 @@ PokemonTower3FChanneler1Text:
 	text_asm
 	ld hl, PokemonTower3TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower3FChanneler2Text:
 	text_asm
 	ld hl, PokemonTower3TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower3FChanneler3Text:
 	text_asm
 	ld hl, PokemonTower3TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower3FChanneler1BattleText:
 	text_far _PokemonTower3FChanneler1BattleText

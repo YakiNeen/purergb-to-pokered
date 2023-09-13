@@ -21,7 +21,7 @@ TrainerPicAndMoneyPointers::
 	pic_money EngineerPic,     5000
 	pic_money JugglerPic,      3500
 	pic_money FisherPic,       3500
-	pic_money SwimmerPic,       500
+	pic_money SwimmerPic,      1000
 	pic_money CueBallPic,      2500
 	pic_money GamblerPic,      7000
 	pic_money BeautyPic,       7000
@@ -33,7 +33,6 @@ TrainerPicAndMoneyPointers::
 	pic_money BlackbeltPic,    2500
 	pic_money Rival1Pic,       3500
 	pic_money ProfOakPic,      9900
-	pic_money ChiefPic,        3000
 	pic_money ScientistPic,    5000
 	pic_money GiovanniPic,     9900
 	pic_money RocketPic,       3000
@@ -54,4 +53,11 @@ TrainerPicAndMoneyPointers::
 	pic_money ChannelerPic,    3000
 	pic_money AgathaPic,       9900
 	pic_money LancePic,        9900
+	pic_money KidPic,          1500
+	pic_money FireFighterPic,  9000
+	pic_money RangerPic, 	   3500
+	pic_money RangerFPic, 	   3500
+	pic_money RookiePic, 	   3000
+	pic_money SoldierPic,      6000
+	pic_money ChiefPic,        9900
 	assert_table_length NUM_TRAINERS

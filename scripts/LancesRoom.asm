@@ -32,6 +32,12 @@ LanceShowOrHideEntranceBlocks:
 	ld a, b
 	ld [wNewTileBlockID], a
 	lb bc, 6, 3
+	call .SetEntranceBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl]
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 .SetEntranceBlock:
 	predef_jump ReplaceTileBlock
 
@@ -62,6 +68,7 @@ LancesRoomDefaultScript:
 	ld a, [wCoordIndex]
 	cp $3  ; Is player standing next to Lance's sprite?
 	jr nc, .notStandingNextToLance
+	call DoFacings
 	ld a, TEXT_LANCESROOM_LANCE
 	ldh [hSpriteIndexOrTextID], a
 	jp DisplayTextID
@@ -73,8 +80,9 @@ LancesRoomDefaultScript:
 	ld hl, wCurrentMapScriptFlags
 	set 5, [hl]
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	jp LanceShowOrHideEntranceBlocks
+
 
 LanceTriggerMovementCoords:
 	dbmapcoord  5,  1
@@ -140,7 +148,7 @@ LancesRoomLanceText:
 	text_asm
 	ld hl, LancesRoomTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 LancesRoomLanceBeforeBattleText:
 	text_far _LancesRoomLanceBeforeBattleText
@@ -154,4 +162,21 @@ LancesRoomLanceAfterBattleText:
 	text_far _LancesRoomLanceAfterBattleText
 	text_asm
 	SetEvent EVENT_BEAT_LANCE
-	jp TextScriptEnd
+	rst TextScriptEnd
+
+DoFacings: ; PureRGBnote: ADDED: when about to fight Lance, lance and the player will face each other properly to talk.
+	ld a, [wYCoord]
+	cp 1
+	jr z, .leftOfLance
+	ld a, PLAYER_DIR_UP
+	ld [wPlayerMovingDirection], a
+	ret
+.leftOfLance
+	ld a, PLAYER_DIR_RIGHT
+	ld [wPlayerMovingDirection], a
+	ld a, 1
+	ldh [hSpriteIndex], a
+	ld a, SPRITE_FACING_LEFT
+  	ldh [hSpriteFacingDirection], a
+  	call SetSpriteFacingDirection
+	ret

@@ -1,6 +1,6 @@
 PKMNLeaguePC:
 	ld hl, AccessedHoFPCText
-	call PrintText
+	rst _PrintText
 	ld hl, wd730
 	set 6, [hl]
 	push hl
@@ -52,7 +52,9 @@ PKMNLeaguePC:
 
 LeaguePCShowTeam:
 	ld c, PARTY_LENGTH
+	ld b, 0
 .loop
+	call CheckMonAltPaletteLeaguePC
 	push bc
 	call LeaguePCShowMon
 	call WaitForTextScrollButtonPress
@@ -62,11 +64,12 @@ LeaguePCShowTeam:
 	ld hl, wHallOfFame + HOF_MON
 	ld de, wHallOfFame
 	ld bc, HOF_TEAM - HOF_MON
-	call CopyData
+	rst _CopyData
 	pop bc
 	ld a, [wHallOfFame + 0]
 	cp $ff
 	jr z, .done
+	inc b
 	dec c
 	jr nz, .loop
 .done
@@ -91,8 +94,8 @@ LeaguePCShowMon:
 	ld [wHoFMonLevel], a
 	ld de, wcd6d
 	ld bc, NAME_LENGTH
-	call CopyData
-	ld b, SET_PAL_POKEMON_WHOLE_SCREEN
+	rst _CopyData
+	ld b, SET_PAL_POKEMON_WHOLE_SCREEN_TRADE
 	ld c, 0
 	call RunPaletteCommand
 	hlcoord 12, 5
@@ -111,6 +114,27 @@ LeaguePCShowMon:
 	lb bc, 1, 3
 	call PrintNumber
 	farjp HoFDisplayMonInfo
+
+; PureRGBnote: ADDED: code for enabling alternate palette pokemon to show up correctly after being inducted into the hall of fame.
+CheckMonAltPaletteLeaguePC:
+	;input: b = index in team
+	push de
+	push bc
+	ld c, b
+	ld b, FLAG_TEST
+	ld hl, wHallOfFamePalettes
+	predef FlagActionPredef
+	ld a, c
+	and a
+	ld a, 1
+	jr nz, .set
+	dec a
+.set
+	ld [wIsAltPalettePkmn], a
+	pop bc
+	pop de
+	ret
+
 
 HallOfFameNoText:
 	db "HALL OF FAME No   @"

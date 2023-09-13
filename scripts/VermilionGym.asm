@@ -1,10 +1,6 @@
 VermilionGym_Script:
 	ld hl, wCurrentMapScriptFlags
-	bit 5, [hl]
 	res 5, [hl]
-	push hl
-	call nz, .LoadNames
-	pop hl
 	bit 6, [hl]
 	res 6, [hl]
 	call nz, VermilionGymSetDoorTile
@@ -16,17 +12,6 @@ VermilionGym_Script:
 	ld [wVermilionGymCurScript], a
 	ret
 
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "VERMILION CITY@"
-
-.LeaderName:
-	db "LT.SURGE@"
-
 VermilionGymSetDoorTile:
 	CheckEvent EVENT_2ND_LOCK_OPENED
 	jr nz, .doorsOpen
@@ -34,12 +19,17 @@ VermilionGymSetDoorTile:
 	jr .replaceTile
 .doorsOpen
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	ld a, $5 ; clear floor tile ID
 .replaceTile
 	ld [wNewTileBlockID], a
 	lb bc, 2, 2
-	predef_jump ReplaceTileBlock
+	predef ReplaceTileBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl]
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 
 VermilionGymResetScripts:
 	xor a
@@ -67,7 +57,7 @@ VermilionGymLTSurgeReceiveTM24Script:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_LT_SURGE
-	lb bc, TM_THUNDERBOLT, 1
+	lb bc, TM_SURGE, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld a, TEXT_VERMILIONGYM_LT_SURGE_RECEIVED_TM24
@@ -93,9 +83,9 @@ VermilionGymLTSurgeReceiveTM24Script:
 VermilionGym_TextPointers:
 	def_text_pointers
 	dw_const VermilionGymLTSurgeText,                 TEXT_VERMILIONGYM_LT_SURGE
-	dw_const VermilionGymGentlemanText,               TEXT_VERMILIONGYM_GENTLEMAN
-	dw_const VermilionGymSuperNerdText,               TEXT_VERMILIONGYM_SUPER_NERD
-	dw_const VermilionGymSailorText,                  TEXT_VERMILIONGYM_SAILOR
+	dw_const VermilionGymGentlemanText,               TEXT_VERMILIONGYM_SOLDIER1
+	dw_const VermilionGymSuperNerdText,               TEXT_VERMILIONGYM_ROCKER
+	dw_const VermilionGymSailorText,                  TEXT_VERMILIONGYM_SOLDIER2
 	dw_const VermilionGymGymGuideText,                TEXT_VERMILIONGYM_GYM_GUIDE
 	dw_const VermilionGymLTSurgeThunderBadgeInfoText, TEXT_VERMILIONGYM_LT_SURGE_THUNDER_BADGE_INFO
 	dw_const VermilionGymLTSurgeReceivedTM24Text,     TEXT_VERMILIONGYM_LT_SURGE_RECEIVED_TM24
@@ -122,11 +112,11 @@ VermilionGymLTSurgeText:
 	jr .text_script_end
 .got_tm24_already
 	ld hl, .PostBattleAdviceText
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .before_beat
 	ld hl, .PreBattleText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -145,7 +135,7 @@ VermilionGymLTSurgeText:
 	ld [wVermilionGymCurScript], a
 	ld [wCurMapScript], a
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .PreBattleText:
 	text_far _VermilionGymLTSurgePreBattleText
@@ -177,7 +167,7 @@ VermilionGymGentlemanText:
 	text_asm
 	ld hl, VermilionGymTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VermilionGymGentlemanBattleText:
 	text_far _VermilionGymGentlemanBattleText
@@ -195,7 +185,7 @@ VermilionGymSuperNerdText:
 	text_asm
 	ld hl, VermilionGymTrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VermilionGymSuperNerdBattleText:
 	text_far _VermilionGymSuperNerdBattleText
@@ -213,7 +203,7 @@ VermilionGymSailorText:
 	text_asm
 	ld hl, VermilionGymTrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VermilionGymSailorBattleText:
 	text_far _VermilionGymSailorBattleText
@@ -227,24 +217,76 @@ VermilionGymSailorAfterBattleText:
 	text_far _VermilionGymSailorAfterBattleText
 	text_end
 
-VermilionGymGymGuideText:
+VermilionGymGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	ld a, [wBeatGymFlags]
 	bit BIT_THUNDERBADGE, a
-	jr nz, .got_thunderbadge
-	ld hl, .ChampInMakingText
-	call PrintText
-	jr .text_script_end
-.got_thunderbadge
-	ld hl, .BeatLTSurgeText
-	call PrintText
-.text_script_end
-	jp TextScriptEnd
+	jr nz, .afterBeat
+	ld hl, VermilionGymGuideChampInMakingText
+	rst _PrintText
+	jr .done
+.afterBeat
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS ; have to hear about apex chips to receive them after that
+	jr z, .postNoPrompt
+	ld hl, VermilionGymGuidePostBattleTextPrompt
+	rst _PrintText
+	CheckEvent EVENT_GOT_VERMILION_APEX_CHIPS
+	jr nz, .alreadyApexChips
+.giveApexChips
+	ld hl, GymGuideMoreApexChipText3
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsText3
+	rst _PrintText
+	ld hl, VermilionGymGuideApexChipElectricText
+	rst _PrintText
+	SetEvent EVENT_GOT_VERMILION_APEX_CHIPS
+.alreadyApexChips
+	ld hl, AlreadyReceivedApexChipsText3
+	rst _PrintText
+	jr .done
+.BagFull
+	ld hl, ApexNoRoomText3
+	rst _PrintText
+.done
+	rst TextScriptEnd
+.postNoPrompt
+	ld hl, VermilionGymGuidePostBattleText
+	rst _PrintText
+	jr .done
 
-.ChampInMakingText:
+ReceivedApexChipsText3:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+ApexNoRoomText3:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+GymGuideMoreApexChipText3:
+	text_far _GymGuideMoreApexChipText
+	text_end
+
+AlreadyReceivedApexChipsText3:
+	text_far _AlreadyReceivedApexChipsText
+	text_end
+
+VermilionGymGuideChampInMakingText:
 	text_far _VermilionGymGymGuideChampInMakingText
 	text_end
 
-.BeatLTSurgeText:
+VermilionGymGuidePostBattleText:
 	text_far _VermilionGymGymGuideBeatLTSurgeText
+	text_end
+
+VermilionGymGuidePostBattleTextPrompt:
+	text_far _VermilionGymGymGuideBeatLTSurgeText
+	text_promptbutton
+	text_end
+
+VermilionGymGuideApexChipElectricText:
+	text_far _VermilionGymGuideApexChipElectricText
 	text_end

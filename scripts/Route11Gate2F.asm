@@ -13,14 +13,13 @@ Route11Gate2FYoungsterText:
 	xor a ; TRADE_FOR_TERRY
 	ld [wWhichTrade], a
 	predef DoInGameTradeDialogue
-Route11Gate2FScriptEnd:
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Gate2FOaksAideText:
 	text_asm
 	CheckEvent EVENT_GOT_ITEMFINDER, 1
 	jr c, .got_item
-	ld a, 30
+	ld a, 20 ; PureRGBnote: CHANGED: itemfinder caught pokemon requirement lowered to 20 pokemon.
 	ldh [hOaksAideRequirement], a
 	ld a, ITEMFINDER
 	ldh [hOaksAideRewardItem], a
@@ -30,7 +29,7 @@ Route11Gate2FOaksAideText:
 	ld l, e
 	ld de, wOaksAideRewardItemName
 	ld bc, ITEM_NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	predef OaksAideScript
 	ldh a, [hOaksAideResult]
 	dec a ; OAKS_AIDE_GOT_ITEM?
@@ -38,9 +37,9 @@ Route11Gate2FOaksAideText:
 	SetEvent EVENT_GOT_ITEMFINDER
 .got_item
 	ld hl, .ItemfinderDescriptionText
-	call PrintText
+	rst _PrintText
 .no_item
-	jr Route11Gate2FScriptEnd
+	rst TextScriptEnd
 
 .ItemfinderDescriptionText:
 	text_far _Route11Gate2FOaksAideItemfinderDescriptionText
@@ -56,8 +55,8 @@ Route11Gate2FLeftBinocularsText:
 	jr z, .print
 	ld hl, .NoSnorlaxText
 .print
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .SnorlaxText:
 	text_far _Route11Gate2FLeftBinocularsSnorlaxText

@@ -1,3 +1,6 @@
+; PureRGBnote: CHANGED: a lot of this file was modified for new functionalities like pressing START/SELECT to bring up map/movedex
+; and new info in the data page / seeking between pokemon on the data page / showing the back sprite via SELECT on the data page
+
 ShowPokedexMenu:
 	call GBPalWhiteOut
 	call ClearScreen
@@ -15,6 +18,12 @@ ShowPokedexMenu:
 	ld b, SET_PAL_GENERIC
 	call RunPaletteCommand
 	callfar LoadPokedexTilePatterns
+;;;;;;;;;;; PureRGBnote: ADDED: load these new button prompt graphics into VRAM
+	ld de, PokedexPromptGraphics
+	ld hl, vChars1 tile $40
+	lb bc, BANK(PokedexPromptGraphics), (PokedexPromptGraphicsEnd - PokedexPromptGraphics) / $10
+	call CopyVideoData
+;;;;;;;;;;
 .doPokemonListMenu
 	ld hl, wTopMenuItemY
 	ld a, 3
@@ -27,21 +36,25 @@ ShowPokedexMenu:
 	inc hl
 	ld a, 6
 	ld [hli], a ; max menu item ID
-	ld [hl], D_LEFT | D_RIGHT | B_BUTTON | A_BUTTON
+	ld [hl], D_LEFT | D_RIGHT | B_BUTTON | A_BUTTON | SELECT | START ; PureRGBnote: ADDED: track the SELECT and START buttons in order to trigger new functions
 	call HandlePokedexListMenu
 	jr c, .goToSideMenu ; if the player chose a pokemon from the list
+	cp 1
+	jr z, .selectPressed
+	cp 2
+	jr z, .startPressed
 .exitPokedex
 	xor a
 	ld [wMenuWatchMovingOutOfBounds], a
 	ld [wCurrentMenuItem], a
 	ld [wLastMenuItem], a
 	ldh [hJoy7], a
-	ld [wWastedByteCD3A], a
 	ld [wOverrideSimulatedJoypadStatesMask], a
 	pop af
 	ld [wListScrollOffset], a
 	call GBPalWhiteOutWithDelay3
 	call RunDefaultPaletteCommand
+.exitPokedex2
 	jp ReloadMapData
 .goToSideMenu
 	call HandlePokedexSideMenu
@@ -50,6 +63,15 @@ ShowPokedexMenu:
 	dec b
 	jr z, .doPokemonListMenu ; if pokemon not seen or player pressed B button
 	jp .setUpGraphics ; if pokemon data or area was shown
+.selectPressed
+	pop af
+	ld [wListScrollOffset], a
+	callfar DisplayTownMap
+	jr .exitPokedex2
+.startPressed
+	pop af
+	ld [wListScrollOffset], a
+	jp ShowMovedexMenu
 
 ; handles the menu on the lower right in the pokedex screen
 ; OUTPUT:
@@ -88,7 +110,7 @@ HandlePokedexSideMenu:
 	inc hl
 	ld a, 3
 	ld [hli], a ; max menu item ID
-	;ld a, A_BUTTON | B_BUTTON
+	;ld a, A_BUTTON | B_BUTTON not needed since A_BUTTON | B_BUTTON = 3 and 3 is already in the 'a' register
 	ld [hli], a ; menu watched keys (A button and B button)
 	xor a
 	ld [hli], a ; old menu item ID
@@ -136,15 +158,22 @@ HandlePokedexSideMenu:
 	jr .exitSideMenu
 
 .choseData
+	pop af
+	pop af
+	pop af
+	ld [wListScrollOffset], a
+	pop af
+	pop af
+	ld [wCurrentMenuItem], a
 	call ShowPokedexDataInternal
 	ld b, 0
-	jr .exitSideMenu
+	push bc
+	jr .exitedData
 
 ; play pokemon cry
 .choseCry
 	ld a, [wd11e]
-	call GetCryData
-	call PlaySound
+	call PlayCry
 	jr .handleMenuInput
 
 .choseArea
@@ -152,11 +181,53 @@ HandlePokedexSideMenu:
 	ld b, 0
 	jr .exitSideMenu
 
+.exitedData
+	hlcoord 0, 3
+	ld de, 20
+	lb bc, " ", 13
+	call DrawTileLine ; cover up the menu cursor in the pokemon list
+	pop bc
+	ret
+
 ; handles the list of pokemon on the left of the pokedex screen
 ; sets carry flag if player presses A, unsets carry flag if player presses B
 HandlePokedexListMenu:
 	xor a
 	ldh [hAutoBGTransferEnabled], a
+;;;;;;;;;;; PureRGBnote: ADDED: If we got the town map, draw the "SELECT: MAP" prompt at the very bottom
+	CheckEvent EVENT_GOT_TOWN_MAP
+	jr z, .movedexPrompt
+	hlcoord 1, 17
+	ld a, $C0 ; tile in VRAM that this prompt starts at, it's 5 tiles horizontally across
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hl], a
+.movedexPrompt
+	hlcoord 7, 17
+	CheckEvent EVENT_GOT_MOVEDEX
+	jr z, .noSelectPrompt
+	ld a, $C5
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hl], a
+.noSelectPrompt
+;;;;;;;;;;;
 ; draw the horizontal line separating the seen and owned amounts from the menu
 	hlcoord 15, 8
 	ld a, "─"
@@ -197,6 +268,28 @@ HandlePokedexListMenu:
 	hlcoord 16, 10
 	ld de, PokedexMenuItemsText
 	call PlaceString
+
+; find the lowest pokedex number among the pokemon the player has seen
+	ld hl, wPokedexSeen
+	ld b, 0
+.minSeenPokemonLoop
+	ld a, [hli]
+	ld c, 0
+.minSeenPokemonInnerLoop
+	inc b
+	srl a
+	jr c, .storeMinSeenPokemon
+	ld d, a
+	inc c
+	ld a, c
+	cp 8
+	ld a, d
+	jr nz, .minSeenPokemonInnerLoop
+	jr .minSeenPokemonLoop
+
+.storeMinSeenPokemon
+	ld a, b
+	ld [wDexMinSeenMon], a
 ; find the highest pokedex number among the pokemon the player has seen
 	ld hl, wPokedexSeenEnd - 1
 	ld b, (wPokedexSeenEnd - wPokedexSeen) * 8 + 1
@@ -284,8 +377,21 @@ HandlePokedexListMenu:
 	call Delay3
 	call GBPalNormal
 	call HandleMenuInput
+;;;;;;;;;; PureRGBnote: ADDED: track the SELECT button in order to trigger town map when able
+	bit BIT_START, a
+	jp nz, .startPressed
+;;;;;;;;;;
+;;;;;;;;;; PureRGBnote: ADDED: track the SELECT button in order to trigger town map when able
+	bit BIT_SELECT, a
+	jp nz, .selectPressed
+;;;;;;;;;;
 	bit BIT_B_BUTTON, a
 	jp nz, .buttonBPressed
+;;;;;;;;;; PureRGBnote: FIXED: code from yellow, avoids a bug where pressing down/up and then 
+;;;;;;;;;; immediately A scrolls up/down twice instead of selecting the next pokemon
+	bit BIT_A_BUTTON, a 
+	jp nz, .buttonAPressed 
+;;;;;;;;;;
 .checkIfUpPressed
 	bit BIT_D_UP, a
 	jr z, .checkIfDownPressed
@@ -342,10 +448,36 @@ HandlePokedexListMenu:
 	jp .loop
 .buttonAPressed
 	scf
+	ld a, 0
 	ret
 .buttonBPressed
 	and a
+	ld a, 0
 	ret
+;;;;;;;;;; PureRGBnote: CHANGED: SELECT button will open the town map while in the pokedex. You need the town map from rival's sister to do this.
+;;;;;;;;;;                       Town map doesn't take up space in the bag due to this modification.
+.selectPressed
+	CheckEvent EVENT_GOT_TOWN_MAP
+	jr nz, .showTownMap
+	jp .loop
+.showTownMap
+	ld a, SFX_SWITCH
+	rst _PlaySound
+	ld a, 1
+	and a
+	ret
+;;;;;;;;;; PureRGBnote: CHANGED: START button will open new MoveDex.
+.startPressed
+	CheckEvent EVENT_GOT_MOVEDEX
+	jr nz, .showMoveDex
+	jp .loop
+.showMoveDex
+	ld a, SFX_SWITCH
+	rst _PlaySound
+	ld a, 2
+	and a
+	ret
+;;;;;;;;;;
 
 DrawPokedexVerticalLine:
 	ld c, 9 ; height of line
@@ -388,28 +520,58 @@ IsPokemonBitSet:
 	and a
 	ret
 
+ShowPokedexDataInternal:
+	ld hl, wPokedexDataFlags
+	res BIT_POKEDEX_DATA_DISPLAY_TYPE, [hl]
+	hlcoord 10, 16 ; where the text down arrow should end up flashing at
+	ld a, h
+	ld [wMenuCursorLocation], a
+	ld a, l
+	ld [wMenuCursorLocation+1], a
+	; load pokedex data page UI tiles (left + right arrows)
+	ld de, PokedexDataUI
+	lb bc, BANK(PokedexDataUI), (PokedexDataUIEnd - PokedexDataUI) / $10
+	ld hl, vChars1 tile $4C
+	call CopyVideoData
+
+	ld a, B_BUTTON
+	ld [wMenuWatchedKeys], a ; buttons this menu will track when displaying text (A Button used to proceed the text)
+
+	jr ShowPokedexDataCommon
+
 ; function to display pokedex data from outside the pokedex
 ShowPokedexData:
+	ld hl, wPokedexDataFlags
+	set BIT_POKEDEX_DATA_DISPLAY_TYPE, [hl]
+	CheckEvent EVENT_GOT_POKEDEX
+	ld a, B_BUTTON 
+	jr nz, .loadButtons
+	xor a
+.loadButtons
+	ld [wMenuWatchedKeys], a
+	hlcoord 18, 16 ; where the text down arrow should end up flashing at
+	ld a, h
+	ld [wMenuCursorLocation], a
+	ld a, l
+	ld [wMenuCursorLocation+1], a
+
 	call GBPalWhiteOutWithDelay3
 	call ClearScreen
 	call UpdateSprites
 	callfar LoadPokedexTilePatterns ; load pokedex tiles
 
 ; function to display pokedex data from inside the pokedex
-ShowPokedexDataInternal:
+ShowPokedexDataCommon:
 	ld hl, wd72c
 	set 1, [hl]
 	ld a, $33 ; 3/7 volume
 	ldh [rNR50], a
 	call GBPalWhiteOut ; zero all palettes
 	call ClearScreen
-	ld a, [wd11e] ; pokemon ID
-	ld [wcf91], a
-	push af
-	ld b, SET_PAL_POKEDEX
-	call RunPaletteCommand
-	pop af
-	ld [wd11e], a
+
+	ld hl, wPokedexDataFlags
+	set 2, [hl] ; flag indicates we're currently in the pokedex data page
+
 	ldh a, [hTileAnimations]
 	push af
 	xor a
@@ -419,10 +581,6 @@ ShowPokedexDataInternal:
 	ld de, 1
 	lb bc, $64, SCREEN_WIDTH
 	call DrawTileLine ; draw top border
-
-	hlcoord 0, 17
-	ld b, $6f
-	call DrawTileLine ; draw bottom border
 
 	hlcoord 0, 1
 	ld de, 20
@@ -442,9 +600,29 @@ ShowPokedexDataInternal:
 	ld a, $6e ; lower right corner tile
 	ldcoord_a 19, 17
 
+	hlcoord 2, 8
+	ld a, "№"
+	ld [hli], a
+	ld a, "<DOT>"
+	ld [hli], a
+
 	hlcoord 0, 9
 	ld de, PokedexDataDividerLine
 	call PlaceString ; draw horizontal divider line
+
+	; fall through
+
+ShowNextPokemonData:
+	ld hl, wPokedexDataFlags
+	res BIT_POKEDEX_WHICH_SPRITE_SHOWING, [hl]
+	ld a, [wd11e] ; pokemon ID
+	ld [wcf91], a
+	ld [wBattleMonSpecies2], a
+	push af
+	ld b, SET_PAL_POKEDEX
+	call RunPaletteCommand
+	pop af
+	ld [wd11e], a
 
 	hlcoord 9, 6
 	ld de, HeightWeightText
@@ -475,14 +653,73 @@ ShowPokedexDataInternal:
 	push af
 	call IndexToPokedex
 
-	hlcoord 2, 8
-	ld a, "№"
-	ld [hli], a
-	ld a, "<DOT>"
-	ld [hli], a
+	hlcoord 4, 8
 	ld de, wd11e
 	lb bc, LEADING_ZEROES | 1, 3
 	call PrintNumber ; print pokedex number
+
+	ld a, [wPokedexDataFlags]
+	bit BIT_POKEDEX_DATA_DISPLAY_TYPE, a
+	jr nz, .noPrevNextPrompt
+
+	hlcoord 1, 17
+	ld a, [wDexMinSeenMon]
+	ld b, a
+	ld a, [wd11e]
+	cp b
+	ld a, $CC ; < prompt
+	jr nz, .loadLeftPrompt
+	ld a, $6f ; border tile instead
+.loadLeftPrompt
+	ld [hl], a
+
+	hlcoord 18, 17
+	ld a, [wDexMaxSeenMon]
+	ld b, a
+	ld a, [wd11e]
+	cp b
+	ld a, $CD ; > prompt
+	jr nz, .loadRightPrompt
+	ld a, $6f ; border tile instead
+.loadRightPrompt
+	ld [hl], a
+
+	hlcoord 2, 17
+	lb bc, $6f, 16
+	jr .drawBottomBorder
+.noPrevNextPrompt
+	hlcoord 1, 17
+	lb bc, $6f, 18
+.drawBottomBorder
+	ld de, 1
+	call DrawTileLine ; draw bottom border
+
+.checkLeftRightButtonFunctionality
+	ld a, [wPokedexDataFlags]
+	bit BIT_POKEDEX_DATA_DISPLAY_TYPE, a
+	jr nz, .noLeftRight ; no left or right tracking when we are displaying an external pokedex entry
+	; we will add D_RIGHT and D_LEFT to the tracked buttons if going left or right to other pokedex entries is allowed
+	ld a, [wMenuWatchedKeys]
+	ld b, a
+	ld a, [wd11e]
+	ld c, a
+	ld a, [wDexMaxSeenMon]
+	cp c
+	jr z, .noRight
+	ld a, D_RIGHT
+	or b
+	ld b, a
+.noRight
+	ld a, [wDexMinSeenMon]
+	cp c
+	jr z, .noLeft
+	ld a, D_LEFT
+	or b
+	ld b, a
+.noLeft
+	ld a, b ; buttons to watch while displaying description/base stats
+	ld [wMenuWatchedKeys], a
+.noLeftRight
 
 	ld hl, wPokedexOwned
 	call IsPokemonBitSet
@@ -512,7 +749,19 @@ ShowPokedexDataInternal:
 
 	ld a, c
 	and a
-	jp z, .waitForButtonPress ; if the pokemon has not been owned, don't print the height, weight, or description
+	jp z, .seenOnly ; if the pokemon has not been owned, don't print the height or weight, but show their type
+
+
+	CheckEvent EVENT_GOT_POKEDEX
+	jr z, .printHeightWeight ; don't track the select button if we're showing the starter dex entries before getting the pokedex
+
+	ld a, [wMenuWatchedKeys]
+	ld b, SELECT
+	or b
+	ld [wMenuWatchedKeys], a ; watch the select button too if the pokemon is owned (allows the player to see the back sprite on pressing select)
+
+
+.printHeightWeight
 	inc de ; de = address of feet (height)
 	ld a, [de] ; reads feet, but a is overwritten without being used
 	hlcoord 12, 6
@@ -563,19 +812,158 @@ ShowPokedexDataInternal:
 	ldh [hDexWeight + 1], a ; restore original value of [hDexWeight + 1]
 	pop af
 	ldh [hDexWeight], a ; restore original value of [hDexWeight]
+
+.printDescription
 	pop hl
+	push hl
 	inc hl ; hl = address of pokedex description text
 	bccoord 1, 11
 	ld a, %10
 	ldh [hClearLetterPrintingDelayFlags], a
 	call TextCommandProcessor ; print pokedex description text
+	CheckEvent EVENT_GOT_POKEDEX
+	jp z, .starterDisplay ; don't display additional page if we're showing the starters before getting the pokedex.
+	ld a, [wMenuWatchedKeys]
+	ld c, a
+	ldh a, [hJoy5]
+	ld b, a
+	and c
+	jr nz, .buttonTracking1
+	callfar TextCommandPromptMultiButton
+	ldh a, [hJoy5]
+	ld b, a
+.buttonTracking1
+	bit BIT_A_BUTTON, b
+	jr nz, .printBaseStats
+	bit BIT_B_BUTTON, b
+	jp nz, .exitDataPage
+	bit BIT_D_LEFT, b
+	jp nz, .prevMon
+	bit BIT_D_RIGHT, b
+	jp nz, .nextMon
+	bit BIT_SELECT, b
+	jp nz, .switchMonSprite
+;;;;;;;;;; PureRGBnote: ADDED: pokedex will display the pokemon's types and their base stats on a new third page.
+.printBaseStats
+	hlcoord 1, 10
+	lb bc, 7, 18
+	call ClearScreenArea
+	; print mon base stats
+	hlcoord 9, 10
+	ld de, BaseStatsText
+	call PlaceString
+	hlcoord 12, 11
+	ld de, HPText
+	call PlaceString
+	ld de, wMonHBaseHP
+	hlcoord 15, 11
+	lb bc, 1, 3
+	call PrintNumber 
+	hlcoord 11, 12
+	ld de, AtkText
+	call PlaceString
+	ld de, wMonHBaseAttack
+	hlcoord 15, 12
+	lb bc, 1, 3
+	call PrintNumber 
+	hlcoord 11, 13
+	ld de, DefText
+	call PlaceString
+	ld de, wMonHBaseDefense
+	hlcoord 15, 13
+	lb bc, 1, 3
+	call PrintNumber
+	hlcoord 11, 14
+	ld de, SpdText
+	call PlaceString
+	ld de, wMonHBaseSpeed
+	hlcoord 15, 14
+	lb bc, 1, 3
+	call PrintNumber
+	hlcoord 11, 15
+	ld de, SpcText
+	call PlaceString
+	ld de, wMonHBaseSpecial
+	hlcoord 15, 15
+	lb bc, 1, 3
+	call PrintNumber 
+	hlcoord 9, 16
+	ld de, TotalText
+	call PlaceString
+	; calculate the base stat total to print it
+	ld b, 0
+	ld a, [wMonHBaseHP]
+	ld hl, 0
+	ld c, a
+	add hl, bc
+	ld a, [wMonHBaseAttack]
+	ld c, a
+	add hl, bc
+	ld a, [wMonHBaseDefense]
+	ld c, a
+	add hl, bc
+	ld a, [wMonHBaseSpeed]
+	ld c, a
+	add hl, bc
+	ld a, [wMonHBaseSpecial]
+	ld c, a
+	add hl, bc
+	ld a, h
+	ld [wSum], a
+	ld a, l
+	ld [wSum+1], a
+	ld de, wSum
+	hlcoord 15, 16
+	lb bc, 2, 3
+	call PrintNumber
+	jr .printMonTypes
+
+.seenOnly
+	push hl
+;;;;;;;;;;; PureRGBnote: ADDED: code for printing the current pokemon's type(s)
+.printMonTypes
+	hlcoord 1, 11
+	ld de, DexType1Text
+	call PlaceString
+	hlcoord 2, 12
+	predef PrintMonType
+	hlcoord 2, 14
+	ld a, [hl]
+	cp " "
+	jr z, .waitForButtonPress2 ; don't print TYPE2/ if the pokemon has 1 type only.
+	hlcoord 1, 13
+	ld de, DexType2Text
+	call PlaceString
+	jr .waitForButtonPress2
+.starterDisplay
+	ld a, [wMenuWatchedKeys]
+	or A_BUTTON
+	ld [wMenuWatchedKeys], a
+.waitForButtonPress2
+;;;;;;;;;;
+	call JoypadLowSensitivity
+	ld a, [wMenuWatchedKeys]
+	ld c, a
+	ldh a, [hJoy5]
+	ld b, a
+	and c
+	jr z, .waitForButtonPress2
+.buttonTracking2
+	bit BIT_B_BUTTON, b
+	jp nz, .exitDataPage
+	bit BIT_D_LEFT, b
+	jp nz, .prevMon
+	bit BIT_D_RIGHT, b
+	jr nz, .nextMon
+	bit BIT_SELECT, b
+	jr nz, .switchMonSprite
+	bit BIT_A_BUTTON, b
+	jp nz, .exitDataPage ; only an option if in the starter pokedex display at the beginning of the game
+.exitDataPage
 	xor a
 	ldh [hClearLetterPrintingDelayFlags], a
-.waitForButtonPress
-	call JoypadLowSensitivity
-	ldh a, [hJoy5]
-	and A_BUTTON | B_BUTTON
-	jr z, .waitForButtonPress
+	ld [wPokedexDataFlags], a
+	pop hl
 	pop af
 	ldh [hTileAnimations], a
 	call GBPalWhiteOut
@@ -588,6 +976,89 @@ ShowPokedexDataInternal:
 	ld a, $77 ; max volume
 	ldh [rNR50], a
 	ret
+.switchMonSprite
+	ld a, [wd11e]
+	push af
+	call IndexToPokedex
+	hlcoord 1, 1
+	ld b, 7
+	ld c, 8
+	call ClearScreenArea
+	ld a, [wPokedexDataFlags]
+	xor %00000010 ; toggle BIT_POKEDEX_WHICH_SPRITE_SHOWING
+	bit BIT_POKEDEX_WHICH_SPRITE_SHOWING, a
+	ld [wPokedexDataFlags], a
+	jr nz, .backSprite
+.frontSprite
+	hlcoord 1, 1
+	call LoadFlippedFrontSpriteByMonIndex ; draw front sprite
+	jr .reloadwd11e
+.backSprite
+	callfar LoadMonBackPicInPokedex ; draw back sprite
+	xor a
+	ldh [hStartTileID], a
+	hlcoord 1, 1
+	predef CopyUncompressedPicToTilemap
+	jr .reloadwd11e
+.nextMon
+	ld a, [wd11e]
+	push af
+	call IndexToPokedex
+	ld hl, wPokedexSeen
+	call SeekToNextMon
+	jr c, .reloadwd11e
+	pop af
+	call ChangeListPosition
+	call PokedexToIndex
+	jr .showNextPokemon
+.prevMon
+	ld a, [wd11e]
+	push af
+	call IndexToPokedex
+	ld hl, wPokedexSeen
+	call SeekToPreviousMon
+	jr c, .reloadwd11e
+	pop af
+	call ChangeListPosition
+	call PokedexToIndex
+	jr .showNextPokemon
+.reloadwd11e
+	pop af
+	ld [wd11e], a
+.reprintDescription
+	; clear the description box in case we're not on page 1
+	hlcoord 1, 10
+	lb bc, 6, 18
+	call ClearScreenArea
+	hlcoord 9, 16
+	lb bc, 1, 9
+	call ClearScreenArea
+	jp .printDescription
+.showNextPokemon
+	; clear the variable portions of the on-screen data so they don't overlap
+	; clear pokemon sprite box
+	hlcoord 1, 1
+	lb bc, 7, 8
+	call ClearScreenArea
+	; clear bottom text window
+	hlcoord 1, 10
+	lb bc, 6, 18
+	call ClearScreenArea
+	hlcoord 3, 16
+	lb bc, 1, 15
+	call ClearScreenArea
+	; clear pokemon name + class
+	hlcoord 9, 2
+	lb bc, 3, 10
+	call ClearScreenArea
+
+	ld a, B_BUTTON
+	ld [wMenuWatchedKeys], a ; reset the default watched buttons for internal entries
+
+	call Delay3
+
+	pop hl
+	jp ShowNextPokemonData
 
 HeightWeightText:
 	db   "HT  ?′??″"
@@ -602,24 +1073,6 @@ PokedexDataDividerLine:
 	db $68, $69, $6B, $69, $6B, $69, $6B, $69, $6B, $6B
 	db $6B, $6B, $69, $6B, $69, $6B, $69, $6B, $69, $6A
 	db "@"
-
-; draws a line of tiles
-; INPUT:
-; b = tile ID
-; c = number of tile ID's to write
-; de = amount to destination address after each tile (1 for horizontal, 20 for vertical)
-; hl = destination address
-DrawTileLine:
-	push bc
-	push de
-.loop
-	ld [hl], b
-	add hl, de
-	dec c
-	jr nz, .loop
-	pop de
-	pop bc
-	ret
 
 INCLUDE "data/pokemon/dex_entries.asm"
 
@@ -661,3 +1114,33 @@ IndexToPokedex:
 	ret
 
 INCLUDE "data/pokemon/dex_order.asm"
+
+DexType1Text:
+	db "TYPE1/@"
+
+DexType2Text:
+	db "TYPE2/@"
+
+BaseStatsText:
+	db "BASE STATS@"
+
+HPText:
+	db "HP@"
+
+AtkText:
+	db "ATK@"
+
+DefText:
+	db "DEF@"
+
+SpdText:
+	db "SPD@"
+
+SpcText:
+	db "SPC@"
+
+TotalText:
+	db "TOTAL@"
+
+
+

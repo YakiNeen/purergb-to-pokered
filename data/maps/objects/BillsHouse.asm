@@ -1,14 +1,16 @@
 	object_const_def
 	const BILLSHOUSE_BILL_POKEMON
-	const BILLSHOUSE_BILL1
-	const BILLSHOUSE_BILL2
+	const BILLSHOUSE_BILL_SS_TICKET
+	const BILLSHOUSE_BILL_CHECK_OUT_MY_RARE_POKEMON
 
 BillsHouse_Object:
 	db $d ; border block
 
 	def_warp_events
-	warp_event  2,  7, LAST_MAP, 1
-	warp_event  3,  7, LAST_MAP, 1
+	warp_event  2,  7, ROUTE_25, 1
+	warp_event  3,  7, ROUTE_25, 1
+	warp_event  3,  0, BILLS_GARDEN, 1
+	warp_event  4,  0, BILLS_GARDEN, 2
 
 	def_bg_events
 

@@ -14,7 +14,7 @@ GetMonName::
 	ld de, wcd6d
 	push de
 	ld bc, 10
-	call CopyData
+	rst _CopyData
 	ld hl, wcd6d + 10
 	ld [hl], "@"
 	pop de
@@ -70,7 +70,7 @@ GetMachineName::
 	ld bc, 2
 .WriteMachinePrefix
 	ld de, wcd6d
-	call CopyData
+	rst _CopyData
 
 ; now get the machine number and convert it to text
 	ld a, [wd11e]
@@ -119,13 +119,10 @@ IsItemHM::
 
 ; sets carry if move is an HM, clears carry if move is not an HM
 ; Input: a = move ID
-IsMoveHM::
-	ld hl, HMMoves
-	ld de, 1
-	jp IsInArray
-
-HMMoves::
-INCLUDE "data/moves/hm_moves.asm"
+;IsMoveHM:: ; PureRGBnote: FIXED: Moves are never considered HMs removing deletion restrictions
+	;ld hl, HMMoves
+	;ld de, 1
+	;jp IsInArray
 
 GetMoveName::
 	push hl

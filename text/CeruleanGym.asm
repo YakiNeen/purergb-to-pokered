@@ -47,7 +47,9 @@ _CeruleanGymMistyCascadeBadgeInfoText::
 
 _CeruleanGymMistyReceivedTM11Text::
 	text "<PLAYER> received"
-	line "TM11!@"
+	line "@"
+	text_ram wStringBuffer
+	text "!@"
 	text_end
 
 _CeruleanGymMistyTM11NoRoomText::
@@ -129,5 +131,18 @@ _CeruleanGymGymGuideBeatMistyText::
 
 	para "You and me kid,"
 	line "we make a pretty"
-	cont "darn good team!"
-	done
+	cont "darn good team!@"
+	text_end
+
+_GymGuideMoreApexChipText::
+	text "I've got two more"
+	line "APEX CHIPs,here!"
+	prompt
+
+_CeruleanGymGuideApexChipWaterText::
+	text "For water #MON,"
+	line "an APEX CHIP will"
+	cont "evoke a beautiful"
+	cont "ocean or river"
+	cont "biome."
+	prompt

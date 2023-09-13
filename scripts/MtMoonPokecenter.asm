@@ -1,4 +1,5 @@
 MtMoonPokecenter_Script:
+	call SetLastBlackoutMap ; PureRGBnote: ADDED: set blackout map on entering pokemon center
 	call Serial_TryEstablishingExternallyClockedConnection
 	jp EnableAutoTextBoxDrawing
 
@@ -27,7 +28,7 @@ MtMoonPokecenterMagikarpSalesmanText:
 	CheckEvent EVENT_BOUGHT_MAGIKARP, 1
 	jp c, .alreadyBoughtMagikarp
 	ld hl, .IGotADealText
-	call PrintText
+	rst _PrintText
 	ld a, MONEY_BOX
 	ld [wTextBoxID], a
 	call DisplayTextBoxID
@@ -67,9 +68,9 @@ MtMoonPokecenterMagikarpSalesmanText:
 .alreadyBoughtMagikarp
 	ld hl, .NoRefundsText
 .printText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .IGotADealText
 	text_far _MtMoonPokecenterMagikarpSalesmanIGotADealText

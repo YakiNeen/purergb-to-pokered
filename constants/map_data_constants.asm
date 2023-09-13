@@ -1,6 +1,12 @@
 ; width of east/west connections
 ; height of north/south connections
 DEF MAP_BORDER EQU 3
+DEF DEFER_SHOWING_MAP EQU %10000
+DEF EXTRA_MUSIC_MAP   EQU %100000
+
+	const_def 4
+	const BIT_DEFER_SHOWING_MAP
+	const BIT_EXTRA_MUSIC_MAP
 
 ; connection directions
 	const_def

@@ -7,8 +7,8 @@ SpecialEffects:
 	db DREAM_EATER_EFFECT
 	db PAY_DAY_EFFECT
 	db SWIFT_EFFECT
+	db TWO_OR_THREE_ATTACKS_EFFECT ; PureRGBnote: ADDED:
 	db TWO_TO_FIVE_ATTACKS_EFFECT
-	db EFFECT_1E
 	db CHARGE_EFFECT
 	db SUPER_FANG_EFFECT
 	db SPECIAL_DAMAGE_EFFECT
@@ -16,9 +16,12 @@ SpecialEffects:
 	db ATTACK_TWICE_EFFECT
 	db JUMP_KICK_EFFECT
 	db RECOIL_EFFECT
+	db BIG_RECOIL_EFFECT ; PureRGBnote: ADDED:
+	db ATTACK_UP_SIDE_EFFECT ; PureRGBnote: ADDED:
 	; fallthrough
 SpecialEffectsCont:
 ; damaging moves whose effect is executed prior to damage calculation
 	db THRASH_PETAL_DANCE_EFFECT
 	db TRAPPING_EFFECT
 	db -1 ; end
+	

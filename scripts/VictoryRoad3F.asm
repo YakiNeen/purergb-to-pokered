@@ -28,6 +28,8 @@ VictoryRoad3F_ScriptPointers:
 
 VictoryRoad3FDefaultScript:
 	ld hl, wFlags_0xcd60
+	bit 1, [hl]
+	ret nz ; PureRGBnote: ADDED: if a boulder animation is playing forget doing this, helps reduce lag
 	bit 7, [hl]
 	res 7, [hl]
 	jp z, .check_switch_hole
@@ -49,7 +51,8 @@ VictoryRoad3FDefaultScript:
 	predef HideObject
 	ld a, HS_VICTORY_ROAD_2F_BOULDER
 	ld [wMissableObjectIndex], a
-	predef_jump ShowObject
+	predef ShowObject
+	jpfar BoulderHoleDropEffectDefault
 
 .SwitchOrHoleCoords:
 	dbmapcoord  3,  5 ; switch
@@ -81,8 +84,8 @@ VictoryRoad3F_TextPointers:
 	dw_const VictoryRoad3FCooltrainerF1Text, TEXT_VICTORYROAD3F_COOLTRAINER_F1
 	dw_const VictoryRoad3FCooltrainerM2Text, TEXT_VICTORYROAD3F_COOLTRAINER_M2
 	dw_const VictoryRoad3FCooltrainerF2Text, TEXT_VICTORYROAD3F_COOLTRAINER_F2
-	dw_const PickUpItemText,                 TEXT_VICTORYROAD3F_MAX_REVIVE
-	dw_const PickUpItemText,                 TEXT_VICTORYROAD3F_TM_EXPLOSION
+	dw_const PickUpItemText,                 TEXT_VICTORYROAD3F_ITEM1
+	dw_const PickUpItemText,                 TEXT_VICTORYROAD3F_ITEM2
 	dw_const BoulderText,                    TEXT_VICTORYROAD3F_BOULDER1
 	dw_const BoulderText,                    TEXT_VICTORYROAD3F_BOULDER2
 	dw_const BoulderText,                    TEXT_VICTORYROAD3F_BOULDER3
@@ -104,25 +107,25 @@ VictoryRoad3FCooltrainerM1Text:
 	text_asm
 	ld hl, VictoryRoad3TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad3FCooltrainerF1Text:
 	text_asm
 	ld hl, VictoryRoad3TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad3FCooltrainerM2Text:
 	text_asm
 	ld hl, VictoryRoad3TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad3FCooltrainerF2Text:
 	text_asm
 	ld hl, VictoryRoad3TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad3FCooltrainerM1BattleText:
 	text_far _VictoryRoad3FCooltrainerM1BattleText

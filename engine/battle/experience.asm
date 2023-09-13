@@ -70,6 +70,11 @@ GainExperience:
 	add hl, de
 	ld b, [hl] ; party mon OTID
 	inc hl
+;;;;;;;;;; PureRGBnote: ADDED: new item that causes all pokemon to gain EXP as if they were received from a trade.
+	ld a, [wBoosterChipActive] ; always get traded pokemon boost if BOOSTER CHIP was used.
+	and a
+	jr nz, .tradedMon
+;;;;;;;;;;
 	ld a, [wPlayerID]
 	cp b
 	jr nz, .tradedMon
@@ -147,9 +152,15 @@ GainExperience:
 	ld hl, wPartyMonNicks
 	call GetPartyMonName
 	ld hl, GainedText
-	call PrintText
+	rst _PrintText
 	xor a ; PLAYER_PARTY_DATA
 	ld [wMonDataLocation], a
+;;;;;;;;;; PureRGBnote: ADDED: EXP bar is optional and will only render if the option is enabled.
+	call HasExpBar
+	jr z, .noExpBar
+	farcall AnimateEXPBar	;shinpokerednote: ADDED: animate the exp bar
+.noExpBar
+;;;;;;;;;;
 	call LoadMonData
 	pop hl
 	ld bc, wPartyMon1Level - wPartyMon1Exp
@@ -158,8 +169,17 @@ GainExperience:
 	farcall CalcLevelFromExperience
 	pop hl
 	ld a, [hl] ; current level
+;;;;;;;;;; PureRGBnote: FIXED: fixing skip move-learn glitch: need to store the current level in wram
+	ld [wTempLevelStore], a
 	cp d
 	jp z, .nextMon ; if level didn't change, go to next mon
+	call HasExpBar
+	jr z, .noExpBar2
+	push hl
+	farcall KeepEXPBarFull	;joenote - animate the exp bar
+	pop hl
+.noExpBar2
+;;;;;;;;;;
 	ld a, [wCurEnemyLVL]
 	push af
 	push hl
@@ -221,7 +241,7 @@ GainExperience:
 	push hl
 	ld de, wBattleMonLevel
 	ld bc, 1 + NUM_STATS * 2 ; size of stats
-	call CopyData
+	rst _CopyData
 	pop hl
 	ld a, [wPlayerBattleStatus3]
 	bit 3, a ; is the mon transformed?
@@ -229,7 +249,7 @@ GainExperience:
 ; the mon is not transformed, so update the unmodified stats
 	ld de, wPlayerMonUnmodifiedLevel
 	ld bc, 1 + NUM_STATS * 2
-	call CopyData
+	rst _CopyData
 .recalcStatChanges
 	xor a ; battle mon
 	ld [wCalculateWhoseStats], a
@@ -241,9 +261,15 @@ GainExperience:
 	call SaveScreenTilesToBuffer1
 .printGrewLevelText
 	ld hl, GrewLevelText
-	call PrintText
+	rst _PrintText
 	xor a ; PLAYER_PARTY_DATA
 	ld [wMonDataLocation], a
+;;;;;;;;;; PureRGBnote: ADDED: EXP bar is optional and will only render if the option is enabled.
+	call HasExpBar
+	jr z, .noExpBar3
+	farcall AnimateEXPBarAgain	;shinpokerednote: ADDED: animate the exp bar
+.noExpBar3
+;;;;;;;;;;
 	call LoadMonData
 	ld d, $1
 	callfar PrintStatsBox
@@ -253,7 +279,23 @@ GainExperience:
 	ld [wMonDataLocation], a
 	ld a, [wd0b5]
 	ld [wd11e], a
+;;;;;;;;;;;;;;;;;;;;
+;shinpokerednote: FIXED: fixing skip move-learn glitch: here is where moves are learned from level-up
+	ld a, [wCurEnemyLVL]	; load the level to advance to into a. this starts out as the final level.
+	ld c, a	; load the final level to grow to over to c
+	ld a, [wTempLevelStore]	; load the current level into a
+	ld b, a	; load the current level over to b
+.inc_level	; marker for looping back 
+	inc b	;increment 	the current level
+	ld a, b	;put the current level in a
+	ld [wCurEnemyLVL], a	;and reset the level to advance to as merely 1 higher
+	push bc	;save b & c on the stack as they hold the current a true final level
 	predef LearnMoveFromLevelUp
+	pop bc	;get the current and final level values back from the stack
+	ld a, b	;load the current level into a
+	cp c	;compare it with the final level
+	jr nz, .inc_level	;loop back again if final level has not been reached
+;;;;;;;;;;;;;;;;;;;;
 	ld hl, wCanEvolveFlags
 	ld a, [wWhichPokemon]
 	ld c, a
@@ -342,10 +384,10 @@ BoostExp:
 GainedText:
 	text_far _GainedText
 	text_asm
-	ld a, [wBoostExpByExpAll]
-	ld hl, WithExpAllText
-	and a
-	ret nz
+	;ld a, [wBoostExpByExpAll]
+	;ld hl, WithExpAllText
+	;and a
+	;ret nz
 	ld hl, ExpPointsText
 	ld a, [wGainBoostedExp]
 	and a
@@ -370,3 +412,8 @@ GrewLevelText:
 	text_far _GrewLevelText
 	sound_level_up
 	text_end
+
+HasExpBar:
+	ld a, [wOptions2]
+	bit BIT_EXP_BAR, a
+	ret

@@ -157,8 +157,8 @@ ViridianCityGambler1Text:
 	jr nz, .print_text
 	ld hl, .GymAlwaysClosedText
 .print_text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .GymAlwaysClosedText:
 	text_far _ViridianCityGambler1GymAlwaysClosedText
@@ -171,19 +171,19 @@ ViridianCityGambler1Text:
 ViridianCityYoungster2Text:
 	text_asm
 	ld hl, .YouWantToKnowAboutText
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
 	jr nz, .no
 	ld hl, .CaterpieAndWeedleDescriptionText
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .no
 	ld hl, .OkThenText
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .YouWantToKnowAboutText:
 	text_far _ViridianCityYoungster2YouWantToKnowAboutText
@@ -202,13 +202,13 @@ ViridianCityGirlText:
 	CheckEvent EVENT_GOT_POKEDEX
 	jr nz, .got_pokedex
 	ld hl, .HasntHadHisCoffeeYetText
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .got_pokedex
 	ld hl, .WhenIGoShopText
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .HasntHadHisCoffeeYetText:
 	text_far _ViridianCityGirlHasntHadHisCoffeeYetText
@@ -221,11 +221,11 @@ ViridianCityGirlText:
 ViridianCityOldManSleepyText:
 	text_asm
 	ld hl, .PrivatePropertyText
-	call PrintText
+	rst _PrintText
 	call ViridianCityMovePlayerDownScript
 	ld a, SCRIPT_VIRIDIANCITY_PLAYER_MOVING_DOWN
 	ld [wViridianCityCurScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .PrivatePropertyText:
 	text_far _ViridianCityOldManSleepyPrivatePropertyText
@@ -236,23 +236,23 @@ ViridianCityFisherText:
 	CheckEvent EVENT_GOT_TM42
 	jr nz, .got_item
 	ld hl, .YouCanHaveThisText
-	call PrintText
-	lb bc, TM_DREAM_EATER, 1
+	rst _PrintText
+	lb bc, TM_VIRIDIAN_CITY_SLEEPING_GUY, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld hl, .ReceivedTM42Text
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_GOT_TM42
 	jr .done
 .bag_full
 	ld hl, .TM42NoRoomText
-	call PrintText
+	rst _PrintText
 	jr .done
 .got_item
 	ld hl, .TM42ExplanationText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .YouCanHaveThisText:
 	text_far ViridianCityFisherYouCanHaveThisText
@@ -274,23 +274,23 @@ ViridianCityFisherText:
 ViridianCityOldManText:
 	text_asm
 	ld hl, .HadMyCoffeeNowText
-	call PrintText
+	rst _PrintText
 	ld c, 2
-	call DelayFrames
+	rst _DelayFrames
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
 	jr z, .refused
 	ld hl, .KnowHowToCatchPokemonText
-	call PrintText
+	rst _PrintText
 	ld a, SCRIPT_VIRIDIANCITY_OLD_MAN_START_CATCH_TRAINING
 	ld [wViridianCityCurScript], a
 	jr .done
 .refused
 	ld hl, .TimeIsMoneyText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .HadMyCoffeeNowText:
 	text_far _ViridianCityOldManHadMyCoffeeNowText

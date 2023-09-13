@@ -7,20 +7,17 @@ DrawStartMenu::
 	ld c, $08
 	jr nz, .drawTextBoxBorder
 ; shorter menu if the player doesn't have the pokedex
-	hlcoord 10, 0
 	ld b, $0c
-	ld c, $08
 .drawTextBoxBorder
 	call TextBoxBorder
-	ld a, D_DOWN | D_UP | START | B_BUTTON | A_BUTTON
+	; PureRGBnote: CHANGED: now SELECT button is tracked on this menu. Used in the new box-switching anywhere functionality.
+	ld a, D_DOWN | D_UP | START | B_BUTTON | A_BUTTON | SELECT 
 	ld [wMenuWatchedKeys], a
 	ld a, $02
 	ld [wTopMenuItemY], a ; Y position of first menu choice
 	ld a, $0b
 	ld [wTopMenuItemX], a ; X position of first menu choice
-	ld a, [wBattleAndStartSavedMenuItem] ; remembered menu selection from last time
-	ld [wCurrentMenuItem], a
-	ld [wLastMenuItem], a
+	call CheckSavedStartMenuIndex
 	xor a
 	ld [wMenuWatchMovingOutOfBounds], a
 	ld hl, wd730
@@ -57,6 +54,26 @@ DrawStartMenu::
 	call PlaceString
 	ld hl, wd730
 	res 6, [hl] ; turn pauses between printing letters back on
+	ret
+
+; PureRGBnote: ADDED: this code will remember the start menu's last selection in specific scenarios where it's usually cleared.
+;                     Example: after going into a wild battle caused by fishing.
+CheckSavedStartMenuIndex: 
+	ld a, [wBattleAndStartSavedMenuItem] ; remembered menu selection from last time
+	and a
+	jr nz, .done
+	ld a, [wExtraSavedStartMenuIndex] ; remembered menu selection even after a battle - like when a fishing encounter occurred
+	and a
+	jr z, .done
+	push bc
+	ld b, a
+	xor a
+	ld [wExtraSavedStartMenuIndex], a
+	ld a, b
+	pop bc
+.done
+	ld [wCurrentMenuItem], a
+	ld [wLastMenuItem], a
 	ret
 
 StartMenuPokedexText:

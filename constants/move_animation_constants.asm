@@ -2,7 +2,17 @@
 ; SpecialEffectPointers associates them with effect routines (see data/battle_anims/special_effect_pointers.asm)
 	const_def $C0
 DEF FIRST_SE_ID EQU const_value
-	const_skip $18
+	const_skip $F
+;;;;;;;;;; PureRGBnote: ADDED: new special effects
+	const SE_LIGHT_SCREEN_FLASH        ; $D0 used in Teleport
+	const SE_SNOWFLAKES_EVERYWHERE     ; $D1 used in Blizzard
+	const SE_STATIC_EVERYWHERE         ; $D2 used in Constrict (Static Snag)
+	const SE_SMOKE_EVERYWHERE          ; $D3 used in Poison Gas 
+	const SE_FIRE_EVERYWHERE           ; $D4 used in Take Down (Heat Rush)
+	const SE_SLIDE_ENEMY_MON_DOWN_AND_HIDE   ; $D5 used in Sludge 
+	const SE_SLIDE_ENEMY_MON_HALF_OFF  ; $D6 used in Slam 
+	const SE_SHAKE_BACK_AND_FORTH_SHORT; $D7 used in Rolling Kick
+;;;;;;;;;;
 	const SE_WAVY_SCREEN               ; $D8 used in Psywave/Night Shade/Psychic etc.
 	const SE_SUBSTITUTE_MON            ; $D9 used in Substitute (turns the pokemon into a mini sprite)
 	const SE_SHAKE_BACK_AND_FORTH      ; $DA used in Double Team
@@ -11,10 +21,10 @@ DEF FIRST_SE_ID EQU const_value
 	const SE_SHOW_MON_PIC              ; $DD used in Low Kick/Quick Attack/Seismic Toss etc.
 	const SE_BLINK_ENEMY_MON           ; $DE used in Seismic Toss
 	const SE_HIDE_ENEMY_MON_PIC        ; $DF used in Seismic Toss
-	const SE_FLASH_ENEMY_MON_PIC       ; $E0 unused
+	const SE_WATER_DROPLETS_EVERYWHERE_FAST       ; $E0 ; PureRGBnote: ADDED: used in Hydro Pump
 	const SE_DELAY_ANIMATION_10        ; $E1 used in lots of animations
 	const SE_SPIRAL_BALLS_INWARD       ; $E2 used in Growth/Focus Energy/Hyper Beam etc.
-	const SE_SHAKE_ENEMY_HUD_2         ; $E3 unused
+	const SE_SPIRAL_BALLS_INWARD_FAST  ; $E3 ; PureRGBnote: ADDED: used in Drill Peck and Horn Drill
 	const SE_SHAKE_ENEMY_HUD           ; $E4
 	const SE_SLIDE_MON_HALF_OFF        ; $E5 used in Softboiled
 	const SE_PETALS_FALLING            ; $E6 used in Petal Dance
@@ -23,7 +33,7 @@ DEF FIRST_SE_ID EQU const_value
 	const SE_SLIDE_MON_DOWN_AND_HIDE   ; $E9 used in Acid Armor
 	const SE_MINIMIZE_MON              ; $EA used in Minimize
 	const SE_BOUNCE_UP_AND_DOWN        ; $EB used in Splash
-	const SE_SHOOT_MANY_BALLS_UPWARD   ; $EC used in an unused animation
+	const SE_SHOOT_MANY_BALLS_UPWARD   ; $EC unused ; PureRGBnote: ADDED: used in Swords Dance, Amnesia
 	const SE_SHOOT_BALLS_UPWARD        ; $ED used in Teleport/Sky Attack
 	const SE_SQUISH_MON_PIC            ; $EE used in Teleport/Sky Attack
 	const SE_HIDE_MON_PIC              ; $EF
@@ -49,92 +59,104 @@ DEF FIRST_SE_ID EQU const_value
 ; The 0 or 1 in the name of a subanim indicates whether to use tileset 0 or 1 data/moves/animations.asm.
 ; "Both" indicates either can be used for different images using the same animation.
 	const_def
-	const SUBANIM_0_STAR
-	const SUBANIM_0_STAR_TWICE
-	const SUBANIM_0_STAR_THRICE
-	const SUBANIM_0_STAR_DESCENDING
-	const SUBANIM_1_STAR_BIG_MOVING
-	const SUBANIM_1_STAR_BIG
-	const SUBANIM_0_BALL_TOSS_HIGH
-	const SUBANIM_0_BALL_TOSS_MIDDLE
-	const SUBANIM_0_BALL_TOSS_LOW
-	const SUBANIM_0_BALL_SHAKE_ENEMY
-	const SUBANIM_0_BALL_POOF_ENEMY
-	const SUBANIM_0_BALL_BLOCK
-	const SUBANIM_1_FLAME_COLUMN_1
-	const SUBANIM_1_FLAME_COLUMN_2
-	const SUBANIM_1_FLAME_COLUMN_3
-	const SUBANIM_0_SCRATCHES
-	const SUBANIM_1_TORNADO
-	const SUBANIM_1_FLAMES
-	const SUBANIM_0_HEART_1_MUSIC
-	const SUBANIM_1_BLOB_TOSS
-	const SUBANIM_1_BLOB_DRIP_ENEMY
-	const SUBANIM_1_SHOUT
-	const SUBANIM_0_SLICE
-	const SUBANIM_0_BIRDIES_CIRCLING_ENEMY
-	const SUBANIM_1_SWORDS_CIRCLING
-	const SUBANIM_1_CLOUD_TOSS
-	const SUBANIM_0_WATER_COLUMNS
-	const SUBANIM_1_SEED_TOSS
-	const SUBANIM_1_SEED_LAND
-	const SUBANIM_0_ROCKS_LIFT
-	const SUBANIM_0_ROCKS_TOSS
-	const SUBANIM_1_FLAME_BEAM
-	const SUBANIM_1_FLAME_STAR
-	const SUBANIM_0_CIRCLES_1_SQUARES_CENTERING_ENEMY
-	const SUBANIM_0_CIRCLE_1_SQUARE_TOSS_BACK
-	const SUBANIM_0_BIND
-	const SUBANIM_0_STATUS_PARALYZED
-	const SUBANIM_0_STATUS_CONFUSED
-	const SUBANIM_0_STATUS_CONFUSED_ENEMY
-	const SUBANIM_0_STATUS_POISONED
-	const SUBANIM_1_SAND
-	const SUBANIM_1_LIGHTNING_BALL
-	const SUBANIM_0_SLICE_BOTH_SIDES
-	const SUBANIM_1_LIGHTNING
-	const SUBANIM_0_WATER_DROPLETS
-	const SUBANIM_0_CIRCLES_CENTERING
-	const SUBANIM_0_BEAM
-	const SUBANIM_0_ICE_RISE
-	const SUBANIM_0_ROCKS_FALL_ENEMY
-	const SUBANIM_0_SOUND_WAVE
-	const SUBANIM_0_CIRCLE_1_SQUARE_HALF_TOSS ; unused
-	const SUBANIM_1_BARRIER
-	const SUBANIM_1_SELFDESTRUCT
-	const SUBANIM_0_WATER_BUBBLES
-	const SUBANIM_0_CIRCLES_FALLING
-	const SUBANIM_0_STRING_SHOT
-	const SUBANIM_0_ICE_FALL
-	const SUBANIM_0_CIRCLE_1_SQUARE_APPEARS ; unused
-	const SUBANIM_0_STATUS_SLEEP
-	const SUBANIM_0_STATUS_SLEEP_ENEMY
-	const SUBANIM_0_WATER_1_FIRE_BARRIER ; unused
-	const SUBANIM_0_WATER_1_FIRE_GEYSER ; unused
-	const SUBANIM_1_STAR_BIG_TOSS
-	const SUBANIM_1_STARS_SMALL_TOSS
-	const SUBANIM_1_MUSIC_CIRCLING_ENEMY
-	const SUBANIM_1_CIRCLE_BLACK_TOSS
-	const SUBANIM_1_EXPLOSION_SMALL_ENEMY
-	const SUBANIM_0_CIRCLE_1_SQUARE_CLOSING
-	const SUBANIM_1_LEAVES_TOSS
-	const SUBANIM_0_HORN_JAB_TWICE
-	const SUBANIM_0_HORN_JAB_THRICE
-	const SUBANIM_0_BALL_POOF
-	const SUBANIM_2_TRADE_BALL_DROP
-	const SUBANIM_2_TRADE_BALL_SHAKE
-	const SUBANIM_2_TRADE_BALL_APPEAR
-	const SUBANIM_2_TRADE_BALL_POOF
-	const SUBANIM_0_EGG_SHAKING
-	const SUBANIM_1_TRIANGLE_TOSS
-	const SUBANIM_1_SPHERE_BIG
-	const SUBANIM_1_SPHERE_BIG_RISE
-	const SUBANIM_1_SPHERE_BIG_FALL
-	const SUBANIM_0_SHELL
-	const SUBANIM_0_COIN_BOUNCE
-	const SUBANIM_0_SAFARI_ROCK
-	const SUBANIM_0_SAFARI_BAIT
-	const SUBANIM_0_STAR_HIGH
+	const SUBANIM_0_STAR ; 00
+	const SUBANIM_0_STAR_TWICE ; 01
+	const SUBANIM_0_STAR_THRICE ; 02
+	const SUBANIM_0_STAR_DESCENDING ; 03
+	const SUBANIM_1_STAR_BIG_MOVING ; 04
+	const SUBANIM_1_STAR_BIG ; 05
+	const SUBANIM_0_BALL_TOSS_HIGH ; 06
+	const SUBANIM_0_BALL_TOSS_MIDDLE ; 07
+	const SUBANIM_0_BALL_TOSS_LOW ; 08
+	const SUBANIM_0_BALL_SHAKE_ENEMY ; 09
+	const SUBANIM_0_BALL_POOF_ENEMY ; 0A
+	const SUBANIM_0_BALL_BLOCK ; 0B
+	const SUBANIM_1_FLAME_COLUMN_1 ; 0C
+	const SUBANIM_1_FLAME_COLUMN_2 ; 0D
+	const SUBANIM_1_FLAME_COLUMN_3 ; 0E
+	const SUBANIM_0_SCRATCHES ; 0F
+	const SUBANIM_1_TORNADO ; 10
+	const SUBANIM_1_FLAMES ; 11
+	const SUBANIM_0_HEART_1_MUSIC ; 12
+	const SUBANIM_1_BLOB_TOSS ; 13
+	const SUBANIM_1_BLOB_DRIP_ENEMY ; 14
+	const SUBANIM_1_SHOUT ; 15
+	const SUBANIM_0_SLICE ; 16
+	const SUBANIM_0_BIRDIES_CIRCLING_ENEMY ; 17
+	const SUBANIM_1_SWORDS_CIRCLING ; 18
+	const SUBANIM_1_CLOUD_TOSS ; 19
+	const SUBANIM_0_WATER_COLUMNS ; 1A
+	const SUBANIM_1_SEED_TOSS ; 1B
+	const SUBANIM_1_SEED_LAND ; 1C
+	const SUBANIM_0_ROCKS_LIFT ; 1D
+	const SUBANIM_0_ROCKS_TOSS ; 1E
+	const SUBANIM_1_FLAME_BEAM ; 1F
+	const SUBANIM_1_FLAME_STAR ; 20
+	const SUBANIM_0_CIRCLES_1_SQUARES_CENTERING_ENEMY ; 21
+	const SUBANIM_0_CIRCLE_1_SQUARE_TOSS_BACK ; 22
+	const SUBANIM_0_BIND ; 23
+	const SUBANIM_0_STATUS_PARALYZED ; 24
+	const SUBANIM_0_STATUS_CONFUSED ; 25
+	const SUBANIM_0_STATUS_CONFUSED_ENEMY ; 26
+	const SUBANIM_0_STATUS_POISONED ; 27
+	const SUBANIM_1_SAND ; 28
+	const SUBANIM_1_LIGHTNING_BALL ; 29
+	const SUBANIM_0_SLICE_BOTH_SIDES ; 2A
+	const SUBANIM_1_LIGHTNING ; 2B
+	const SUBANIM_0_WATER_DROPLETS ; 2C
+	const SUBANIM_0_CIRCLES_CENTERING ; 2D
+	const SUBANIM_0_BEAM ; 2E
+	const SUBANIM_0_ICE_RISE ; 2F
+	const SUBANIM_0_ROCKS_FALL_ENEMY ; 30
+	const SUBANIM_0_SOUND_WAVE ; 31
+	const SUBANIM_0_CIRCLE_1_SQUARE_HALF_TOSS ; unused 32
+	const SUBANIM_1_BARRIER ; 33
+	const SUBANIM_1_SELFDESTRUCT ; 34
+	const SUBANIM_0_WATER_BUBBLES ; 35
+	const SUBANIM_0_CIRCLES_FALLING ; 36
+	const SUBANIM_0_STRING_SHOT ; 37
+	const SUBANIM_0_ICE_FALL ; 38
+	const SUBANIM_0_CIRCLE_1_SQUARE_APPEARS ; unused 39
+	const SUBANIM_0_STATUS_SLEEP ; 3A
+	const SUBANIM_0_STATUS_SLEEP_ENEMY ; 3B
+	const SUBANIM_0_WATER_1_FIRE_BARRIER ; unused 3C
+	const SUBANIM_0_WATER_1_FIRE_GEYSER ; unused 3D
+	const SUBANIM_1_STAR_BIG_TOSS ; 3E
+	const SUBANIM_1_STARS_SMALL_TOSS ; 3F
+	const SUBANIM_1_MUSIC_CIRCLING_ENEMY ; 40
+	const SUBANIM_1_CIRCLE_BLACK_TOSS ; 41
+	const SUBANIM_1_EXPLOSION_SMALL_ENEMY ; 42
+	const SUBANIM_0_CIRCLE_1_SQUARE_CLOSING ; 43
+	const SUBANIM_1_LEAVES_TOSS ; 44
+	const SUBANIM_0_HORN_JAB_TWICE ; 45
+	const SUBANIM_0_HORN_JAB_THRICE ; 46
+	const SUBANIM_0_BALL_POOF ; 47
+	const SUBANIM_2_TRADE_BALL_DROP ; 48
+	const SUBANIM_2_TRADE_BALL_SHAKE ; 49
+	const SUBANIM_2_TRADE_BALL_APPEAR ; 4A
+	const SUBANIM_2_TRADE_BALL_POOF ; 4B
+	const SUBANIM_0_EGG_SHAKING ; 4C
+	const SUBANIM_1_TRIANGLE_TOSS ; 4D
+	const SUBANIM_1_SPHERE_BIG ; 4E
+	const SUBANIM_1_SPHERE_BIG_RISE ; 4F
+	const SUBANIM_1_SPHERE_BIG_FALL ; 50
+	const SUBANIM_0_SHELL ; 51
+	const SUBANIM_0_COIN_BOUNCE ; 52
+	const SUBANIM_0_SAFARI_ROCK ; 53
+	const SUBANIM_0_SAFARI_BAIT ; 54
+	const SUBANIM_0_STAR_HIGH ; 55
+;;;;;;;;;; PureRGBnote: ADDED: new subanimations
+	const SUBANIM_AMNESIA
+	const SUBANIM_AMNESIA1
+	const SUBANIM_BURN
+	const SUBANIM_AMNESIA_ENEMY
+	const SUBANIM_AMNESIA1_ENEMY
+	const SUBANIM_0_PIN_JAB
+	const SUBANIM_0_PIN_MISSILE
+	const SUBANIM_0_BARB_JAB
+	const SUBANIM_0_SPARKLES_FALLING
+	const SUBANIM_0_CIRCLE_SPLITTING
+;;;;;;;;;;
 DEF NUM_SUBANIMS EQU const_value
 
 ; types of subanimations
@@ -271,6 +293,9 @@ DEF NUM_SUBANIMS EQU const_value
 	const FRAMEBLOCK_77
 	const FRAMEBLOCK_78
 	const FRAMEBLOCK_79
+	const FRAMEBLOCK_7A
+	const FRAMEBLOCK_7B
+	const FRAMEBLOCK_7C
 DEF NUM_FRAMEBLOCKS EQU const_value
 
 ; base coordinates that are part of subanimations
@@ -453,6 +478,8 @@ DEF NUM_FRAMEBLOCKS EQU const_value
 	const BASECOORD_AE
 	const BASECOORD_AF
 	const BASECOORD_B0
+	const BASECOORD_B1
+	const BASECOORD_B2
 DEF NUM_BASECOORDS EQU const_value
 
 ; frame block modes that are part of subanimations

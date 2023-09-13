@@ -1,3 +1,5 @@
+; PureRGBnote: MOVED: moved a bunch of code out of home for more space
+
 SECTION "NULL", ROM0
 NULL::
 
@@ -9,6 +11,10 @@ SECTION "High Home", ROM0
 INCLUDE "home/lcd.asm"
 INCLUDE "home/clear_sprites.asm"
 INCLUDE "home/copy.asm"
+INCLUDE "home/array.asm"
+INCLUDE "home/math.asm"
+INCLUDE "home/copy_string.asm"
+PCCharText::      db "PC@"
 
 
 SECTION "Home", ROM0
@@ -36,12 +42,10 @@ INCLUDE "home/timer.asm"
 INCLUDE "home/audio.asm"
 INCLUDE "home/update_sprites.asm"
 
-INCLUDE "data/items/marts.asm"
-
 INCLUDE "home/overworld_text.asm"
 INCLUDE "home/uncompress.asm"
 INCLUDE "home/reset_player_sprite.asm"
-INCLUDE "home/fade_audio.asm"
+;INCLUDE "home/fade_audio.asm"
 INCLUDE "home/text_script.asm"
 INCLUDE "home/start_menu.asm"
 INCLUDE "home/count_set_bits.asm"
@@ -54,7 +58,6 @@ INCLUDE "home/textbox.asm"
 INCLUDE "home/npc_movement.asm"
 INCLUDE "home/trainers.asm"
 INCLUDE "home/map_objects.asm"
-INCLUDE "home/trainers2.asm"
 INCLUDE "home/money.asm"
 INCLUDE "home/bankswitch.asm"
 INCLUDE "home/yes_no.asm"
@@ -64,12 +67,9 @@ INCLUDE "home/tilemap.asm"
 INCLUDE "home/delay.asm"
 INCLUDE "home/names2.asm"
 INCLUDE "home/item_price.asm"
-INCLUDE "home/copy_string.asm"
 INCLUDE "home/joypad2.asm"
-INCLUDE "home/math.asm"
 INCLUDE "home/print_text.asm"
 INCLUDE "home/move_mon.asm"
-INCLUDE "home/array.asm"
 INCLUDE "home/compare.asm"
 INCLUDE "home/oam.asm"
 INCLUDE "home/window.asm"
@@ -82,3 +82,6 @@ INCLUDE "home/random.asm"
 INCLUDE "home/predef.asm"
 INCLUDE "home/hidden_objects.asm"
 INCLUDE "home/predef_text.asm"
+INCLUDE "home/gbc_funcs.asm" ; shinpokerednote: gbcnote: added code from pokemon yellow for showing colors correctly on gbc
+;INCLUDE "home/test.asm"
+

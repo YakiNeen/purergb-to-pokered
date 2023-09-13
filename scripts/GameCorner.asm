@@ -33,7 +33,12 @@ GameCornerSetRocketHideoutDoorTile:
 	ld a, $2a
 	ld [wNewTileBlockID], a
 	lb bc, 2, 8
-	predef_jump ReplaceTileBlock
+	predef ReplaceTileBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl]
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 
 GameCornerReenterMapAfterPlayerLoss:
 	xor a ; SCRIPT_GAMECORNER_DEFAULT
@@ -142,15 +147,13 @@ GameCornerClerk1Text:
 	; Show player's coins
 	call GameCornerDrawCoinBox
 	ld hl, .DoYouNeedSomeGameCoins
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
 	jr nz, .declined
-	; Can only get more coins if you
-	; - have the Coin Case
-	ld b, COIN_CASE
-	call IsItemInBag
+.wantsToBuyMoreCoins
+	CheckEvent EVENT_GOT_COIN_CASE ; PureRGBnote: CHANGED: coin case is an event instead of an item
 	jr z, .no_coin_case
 	; - have room in the Coin Case for at least 9 coins
 	call Has9990Coins
@@ -159,7 +162,7 @@ GameCornerClerk1Text:
 	xor a
 	ldh [hMoney], a
 	ldh [hMoney + 2], a
-	ld a, $10
+	ld a, $80 ; PureRGBnote: CHANGED: 8000 pokebucks for 500 coins.
 	ldh [hMoney + 1], a
 	call HasEnoughMoney
 	jr nc, .buy_coins
@@ -170,7 +173,7 @@ GameCornerClerk1Text:
 	xor a
 	ldh [hMoney], a
 	ldh [hMoney + 2], a
-	ld a, $10
+	ld a, $80 ; PureRGBnote: CHANGED: 8000 pokebucks for 500 coins.
 	ldh [hMoney + 1], a
 	ld hl, hMoney + 2
 	ld de, wPlayerMoney + 2
@@ -179,16 +182,26 @@ GameCornerClerk1Text:
 	; Receive 50 coins
 	xor a
 	ldh [hUnusedCoinsByte], a
-	ldh [hCoins], a
-	ld a, $50
 	ldh [hCoins + 1], a
-	ld de, wPlayerCoins + 1
-	ld hl, hCoins + 1
-	ld c, $2
+	ldh [hCoins + 2], a
+	ld a, $05 ; PureRGBnote: CHANGED: 8000 pokebucks for 500 coins.
+	ldh [hCoins], a
+	ld de, wPlayerCoins + 2
+	ld hl, hCoins + 2
+	ld c, $3
 	predef AddBCDPredef
-	; Update display
 	call GameCornerDrawCoinBox
 	ld hl, .ThanksHereAre50Coins
+;;;;;;;;;; PureRGBnote: CHANGED: the clerk will allow you to repeatedly buy 500 coins without long dialog repeat
+	rst _PrintText
+	ld hl, .CeladonGameCornerText_another500
+	rst _PrintText
+	call YesNoChoice
+	ld a, [wCurrentMenuItem]
+	and a
+	jr z, .wantsToBuyMoreCoins
+	ld hl, .CeladonGameCornerThanks
+;;;;;;;;;;
 	jr .print_ret
 .declined
 	ld hl, .PleaseComePlaySometime
@@ -199,8 +212,17 @@ GameCornerClerk1Text:
 .no_coin_case
 	ld hl, .DontHaveCoinCase
 .print_ret
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+.done
+	rst TextScriptEnd
+
+.CeladonGameCornerThanks:
+	text_far _Thanks2Text
+	text_end
+
+.CeladonGameCornerText_another500:
+	text_far _CeladonGameCornerText_another500
+	text_end
 
 .DoYouNeedSomeGameCoins:
 	text_far _GameCornerClerk1DoYouNeedSomeGameCoinsText
@@ -239,9 +261,8 @@ GameCornerFishingGuruText:
 	CheckEvent EVENT_GOT_10_COINS
 	jr nz, .alreadyGotNpcCoins
 	ld hl, .WantToPlayText
-	call PrintText
-	ld b, COIN_CASE
-	call IsItemInBag
+	rst _PrintText
+	CheckEvent EVENT_GOT_COIN_CASE ; PureRGBnote: CHANGED: coin case is an event instead of an item
 	jr z, .dontHaveCoinCase
 	call Has9990Coins
 	jr nc, .coinCaseFull
@@ -268,8 +289,8 @@ GameCornerFishingGuruText:
 .dontHaveCoinCase
 	ld hl, GameCornerOopsForgotCoinCaseText
 .print_ret
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .WantToPlayText:
 	text_far _GameCornerFishingGuruWantToPlayText
@@ -292,15 +313,61 @@ GameCornerMiddleAgedWomanText:
 	text_far _GameCornerMiddleAgedWomanText
 	text_end
 
-GameCornerGymGuideText:
+GameCornerGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	CheckEvent EVENT_BEAT_ERIKA
+	jr nz, .afterBattle
 	ld hl, GameCornerGymGuideChampInMakingText
-	jr z, .not_defeated
+	rst _PrintText
+	jr .done
+.afterBattle
+	ld hl, CeladonGameCornerText_gymguide
+	rst _PrintText
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS ; have to hear about apex chips to receive them after that
+	jr z, .gameCornerPrizes
+	CheckEvent EVENT_GOT_CELADON_APEX_CHIPS
+	jr nz, .gameCornerPrizes
+.giveApexChips
+	ld hl, GymGuideMoreApexChipText4
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsText4
+	rst _PrintText
+	ld hl, CeladonGameCornerGymGuideApexChipGrassText
+	rst _PrintText
+	SetEvent EVENT_GOT_CELADON_APEX_CHIPS
+.gameCornerPrizes
 	ld hl, GameCornerGymGuideTheyOfferRarePokemonText
-.not_defeated
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	jr .done
+.BagFull
+	ld hl, ApexNoRoomText4
+	rst _PrintText
+.done
+	rst TextScriptEnd
+
+ReceivedApexChipsText4:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+ApexNoRoomText4:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+GymGuideMoreApexChipText4:
+	text_far _GymGuideMoreApexChipText
+	text_end
+
+CeladonGameCornerText_gymguide:
+	text_far _CeladonGameCornerText_gymguide
+	text_end
+
+CeladonGameCornerGymGuideApexChipGrassText:
+	text_far _CeladonGameCornerGymGuideApexChipGrassText
+	text_end
 
 GameCornerGymGuideChampInMakingText:
 	text_far _GameCornerGymGuideChampInMakingText
@@ -319,9 +386,8 @@ GameCornerClerk2Text:
 	CheckEvent EVENT_GOT_20_COINS_2
 	jr nz, .alreadyGotNpcCoins
 	ld hl, .WantSomeCoinsText
-	call PrintText
-	ld b, COIN_CASE
-	call IsItemInBag
+	rst _PrintText
+	CheckEvent EVENT_GOT_COIN_CASE ; PureRGBnote: CHANGED: coin case is an event instead of an item
 	jr z, .dontHaveCoinCase
 	call Has9990Coins
 	jr nc, .coinCaseFull
@@ -346,8 +412,8 @@ GameCornerClerk2Text:
 .dontHaveCoinCase
 	ld hl, GameCornerOopsForgotCoinCaseText
 .print_ret
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .WantSomeCoinsText:
 	text_far _GameCornerClerk2WantSomeCoinsText
@@ -371,9 +437,8 @@ GameCornerGentlemanText:
 	CheckEvent EVENT_GOT_20_COINS
 	jr nz, .alreadyGotNpcCoins
 	ld hl, .ThrowingMeOffText
-	call PrintText
-	ld b, COIN_CASE
-	call IsItemInBag
+	rst _PrintText
+	CheckEvent EVENT_GOT_COIN_CASE ; PureRGBnote: CHANGED: coin case is an event instead of an item
 	jr z, .dontHaveCoinCase
 	call Has9990Coins
 	jr z, .coinCaseFull
@@ -398,8 +463,8 @@ GameCornerGentlemanText:
 .dontHaveCoinCase
 	ld hl, GameCornerOopsForgotCoinCaseText
 .print_ret
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .ThrowingMeOffText:
 	text_far _GameCornerGentlemanThrowingMeOffText
@@ -421,7 +486,7 @@ GameCornerGentlemanText:
 GameCornerRocketText:
 	text_asm
 	ld hl, .ImGuardingThisPosterText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -438,7 +503,7 @@ GameCornerRocketText:
 	ldh [hJoyReleased], a
 	ld a, SCRIPT_GAMECORNER_ROCKET_BATTLE
 	ld [wGameCornerCurScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .ImGuardingThisPosterText:
 	text_far _GameCornerRocketImGuardingThisPosterText
@@ -457,25 +522,25 @@ GameCornerPosterText:
 	ld a, $1
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
 	ld hl, .SwitchBehindPosterText
-	call PrintText
+	rst _PrintText
 	call WaitForSoundToFinish
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	call WaitForSoundToFinish
 	SetEvent EVENT_FOUND_ROCKET_HIDEOUT
 	ld a, $43
 	ld [wNewTileBlockID], a
 	lb bc, 2, 8
 	predef ReplaceTileBlock
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .SwitchBehindPosterText:
 	text_far _GameCornerPosterSwitchBehindPosterText
 	text_asm
 	ld a, SFX_SWITCH
-	call PlaySound
+	rst _PlaySound
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 GameCornerOopsForgotCoinCaseText:
 	text_far _GameCornerOopsForgotCoinCaseText

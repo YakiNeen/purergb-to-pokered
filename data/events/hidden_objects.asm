@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: Many new hidden items were added versus the original game
+
 HiddenObjectMaps:
 	db REDS_HOUSE_2F
 	db BLUES_HOUSE
@@ -43,7 +45,7 @@ HiddenObjectMaps:
 	db SAFFRON_POKECENTER
 	db POKEMON_TOWER_5F
 	db ROUTE_13
-	db SAFARI_ZONE_GATE
+	db SAFARI_ZONE_CENTER
 	db SAFARI_ZONE_WEST
 	db SILPH_CO_5F
 	db SILPH_CO_9F
@@ -57,7 +59,6 @@ HiddenObjectMaps:
 	db POKEMON_MANSION_3F
 	db ROUTE_23
 	db VICTORY_ROAD_2F
-	db UNUSED_MAP_6F
 	db BILLS_HOUSE
 	db VIRIDIAN_CITY
 	db SAFARI_ZONE_WEST_REST_HOUSE
@@ -84,6 +85,21 @@ HiddenObjectMaps:
 	db VERMILION_CITY
 	db CERULEAN_CITY
 	db ROUTE_4
+	db FOSSIL_GUYS_HOUSE
+	db ROUTE_2
+	db ROUTE_6
+	db ROUTE_8
+	db ROUTE_14
+	db ROUTE_16
+	db ROUTE_18
+	db PEWTER_CITY
+	db SAFARI_ZONE_NORTH
+	db CERULEAN_ROCKET_HOUSE_1F
+	db CERULEAN_ROCKET_HOUSE_B1F
+	db DAYCARE
+	db VIRIDIAN_SCHOOL_HOUSE_B1F
+	db SECRET_LAB
+	db TYPE_GUYS_HOUSE
 	db -1 ; end
 
 HiddenObjectPointers:
@@ -132,7 +148,7 @@ HiddenObjectPointers:
 	dw SaffronPokecenterHiddenObjects
 	dw PokemonTower5HiddenObjects
 	dw Route13HiddenObjects
-	dw SafariZoneEntranceHiddenObjects
+	dw SafariZoneCenterHiddenObjects
 	dw SafariZoneWestHiddenObjects
 	dw SilphCo5FHiddenObjects
 	dw SilphCo9FHiddenObjects
@@ -146,7 +162,6 @@ HiddenObjectPointers:
 	dw Mansion3HiddenObjects
 	dw Route23HiddenObjects
 	dw VictoryRoad2HiddenObjects
-	dw Unused6FHiddenObjects
 	dw BillsHouseHiddenObjects
 	dw ViridianCityHiddenObjects
 	dw SafariZoneRestHouse2HiddenObjects
@@ -173,6 +188,21 @@ HiddenObjectPointers:
 	dw VermilionCityHiddenObjects
 	dw CeruleanCityHiddenObjects
 	dw Route4HiddenObjects
+	dw FossilGuysHouseHiddenObjects
+	dw Route2HiddenObjects
+	dw Route6HiddenObjects
+	dw Route8HiddenObjects
+	dw Route14HiddenObjects
+	dw Route16HiddenObjects
+	dw Route18HiddenObjects
+	dw PewterCityHiddenObjects
+	dw SafariZoneNorthHiddenObjects
+	dw CeruleanRocketHouse1FHiddenObjects
+	dw CeruleanRocketHouseB1FHiddenObjects
+	dw DaycareHiddenObjects
+	dw ViridianSchoolB1FHiddenObjects
+	dw SecretLabHiddenObjects
+	dw TypeGuysHouseHiddenObjects
 
 MACRO hidden_object
 	db \2 ; y coord
@@ -389,7 +419,7 @@ CinnabarGymHiddenObjects:
 	hidden_object 10,  1, (TRUE  << 4) | 2, PrintCinnabarQuiz
 	hidden_object  9,  7, (TRUE  << 4) | 3, PrintCinnabarQuiz
 	hidden_object  9, 13, (TRUE  << 4) | 4, PrintCinnabarQuiz
-	hidden_object  1, 13, (FALSE << 4) | 5, PrintCinnabarQuiz
+	hidden_object  1, 13, (TRUE  << 4) | 5, PrintCinnabarQuiz
 	hidden_object  1,  7, (TRUE  << 4) | 6, PrintCinnabarQuiz
 	db -1 ; end
 
@@ -413,13 +443,13 @@ RockTunnelPokecenterHiddenObjects:
 	db -1 ; end
 
 ViridianForestHiddenObjects:
-	hidden_object  1, 18, POTION, HiddenItems
-	hidden_object 16, 42, ANTIDOTE, HiddenItems
+	hidden_object  1, 18, HIDDEN_ITEM_VIRIDIAN_FOREST_NORTHWEST_BUG_CATCHER, HiddenItems
+	hidden_object 16, 42, HIDDEN_ITEM_VIRIDIAN_FOREST_SOUTH_CENTRAL_TREE, HiddenItems
 	db -1 ; end
 
 MtMoon3HiddenObjects:
-	hidden_object 18, 12, MOON_STONE, HiddenItems
-	hidden_object 33,  9, ETHER, HiddenItems
+	hidden_object 18, 12, HIDDEN_ITEM_MT_MOON_ALCOVE_NEAR_SUPER_NERD, HiddenItems
+	hidden_object 33,  9, HIDDEN_ITEM_MT_MOON_LONE_ROCK_DOWN_2ND_LADDER, HiddenItems
 	db -1 ; end
 
 IndigoPlateauHiddenObjects:
@@ -428,39 +458,40 @@ IndigoPlateauHiddenObjects:
 	db -1 ; end
 
 Route25HiddenObjects:
-	hidden_object 38,  3, ETHER, HiddenItems
-	hidden_object 10,  1, ELIXER, HiddenItems
+	hidden_object 38,  5, HIDDEN_ITEM_ROUTE_25_FENCE_NEAR_EASTMOST_LASS, HiddenItems
+	hidden_object 10,  3, HIDDEN_ITEM_ROUTE_25_ALCOVE_BEHIND_FIRST_HIKER, HiddenItems
 	db -1 ; end
 
 Route9HiddenObjects:
-	hidden_object 14,  7, ETHER, HiddenItems
+	hidden_object 14,  7, HIDDEN_ITEM_ROUTE_9_NORTHWEST_LONE_SHRUB, HiddenItems
+	hidden_object 32,  3, HIDDEN_ITEM_ROUTE_9_NORTH_CENTRAL_GRASS_PATCH_NEW, HiddenItems ; NEW
 	db -1 ; end
 
 SSAnne6HiddenObjects:
 	hidden_object 13,  5, SPRITE_FACING_DOWN, PrintTrashText
 	hidden_object 13,  7, SPRITE_FACING_DOWN, PrintTrashText
-	hidden_object 13,  9, GREAT_BALL, HiddenItems
+	hidden_object 13,  9, HIDDEN_ITEM_SS_ANNE_KITCHEN_TRASH_CAN, HiddenItems
 	db -1 ; end
 
 SSAnne10HiddenObjects:
-	hidden_object  3,  1, HYPER_POTION, HiddenItems
+	hidden_object  3,  1, HIDDEN_ITEM_SS_ANNE_BED_PILLOW, HiddenItems2
 	db -1 ; end
 
 Route10HiddenObjects:
-	hidden_object  9, 17, SUPER_POTION, HiddenItems
-	hidden_object 16, 53, MAX_ETHER, HiddenItems
+	hidden_object  9, 17, HIDDEN_ITEM_ROUTE_10_NEAR_ROCK_TUNNEL_NORTH_ENTR, HiddenItems
+	hidden_object 16, 53, HIDDEN_ITEM_ROUTE_10_SOUTHERN_LONE_SHRUB, HiddenItems
 	db -1 ; end
 
 RocketHideout1HiddenObjects:
-	hidden_object 21, 15, PP_UP, HiddenItems
+	hidden_object 21, 15, HIDDEN_ITEM_HIDEOUT_B1F_POTTED_PLANT, HiddenItems
 	db -1 ; end
 
 RocketHideout3HiddenObjects:
-	hidden_object 27, 17, NUGGET, HiddenItems
+	hidden_object 27, 17, HIDDEN_ITEM_HIDEOUT_B3F_BESIDE_ITEM_BALL, HiddenItems
 	db -1 ; end
 
 RocketHideout4HiddenObjects:
-	hidden_object 25,  1, SUPER_POTION, HiddenItems
+	hidden_object 25,  1, HIDDEN_ITEM_HIDEOUT_B4F_MACHINE_BEHIND_GIOVANNI, HiddenItems2
 	db -1 ; end
 
 SaffronPokecenterHiddenObjects:
@@ -469,57 +500,59 @@ SaffronPokecenterHiddenObjects:
 	db -1 ; end
 
 PokemonTower5HiddenObjects:
-	hidden_object  4, 12, ELIXER, HiddenItems
+	hidden_object  4, 12, HIDDEN_ITEM_TOWER_5F_ALCOVE_NEAR_WEST_STAIRS, HiddenItems2
 	db -1 ; end
 
 Route13HiddenObjects:
-	hidden_object  1, 14, PP_UP, HiddenItems
-	hidden_object 16, 13, CALCIUM, HiddenItems
+	hidden_object  1, 14, HIDDEN_ITEM_ROUTE_13_SOUTHEAST_SHRUB_ALCOVE, HiddenItems
+	hidden_object 16, 13, HIDDEN_ITEM_ROUTE_13_NEAR_SIGN, HiddenItems
+	hidden_object 42,  5, HIDDEN_ITEM_ROUTE_13_NORTHWEST_GRASS_PATCH_NEW, HiddenItems2 ; NEW
 	db -1 ; end
 
-SafariZoneEntranceHiddenObjects:
-	hidden_object 10,  1, NUGGET, HiddenItems ; inaccessible
+SafariZoneCenterHiddenObjects:
+	hidden_object 4, 14, HIDDEN_ITEM_SAFARI_ZONE_CENTER_NEAR_WEST_EXIT, HiddenItems ; used to be unobtainable, now it's obtainable in safari zone center
 	db -1 ; end
 
 SafariZoneWestHiddenObjects:
-	hidden_object  6,  5, REVIVE, HiddenItems
+	hidden_object  6,  5, HIDDEN_ITEM_SAFARI_ZONE_WEST_POKEMON_STATUE, HiddenItems5
 	db -1 ; end
 
 SilphCo5FHiddenObjects:
-	hidden_object 12,  3, ELIXER, HiddenItems
+	hidden_object 12,  3, HIDDEN_ITEM_SILPH_CO_5F_RIGHT_POTTED_PLANT, HiddenItems
 	db -1 ; end
 
 SilphCo9FHiddenObjects:
-	hidden_object  2, 15, MAX_POTION, HiddenItems
+	hidden_object  2, 15, HIDDEN_ITEM_SILPH_CO_9F_BED_LEFT_OF_HEALING_LADY, HiddenItems2
+	hidden_object 10,  7, HIDDEN_ITEM_SILPH_CO_9F_ALCOVE_BESIDE_TABLES_NEW, HiddenItems ; NEW
 	db -1 ; end
 
 CopycatsHouse2FHiddenObjects:
-	hidden_object  1,  1, NUGGET, HiddenItems
+	hidden_object  1,  1, HIDDEN_ITEM_COPYCATS_HOUSE_2F_DESK, HiddenItems
 	db -1 ; end
 
 CeruleanCave1HiddenObjects:
-	hidden_object 14, 11, RARE_CANDY, HiddenItems
+	hidden_object 14, 11, HIDDEN_ITEM_CERULEAN_CAVE_1F_RUBBLE_SQUARE, HiddenItems5
 	db -1 ; end
 
 CeruleanCave3HiddenObjects:
-	hidden_object 27,  3, ULTRA_BALL, HiddenItems
+	hidden_object 27,  3, HIDDEN_ITEM_CERULEAN_CAVE_B2F_RUBBLE_SQUARE, HiddenItems5
 	db -1 ; end
 
 PowerPlantHiddenObjects:
-	hidden_object 17, 16, MAX_ELIXER, HiddenItems
-	hidden_object 12,  1, PP_UP, HiddenItems
+	hidden_object 17, 16, HIDDEN_ITEM_POWER_PLANT_CENTRAL_BOXES_ALCOVE, HiddenItems2
+	hidden_object 12,  1, HIDDEN_ITEM_POWER_PLANT_NEAR_ZAPDOS_ALCOVE, HiddenItems
 	db -1 ; end
 
 SeafoamIslands3HiddenObjects:
-	hidden_object 15, 15, NUGGET, HiddenItems
+	hidden_object 15, 15, HIDDEN_ITEM_SEAFOAM_B2F_LONE_ROCK, HiddenItems
 	db -1 ; end
 
 SeafoamIslands5HiddenObjects:
-	hidden_object 25, 17, ULTRA_BALL, HiddenItems
+	hidden_object 25, 17, HIDDEN_ITEM_SEAFOAM_B4F_SURF_ALCOVE, HiddenItems2
 	db -1 ; end
 
 Mansion1HiddenObjects:
-	hidden_object  8, 16, MOON_STONE, HiddenItems
+	hidden_object  8, 16, HIDDEN_ITEM_MANSION_ENTRANCE_5TH_RIGHT_BOX, HiddenItems
 	hidden_object  2,  5, SPRITE_FACING_UP, Mansion1Script_Switches
 	db -1 ; end
 
@@ -528,29 +561,26 @@ Mansion2HiddenObjects:
 	db -1 ; end
 
 Mansion3HiddenObjects:
-	hidden_object  1,  9, MAX_REVIVE, HiddenItems
+	hidden_object  1,  9, HIDDEN_ITEM_MANSION_2F_WEST_ALCOVE, HiddenItems
 	hidden_object 10,  5, SPRITE_FACING_UP, Mansion3Script_Switches
 	db -1 ; end
 
 Mansion4HiddenObjects:
-	hidden_object  1,  9, RARE_CANDY, HiddenItems
+	hidden_object  1,  9, HIDDEN_ITEM_MANSION_B1F_CORNER_NEAR_SECRET_KEY, HiddenItems
 	hidden_object 20,  3, SPRITE_FACING_UP, Mansion4Script_Switches
 	hidden_object 18, 25, SPRITE_FACING_UP, Mansion4Script_Switches
+	hidden_object  3, 11, SPRITE_FACING_UP, CheckUnlockLab
 	db -1 ; end
 
 Route23HiddenObjects:
-	hidden_object  9, 44, FULL_RESTORE, HiddenItems
-	hidden_object 19, 70, ULTRA_BALL, HiddenItems
-	hidden_object  8, 90, MAX_ETHER, HiddenItems
+	hidden_object  9, 44, HIDDEN_ITEM_ROUTE_23_ROCK_PILE_BEFORE_FINAL_GUARD, HiddenItems
+	hidden_object 19, 70, HIDDEN_ITEM_ROUTE_23_EAST_SHRUB_AFTER_WATER_SEGMENT, HiddenItems5
+	hidden_object  8, 90, HIDDEN_ITEM_ROUTE_23_TINY_ISLAND, HiddenItems
 	db -1 ; end
 
 VictoryRoad2HiddenObjects:
-	hidden_object  5,  2, ULTRA_BALL, HiddenItems
-	hidden_object 26,  7, FULL_RESTORE, HiddenItems
-	db -1 ; end
-
-Unused6FHiddenObjects:
-	hidden_object 14, 11, MAX_ELIXER, HiddenItems
+	hidden_object  5,  2, HIDDEN_ITEM_VICTORY_ROAD_MOLTRES_ROOM_LONE_ROCK, HiddenItems2
+	hidden_object 26,  7, HIDDEN_ITEM_VICTORY_ROAD_ROCK_OUTCROP_NEAR_EXIT, HiddenItems
 	db -1 ; end
 
 BillsHouseHiddenObjects:
@@ -558,7 +588,7 @@ BillsHouseHiddenObjects:
 	db -1 ; end
 
 ViridianCityHiddenObjects:
-	hidden_object 14,  4, POTION, HiddenItems
+	hidden_object 14,  4, HIDDEN_ITEM_VIRIDIAN_CITY_CUT_TREE, HiddenItems
 	db -1 ; end
 
 SafariZoneRestHouse2HiddenObjects:
@@ -618,11 +648,11 @@ BikeShopHiddenObjects:
 	db -1 ; end
 
 Route11HiddenObjects:
-	hidden_object 48,  5, ESCAPE_ROPE, HiddenItems
+	hidden_object 48,  5, HIDDEN_ITEM_ROUTE_11_LONE_SHRUB, HiddenItems2
 	db -1 ; end
 
 Route12HiddenObjects:
-	hidden_object  2, 63, HYPER_POTION, HiddenItems
+	hidden_object  2, 63, HIDDEN_ITEM_ROUTE_12_NEAR_ROUTE_11_GATE, HiddenItems2
 	db -1 ; end
 
 SilphCo11FHiddenObjects:
@@ -630,39 +660,144 @@ SilphCo11FHiddenObjects:
 	db -1 ; end
 
 Route17HiddenObjects:
-	hidden_object 15,  14, RARE_CANDY, HiddenItems
-	hidden_object  8,  45, FULL_RESTORE, HiddenItems
-	hidden_object 17,  72, PP_UP, HiddenItems
-	hidden_object  4,  91, MAX_REVIVE, HiddenItems
-	hidden_object  8, 121, MAX_ELIXER, HiddenItems
+	hidden_object 14,  15, HIDDEN_ITEM_CYCLING_ROAD_GRASS, HiddenItems
+	hidden_object  9,  45, HIDDEN_ITEM_CYCLING_ROAD_CENTER_PATH, HiddenItems5
+	hidden_object 16,  72, HIDDEN_ITEM_CYCLING_ROAD_EAST_PATH_FLOWERS, HiddenItems
+	hidden_object  4,  90, HIDDEN_ITEM_CYCLING_ROAD_LEFT_PATH_FLOWERS, HiddenItems2
+	hidden_object  9, 121, HIDDEN_ITEM_CYCLING_ROAD_SOUTH_PATH_MERGE, HiddenItems3
 	db -1 ; end
 
 UndergroundPathNsHiddenObjects:
-	hidden_object  3,  4, FULL_RESTORE, HiddenItems
-	hidden_object  4, 34, X_SPECIAL, HiddenItems
+	hidden_object  3,  4, HIDDEN_ITEM_UNDERGROUND_ROUTE_5_6_2ND_COLUMN, HiddenItems
+	hidden_object  4, 34, HIDDEN_ITEM_UNDERGROUND_ROUTE_5_6_3RD_COLUMN, HiddenItems
 	db -1 ; end
 
 UndergroundPathWeHiddenObjects:
-	hidden_object 12,  2, NUGGET, HiddenItems
-	hidden_object 21,  5, ELIXER, HiddenItems
+	hidden_object 12,  2, HIDDEN_ITEM_UNDERGROUND_ROUTE_8_7_2ND_ROW, HiddenItems
+	hidden_object 21,  5, HIDDEN_ITEM_UNDERGROUND_ROUTE_8_7_5TH_ROW, HiddenItems3
 	db -1 ; end
 
 CeladonCityHiddenObjects:
-	hidden_object 48, 15, PP_UP, HiddenItems
+	hidden_object 48, 15, HIDDEN_ITEM_CELADON_CITY_EAST, HiddenItems
+	hidden_object  3,  2, HIDDEN_ITEM_CELADON_CITY_NORTHWEST_NEW, HiddenItems
+	hidden_object 48,  7, HIDDEN_ITEM_CELADON_CITY_EAST2_NEW, HiddenItems2
 	db -1 ; end
 
 SeafoamIslands4HiddenObjects:
-	hidden_object  9, 16, MAX_ELIXER, HiddenItems
+	hidden_object  9, 16, HIDDEN_ITEM_SEAFOAM_B3F_LONE_ROCK, HiddenItems
 	db -1 ; end
 
 VermilionCityHiddenObjects:
-	hidden_object 14, 11, MAX_ETHER, HiddenItems
+	hidden_object 14, 11, HIDDEN_ITEM_VERMILION_CITY_SURF, HiddenItems2
 	db -1 ; end
 
 CeruleanCityHiddenObjects:
-	hidden_object 15,  8, RARE_CANDY, HiddenItems
+	hidden_object 15,  8, HIDDEN_ITEM_CERULEAN_CITY_NORTH_OF_BADGE_HOUSE, HiddenItems
 	db -1 ; end
 
 Route4HiddenObjects:
-	hidden_object 40,  3, GREAT_BALL, HiddenItems
+	hidden_object 40,  3, HIDDEN_ITEM_ROUTE_4_EMPTY_SQUARE_NEAR_CERULEAN, HiddenItems
 	db -1 ; end
+
+; new hidden object areas start here
+
+FossilGuysHouseHiddenObjects:
+	hidden_object 2, 4, SPRITE_FACING_UP, FossilGuysPC
+	db -1 ; end	
+
+Route2HiddenObjects:
+	hidden_object 18, 66, HIDDEN_ITEM_ROUTE_2_SOUTHEAST_FLOWERS_NEW, HiddenItems5 ; NEW
+	db -1 ; end
+
+Route6HiddenObjects:
+	hidden_object 6, 4, HIDDEN_ITEM_ROUTE_6_NORTHWEST_FLOWERS_NEW, HiddenItems3 ; NEW
+	db -1 ; end
+
+Route8HiddenObjects:
+	hidden_object 34, 14, HIDDEN_ITEM_ROUTE_8_GRASS, HiddenItems3 ; NEW
+	hidden_object 19,  5, HIDDEN_ITEM_ROUTE_8_BETWEEN_CENTER_LEDGES, HiddenItems ; NEW
+	db -1 ; end
+
+Route14HiddenObjects:
+	hidden_object  4, 19, HIDDEN_ITEM_ROUTE_14_GRASS_NEW, HiddenItems3 ; NEW
+	db -1 ; end
+
+Route16HiddenObjects:
+	hidden_object  2,  2, HIDDEN_ITEM_ROUTE_16_NORTHWEST_FLOWERS_NEW, HiddenItems2 ; NEW
+	db -1 ; end
+
+Route18HiddenObjects:
+	hidden_object  7,  9, HIDDEN_ITEM_CYCLING_ROAD_SOUTHWEST_CORNER_NEW, HiddenItems2 ; NEW
+	db -1 ; end
+
+PewterCityHiddenObjects:
+	hidden_object 23,  2, HIDDEN_ITEM_PEWTER_OUTSIDE_MUSEUM_ALCOVE_NEW, HiddenItems ; NEW
+	db -1 ; end
+
+SafariZoneNorthHiddenObjects:
+	hidden_object  7, 13, HIDDEN_ITEM_SAFARI_ZONE_NORTH_NORTHWEST_NEW, HiddenItems3 ; NEW
+	db -1 ; end
+
+CeruleanRocketHouse1FHiddenObjects:
+	hidden_object 3, 3, ANY_FACING, PrintRocketSNESText
+	db -1 ; end	
+
+CeruleanRocketHouseB1FHiddenObjects:
+	hidden_object 1, 10, SPRITE_FACING_UP, PrintRocketBasementLeftComputerText
+	hidden_object 0, 10, SPRITE_FACING_UP, PrintRocketBasementLeftComputerText
+	hidden_object 4, 10, SPRITE_FACING_UP, PrintRocketBasementCenterComputerText
+	hidden_object 5, 10, SPRITE_FACING_UP, PrintRocketBasementCenterComputerText
+	hidden_object 6, 10, SPRITE_FACING_UP, PrintRocketBasementLeftPaperText
+	hidden_object 8, 10, SPRITE_FACING_UP, PrintRocketBasementRightComputerText
+	hidden_object 9, 10, SPRITE_FACING_UP, PrintRocketBasementRightComputerText
+	hidden_object 10, 10, SPRITE_FACING_UP, PrintRocketBasementRightPaperText
+	hidden_object 2,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 3,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 4,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 5,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 6,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 7,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 8,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 9,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 10,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 11,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 12,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 13,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 14,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	hidden_object 15,  5, SPRITE_FACING_UP, PrintRocketBasementMachineText
+	db -1 ; end	
+
+DaycareHiddenObjects:
+	hidden_object 4,  1, SPRITE_FACING_UP, OpenPokemonCenterPC
+	db -1 ; end
+
+ViridianSchoolB1FHiddenObjects:
+	hidden_object  0,  1, SPRITE_FACING_UP, SchoolB1FLeftBookcaseA
+	hidden_object  1,  1, SPRITE_FACING_UP, SchoolB1FLeftBookcaseB
+	hidden_object 16,  1, SPRITE_FACING_UP, SchoolB1FRightBookcaseA
+	hidden_object 17,  1, SPRITE_FACING_UP, SchoolB1FRightBookcaseB
+	db -1 ; end
+
+SecretLabHiddenObjects:
+	hidden_object 9, 25, HIDDEN_ITEM_SECRET_LAB_RIGHT_BUTTON, HiddenItems ; NEW
+	hidden_object 1, 10, 0, SecretLabFailedClones
+	hidden_object 3, 10, 1, SecretLabFailedClones
+	hidden_object 6, 10, 2, SecretLabFailedClones
+	hidden_object 8, 10, 3, SecretLabFailedClones
+	hidden_object 1, 13, 4, SecretLabFailedClones
+	hidden_object 3, 13, 5, SecretLabFailedClones
+	hidden_object 6, 13, 6, SecretLabFailedClones
+	hidden_object 8, 13, 7, SecretLabFailedClones
+	hidden_object 1, 8, 0, SecretLabComputers
+	hidden_object 2, 8, 1, SecretLabComputers
+	hidden_object 3, 8, 2, SecretLabComputers
+	hidden_object 4, 8, 3, SecretLabComputers
+	hidden_object 6, 7, SPRITE_FACING_UP, SecretLabMewtwoMachine
+	hidden_object 7, 7, SPRITE_FACING_UP, SecretLabMewtwoMachine
+	db -1
+
+TypeGuysHouseHiddenObjects:
+	hidden_object 12, 0, 0, TypeGuysHouseLightSwitch
+	hidden_object  8, 3, 0, TypeGuysHouseComputer
+	hidden_object  9, 3, 0, TypeGuysHouseComputer
+	db -1

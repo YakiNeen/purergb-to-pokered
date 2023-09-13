@@ -1,8 +1,25 @@
 CeladonCity_Script:
 	call EnableAutoTextBoxDrawing
-	ResetEvents EVENT_1B8, EVENT_1BF
-	ResetEvent EVENT_67F
+	jp CeladonCityCheckHideCutTree
+
+CeladonCityCheckHideCutTree:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl] ; did we load the map from a save/warp/door/battle, etc?
+	res 5, [hl]
+	ret z ; map wasn't just loaded
+	ld de, CeladonCutAlcove1
+	callfar FarArePlayerCoordsInRange
+	call c, .removeTreeBlocker
+	ld de, CeladonCutAlcove2
+	callfar FarArePlayerCoordsInRange
+	call c, .removeTreeBlocker
 	ret
+.removeTreeBlocker
+	; if we're in the cut alcove, remove the tree
+	lb bc, 16, 17
+	ld a, $6D
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlock
 
 CeladonCity_TextPointers:
 	def_text_pointers
@@ -24,6 +41,7 @@ CeladonCity_TextPointers:
 	dw_const CeladonCityTrainerTips2Text,      TEXT_CELADONCITY_TRAINER_TIPS2
 	dw_const CeladonCityPrizeExchangeSignText, TEXT_CELADONCITY_PRIZEEXCHANGE_SIGN
 	dw_const CeladonCityGameCornerSignText,    TEXT_CELADONCITY_GAMECORNER_SIGN
+	dw_const CeladonCityText19,    TEXT_CELADONCITY_TRAINER_TIPS3
 
 CeladonCityLittleGirlText:
 	text_far _CeladonCityLittleGirlText
@@ -46,23 +64,23 @@ CeladonCityGramps3Text:
 	CheckEvent EVENT_GOT_TM41
 	jr nz, .gotTM41
 	ld hl, .Text
-	call PrintText
-	lb bc, TM_SOFTBOILED, 1
+	rst _PrintText
+	lb bc, TM_CELADON_CITY_SURF_POOL_GRAMPS, 1
 	call GiveItem
 	jr c, .Success
 	ld hl, .TM41NoRoomText
-	call PrintText
+	rst _PrintText
 	jr .Done
 .Success
 	ld hl, .ReceivedTM41Text
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_GOT_TM41
 	jr .Done
 .gotTM41
 	ld hl, .TM41ExplanationText
-	call PrintText
+	rst _PrintText
 .Done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _CeledonCityGramps3Text
@@ -90,7 +108,7 @@ CeladonCityPoliwrathText:
 	text_asm
 	ld a, POLIWRATH
 	call PlayCry
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonCityRocket1Text:
 	text_far _CeladonCityRocket1Text
@@ -130,4 +148,8 @@ CeladonCityPrizeExchangeSignText:
 
 CeladonCityGameCornerSignText:
 	text_far _CeladonCityGameCornerSignText
+	text_end
+
+CeladonCityText19:
+	text_far _CeladonCityText19
 	text_end

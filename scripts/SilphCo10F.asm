@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo10F_Script:
 	call SilphCo10FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -32,7 +34,22 @@ SilphCo10F_SetUnlockedSilphCoDoorsScript:
 	and a
 	ret z
 	SetEvent EVENT_SILPH_CO_10_UNLOCKED_DOOR
+	callfar CheckAllCardKeyEvents
+	jp Load10FCheckCardKeyText
+
+
+Load10FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, 7
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo10Text7:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo10F_ScriptPointers:
 	def_script_pointers
@@ -45,9 +62,10 @@ SilphCo10F_TextPointers:
 	dw_const SilphCo10FRocketText,       TEXT_SILPHCO10F_ROCKET
 	dw_const SilphCo10FScientistText,    TEXT_SILPHCO10F_SCIENTIST
 	dw_const SilphCo10FSilphWorkerFText, TEXT_SILPHCO10F_SILPH_WORKER_F
-	dw_const PickUpItemText,             TEXT_SILPHCO10F_TM_EARTHQUAKE
-	dw_const PickUpItemText,             TEXT_SILPHCO10F_RARE_CANDY
-	dw_const PickUpItemText,             TEXT_SILPHCO10F_CARBOS
+	dw_const PickUpItemText,             TEXT_SILPHCO10F_ITEM1
+	dw_const PickUpItemText,             TEXT_SILPHCO10F_ITEM2
+	dw_const PickUpItemText,             TEXT_SILPHCO10F_ITEM3
+	dw_const SilphCo10Text7,             TEXT_SILPHCO10F_CARD_KEY_DONE
 
 SilphCo10TrainerHeaders:
 	def_trainers
@@ -61,13 +79,13 @@ SilphCo10FRocketText:
 	text_asm
 	ld hl, SilphCo10TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo10FScientistText:
 	text_asm
 	ld hl, SilphCo10TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo10FSilphWorkerFText:
 	text_asm
@@ -76,8 +94,8 @@ SilphCo10FSilphWorkerFText:
 	jr nz, .beat_giovanni
 	ld hl, .ImScaredText
 .beat_giovanni
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .ImScaredText:
 	text_far _SilphCo10FSilphWorkerFImScaredText

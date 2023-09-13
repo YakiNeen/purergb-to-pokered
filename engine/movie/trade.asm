@@ -182,6 +182,7 @@ LoadTradingGFXAndMonNames:
 	ld a, $f0 ; SGB OBP0
 .next
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	call EnableLCD
 	xor a
 	ldh [hAutoBGTransferEnabled], a
@@ -191,7 +192,7 @@ LoadTradingGFXAndMonNames:
 	ld hl, wcd6d
 	ld de, wStringBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld a, [wTradedEnemyMonSpecies]
 	ld [wd11e], a
 	jp GetMonName
@@ -199,17 +200,18 @@ LoadTradingGFXAndMonNames:
 Trade_LoadMonPartySpriteGfx:
 	ld a, %11010000
 	ldh [rOBP1], a
+	call UpdateGBCPal_OBP1 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	farjp LoadMonPartySpriteGfx
 
 Trade_SwapNames:
 	ld hl, wPlayerName
 	ld de, wBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wLinkEnemyTrainerName
 	ld de, wPlayerName
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wBuffer
 	ld de, wLinkEnemyTrainerName
 	ld bc, NAME_LENGTH
@@ -245,7 +247,7 @@ Trade_ShowPlayerMon:
 	ld a, $7e
 .slideScreenLoop
 	push af
-	call DelayFrame
+	rst _DelayFrame
 	pop af
 	ldh [rWX], a
 	ldh [hSCX], a
@@ -278,7 +280,7 @@ Trade_DrawOpenEndOfLinkCable:
 
 	ld a, $a0
 	ldh [hSCX], a
-	call DelayFrame
+	rst _DelayFrame
 	ld a, %10001011
 	ldh [rLCDC], a
 	hlcoord 6, 2
@@ -286,7 +288,7 @@ Trade_DrawOpenEndOfLinkCable:
 	call CopyTileIDsFromList_ZeroBaseTileID
 	call Trade_CopyTileMapToVRAM
 	ld a, SFX_HEAL_HP
-	call PlaySound
+	rst _PlaySound
 	ld c, 20
 .loop
 	ldh a, [hSCX]
@@ -300,9 +302,10 @@ Trade_AnimateBallEnteringLinkCable:
 	ld a, TRADE_BALL_SHAKE_ANIM
 	call Trade_ShowAnimation
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	ld a, %11100100
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	xor a
 	ld [wLinkCableAnimBulgeToggle], a
 	lb bc, $20, $60
@@ -331,7 +334,7 @@ Trade_AnimateBallEnteringLinkCable:
 	cp $a0
 	jr nc, .ballSpriteReachedEdgeOfScreen
 	ld a, SFX_TINK
-	call PlaySound
+	rst _PlaySound
 	jr .moveBallInsideLinkCableLoop
 .ballSpriteReachedEdgeOfScreen
 	call ClearSprites
@@ -361,6 +364,8 @@ Trade_ShowEnemyMon:
 	call Trade_CopyTileMapToVRAM
 	ld a, $1
 	ldh [hAutoBGTransferEnabled], a
+	ld a, [wIsAltPalettePkmnData]
+	ld [wIsAltPalettePkmn], a ; PureRGBnote: ADDED: when showing the pokemon received, this flag will make it show alternate palette if set
 	ld a, [wTradedEnemyMonSpecies]
 	call Trade_LoadMonSprite
 	ld a, TRADE_BALL_POOF_ANIM
@@ -382,6 +387,7 @@ Trade_AnimLeftToRight:
 	ld [wTradedMonMovingRight], a
 	ld a, %11100100
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld a, $54
 	ld [wBaseCoordX], a
 	ld a, $1c
@@ -446,10 +452,13 @@ Trade_InitGameboyTransferGfx:
 	ld a, $1
 	ldh [hAutoBGTransferEnabled], a
 	call ClearScreen
+	;shinpokerednote: gbcnote: update pal for GBC
+	ld b, SET_PAL_GENERIC
+	call RunPaletteCommand
 	xor a
 	ldh [hAutoBGTransferEnabled], a
 	call Trade_LoadMonPartySpriteGfx
-	call DelayFrame
+	rst _DelayFrame
 	ld a, %10101011
 	ldh [rLCDC], a
 	xor a
@@ -582,7 +591,7 @@ Trade_AnimMonMoveHorizontal:
 	add $2
 .next
 	ldh [hSCX], a
-	call DelayFrame
+	rst _DelayFrame
 	dec d
 	jr nz, .scrollLoop
 	call Trade_AnimCircledMon
@@ -599,23 +608,49 @@ Trade_AnimCircledMon:
 	ldh a, [rBGP]
 	xor $3c ; make link cable flash
 	ldh [rBGP], a
-	ld hl, wShadowOAMSprite00TileID
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
+;;;;;;;;;; mechanicalpennote: ADDED: code for displaying the new pokemon menu icons during trade animation
+	; we either sub 2 or add 2 depending on odds or even
+	ldh a, [hDividend] ; hSwapTemp
+	inc a
+	ldh [hDividend], a
+	bit 0, a
+	ld hl, wShadowOAMSprite00TileID ; OAM tile id
 	ld de, $4
-	ld c, $14
-.loop
+	ld c, $4
+	ld b, 2 ; amount to increase the tile id by
+	jr nz, .loopMon
+	ld b, -2 ; amount to increase the tile id by
+.loopMon
+	ld a, [hl]
+	add b
+	ld [hl], a
+	add hl, de
+	dec c
+	jr nz, .loopMon
+	ld hl, wShadowOAM + $04 + $04 + $04 + $04 + $02 ; OAM tile id and skip the mon.
+	ld de, $4
+	ld c, $10
+.loopCable
+;;;;;;;;;;
 	ld a, [hl]
 	xor ICONOFFSET
 	ld [hl], a
 	add hl, de
 	dec c
-	jr nz, .loop
+	jr nz, .loopCable
 	pop hl
 	pop bc
 	pop de
 	ret
 
 Trade_WriteCircledMonOAM:
-	farcall WriteMonPartySpriteOAMBySpecies
+;;;;;;;;;; mechanicalpennote: ADDED: code for displaying the new pokemon menu icons during trade animation
+	farcall WriteMonPartySpriteOAMBySpecies 
+	xor a
+	ldh [hDividend], a ; hSwapTemp
+	callfar LoadTradeMonSprite
+;;;;;;;;;;
 	call Trade_WriteCircleOAM
 
 Trade_AddOffsetsToOAMCoords:
@@ -665,7 +700,7 @@ Trade_AnimMonMoveVertical:
 	call Trade_AddOffsetsToOAMCoords
 	call Trade_AnimCircledMon
 	ld c, 8
-	call DelayFrames
+	rst _DelayFrames
 	dec d
 	jr nz, .loop
 	ret
@@ -730,7 +765,7 @@ Trade_LoadMonSprite:
 	ld [wcf91], a
 	ld [wd0b5], a
 	ld [wWholeScreenPaletteMonSpecies], a
-	ld b, SET_PAL_POKEMON_WHOLE_SCREEN
+	ld b, SET_PAL_POKEMON_WHOLE_SCREEN_TRADE
 	ld c, 0
 	call RunPaletteCommand
 	ldh a, [hAutoBGTransferEnabled]
@@ -763,9 +798,9 @@ Trade_SlideTextBoxOffScreen:
 ; after Trade_ShowEnemyMon in the external clock sequence, there is a mon pic
 ; above the text box and it is also scrolled off the screen.
 	ld c, 50
-	call DelayFrames
+	rst _DelayFrames
 .loop
-	call DelayFrame
+	rst _DelayFrame
 	ldh a, [rWX]
 	inc a
 	inc a
@@ -774,16 +809,16 @@ Trade_SlideTextBoxOffScreen:
 	jr nz, .loop
 	call Trade_ClearTileMap
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	ld a, $7
 	ldh [rWX], a
 	ret
 
 PrintTradeWentToText:
 	ld hl, TradeWentToText
-	call PrintText
+	rst _PrintText
 	ld c, 200
-	call DelayFrames
+	rst _DelayFrames
 	jp Trade_SlideTextBoxOffScreen
 
 TradeWentToText:
@@ -792,10 +827,10 @@ TradeWentToText:
 
 PrintTradeForSendsText:
 	ld hl, TradeForText
-	call PrintText
+	rst _PrintText
 	call Trade_Delay80
 	ld hl, TradeSendsText
-	call PrintText
+	rst _PrintText
 	jp Trade_Delay80
 
 TradeForText:
@@ -808,10 +843,10 @@ TradeSendsText:
 
 PrintTradeFarewellText:
 	ld hl, TradeWavesFarewellText
-	call PrintText
+	rst _PrintText
 	call Trade_Delay80
 	ld hl, TradeTransferredText
-	call PrintText
+	rst _PrintText
 	call Trade_Delay80
 	jp Trade_SlideTextBoxOffScreen
 
@@ -825,7 +860,7 @@ TradeTransferredText:
 
 PrintTradeTakeCareText:
 	ld hl, TradeTakeCareText
-	call PrintText
+	rst _PrintText
 	jp Trade_Delay80
 
 TradeTakeCareText:
@@ -834,10 +869,10 @@ TradeTakeCareText:
 
 PrintTradeWillTradeText:
 	ld hl, TradeWillTradeText
-	call PrintText
+	rst _PrintText
 	call Trade_Delay80
 	ld hl, TradeforText
-	call PrintText
+	rst _PrintText
 	jp Trade_Delay80
 
 TradeWillTradeText:

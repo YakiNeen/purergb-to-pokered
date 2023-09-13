@@ -8,6 +8,7 @@ CeladonMart3F_TextPointers:
 	dw_const CeladonMart3FGameBoyKid2Text,      TEXT_CELADONMART3F_GAMEBOY_KID2
 	dw_const CeladonMart3FGameBoyKid3Text,      TEXT_CELADONMART3F_GAMEBOY_KID3
 	dw_const CeladonMart3FLittleBoyText,        TEXT_CELADONMART3F_LITTLE_BOY
+	dw_const CeladonMartTMKid,                  TEXT_CELADONMART3F_TM_KID
 	dw_const CeladonMart3FSNESText,             TEXT_CELADONMART3F_SNES1
 	dw_const CeladonMart3FRPGText,              TEXT_CELADONMART3F_RPG
 	dw_const CeladonMart3FSNESText,             TEXT_CELADONMART3F_SNES2
@@ -19,15 +20,15 @@ CeladonMart3F_TextPointers:
 	dw_const CeladonMart3FCurrentFloorSignText, TEXT_CELADONMART3F_CURRENT_FLOOR_SIGN
 	dw_const CeladonMart3FPokemonPosterText,    TEXT_CELADONMART3F_POKEMON_POSTER1
 	dw_const CeladonMart3FPokemonPosterText,    TEXT_CELADONMART3F_POKEMON_POSTER2
-	dw_const CeladonMart3FPokemonPosterText,    TEXT_CELADONMART3F_POKEMON_POSTER3
+	dw_const CeladonMart3FPokemonPosterText,    TEXT_CELADONMART3F_POKEMON_POSTER3 ; PureRGbnote: ADDED: new NPC, it's the TM kid from other pokemarts, he doesn't sell anything though this time
 
 CeladonMart3FClerkText:
 	text_asm
 	CheckEvent EVENT_GOT_TM18
 	jr nz, .got_item
 	ld hl, .TM18PreReceiveText
-	call PrintText
-	lb bc, TM_COUNTER, 1
+	rst _PrintText
+	lb bc, TM_CELADON_MART_GAME_SHOP_GUY, 1
 	call GiveItem
 	jr nc, .bag_full
 	SetEvent EVENT_GOT_TM18
@@ -39,8 +40,8 @@ CeladonMart3FClerkText:
 .got_item
 	ld hl, .TM18ExplanationText
 .done
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .TM18PreReceiveText:
 	text_far _CeladonMart3FClerkTM18PreReceiveText
@@ -101,4 +102,20 @@ CeladonMart3FCurrentFloorSignText:
 
 CeladonMart3FPokemonPosterText:
 	text_far _CeladonMart3FPokemonPosterText
+	text_end
+
+CeladonMartTMKid:
+	text_asm
+	ld hl, TMKidGreet4
+	rst _PrintText
+	ld hl, CeladonMartTMKidFlavor
+	rst _PrintText
+	rst TextScriptEnd
+	
+TMKidGreet4::
+	text_far _TMKidGreet
+	text_end
+
+CeladonMartTMKidFlavor:
+	text_far _CeladonMartTMKidFlavor
 	text_end

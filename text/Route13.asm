@@ -1,11 +1,12 @@
 _Route13CooltrainerM1BattleText::
-	text "My bird #MON"
+	text "My flying #MON"
 	line "want to scrap!"
 	done
 
 _Route13CooltrainerM1EndBattleText::
 	text "My"
-	line "bird combo lost?"
+	line "flying combo"
+	cont "lost?"
 	prompt
 
 _Route13CooltrainerM1AfterBattleText::
@@ -142,7 +143,7 @@ _Route13BikerAfterBattleText::
 	done
 
 _Route13CooltrainerM3BattleText::
-	text "I always go with"
+	text "I always love"
 	line "bird #MON!"
 	done
 
@@ -153,8 +154,8 @@ _Route13CooltrainerM3EndBattleText::
 
 _Route13CooltrainerM3AfterBattleText::
 	text "I wish I could"
-	line "fly like PIDGEY"
-	cont "and PIDGEOTTO..."
+	line "fly like a"
+	cont "FEAROW..."
 	done
 
 _Route13TrainerTips1Text::
@@ -170,6 +171,11 @@ _Route13TrainerTips2Text::
 	para "Use SELECT to"
 	line "switch items in"
 	cont "the ITEM window!"
+
+	para "This also works"
+	line "during battle"
+	cont "with #MON"
+	cont "attacks!"
 	done
 
 _Route13SignText::

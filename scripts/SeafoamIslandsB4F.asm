@@ -137,6 +137,7 @@ SeafoamIslandsB4F_TextPointers:
 	dw_const BoulderText,                       TEXT_SEAFOAMISLANDSB4F_BOULDER1
 	dw_const BoulderText,                       TEXT_SEAFOAMISLANDSB4F_BOULDER2
 	dw_const SeafoamIslandsB4FArticunoText,     TEXT_SEAFOAMISLANDSB4F_ARTICUNO
+	dw_const PickUpItemText,                    TEXT_SEAFOAMISLANDSB4F_ITEM1 ; PureRGBnote: ADDED: new item located here.
 	dw_const SeafoamIslandsB4FBouldersSignText, TEXT_SEAFOAMISLANDSB4F_BOULDERS_SIGN
 	dw_const SeafoamIslandsB4FDangerSignText,   TEXT_SEAFOAMISLANDSB4F_DANGER_SIGN
 
@@ -154,7 +155,7 @@ SeafoamIslandsB4FArticunoText:
 	call TalkToTrainer
 	ld a, SCRIPT_SEAFOAMISLANDSB4F_OBJECT_MOVING3
 	ld [wSeafoamIslandsB4FCurScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SeafoamIslandsB4FArticunoBattleText:
 	text_far _SeafoamIslandsB4FArticunoBattleText
@@ -162,7 +163,7 @@ SeafoamIslandsB4FArticunoBattleText:
 	ld a, ARTICUNO
 	call PlayCry
 	call WaitForSoundToFinish
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SeafoamIslandsB4FBouldersSignText:
 	text_far _SeafoamIslandsB4FBouldersSignText

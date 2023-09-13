@@ -23,6 +23,10 @@ RockTunnelB1F_TextPointers:
 	dw_const RockTunnelB1FCooltrainerF2Text, TEXT_ROCKTUNNELB1F_COOLTRAINER_F2
 	dw_const RockTunnelB1FHiker3Text,        TEXT_ROCKTUNNELB1F_HIKER3
 	dw_const RockTunnelB1FSuperNerd3Text,    TEXT_ROCKTUNNELB1F_SUPER_NERD3
+;;;;;;;;;; PureRGBnote: ADDED: new item locations
+	dw_const PickUpItemText,                 TEXT_ROCKTUNNELB1F_ITEM1
+	dw_const PickUp3ItemText,                TEXT_ROCKTUNNELB1F_ITEM2
+;;;;;;;;;;
 
 RockTunnel2TrainerHeaders:
 	def_trainers
@@ -48,49 +52,49 @@ RockTunnelB1FCooltrainerF1Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FHiker1Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FSuperNerd1Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FSuperNerd2Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FHiker2Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FCooltrainerF2Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FHiker3Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FSuperNerd3Text:
 	text_asm
 	ld hl, RockTunnel2TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RockTunnelB1FCooltrainerF1BattleText:
 	text_far _RockTunnelB1FCooltrainerF1BattleText

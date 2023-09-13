@@ -11,11 +11,11 @@
 	const ULTRA_BALL    ; $02
 	const GREAT_BALL    ; $03
 	const POKE_BALL     ; $04
-	const TOWN_MAP      ; $05
+	const HYPER_BALL    ; $05 ; PureRGBnote: ADDED: New item, used to be TOWN MAP
 	const BICYCLE       ; $06
 	const SURFBOARD     ; $07
 	const SAFARI_BALL   ; $08
-	const POKEDEX       ; $09
+	const POKEDEX       ; $09 pointless item?
 	const MOON_STONE    ; $0A
 	const ANTIDOTE      ; $0B
 	const BURN_HEAL     ; $0C
@@ -27,16 +27,14 @@
 	const HYPER_POTION  ; $12
 	const SUPER_POTION  ; $13
 	const POTION        ; $14
-	const BOULDERBADGE  ; $15
-	const CASCADEBADGE  ; $16
-DEF SAFARI_BAIT EQU $15 ; overload
-DEF SAFARI_ROCK EQU $16 ; overload
-	const THUNDERBADGE  ; $17
-	const RAINBOWBADGE  ; $18
-	const SOULBADGE     ; $19
-	const MARSHBADGE    ; $1A
-	const VOLCANOBADGE  ; $1B
-	const EARTHBADGE    ; $1C
+	const SAFARI_BAIT   ; $15 ; PureRGBnote: CHANGED: each of the badges used to have an item defined starting at this index, they were cleaned out
+	const SAFARI_ROCK   ; $16
+	const OLD_COIN      ; $17 ; PureRGBnote: ADDED: New item
+	const TOPSECRETKEY  ; $18 ; PureRGBnote: ADDED: New item
+	const UNUSED_ITEM3  ; $19
+	const UNUSED_ITEM4  ; $1A
+	const UNUSED_ITEM5  ; $1B
+	const UNUSED_ITEM6  ; $1C
 	const ESCAPE_ROPE   ; $1D
 	const REPEL         ; $1E
 	const OLD_AMBER     ; $1F
@@ -52,13 +50,13 @@ DEF SAFARI_ROCK EQU $16 ; overload
 	const DOME_FOSSIL   ; $29
 	const HELIX_FOSSIL  ; $2A
 	const SECRET_KEY    ; $2B
-	const UNUSED_ITEM   ; $2C "?????"
+	const POCKET_ABRA   ; $2C ; PureRGBnote: ADDED: New item, used to be an unused placeholder item
 	const BIKE_VOUCHER  ; $2D
 	const X_ACCURACY    ; $2E
 	const LEAF_STONE    ; $2F
 	const CARD_KEY      ; $30
 	const NUGGET        ; $31
-	const PP_UP_2       ; $32
+	const APEX_CHIP     ; $32 ; PureRGBnote: ADDED: New item, used to be a broken second instance of PP Up
 	const POKE_DOLL     ; $33
 	const FULL_HEAL     ; $34
 	const REVIVE        ; $35
@@ -67,7 +65,7 @@ DEF SAFARI_ROCK EQU $16 ; overload
 	const SUPER_REPEL   ; $38
 	const MAX_REPEL     ; $39
 	const DIRE_HIT      ; $3A
-	const COIN          ; $3B
+	const COIN          ; $3B ; useless item?
 	const FRESH_WATER   ; $3C
 	const SODA_POP      ; $3D
 	const LEMONADE      ; $3E
@@ -77,13 +75,13 @@ DEF SAFARI_ROCK EQU $16 ; overload
 	const X_DEFEND      ; $42
 	const X_SPEED       ; $43
 	const X_SPECIAL     ; $44
-	const COIN_CASE     ; $45
+	const LOST_WALLET   ; $45 ; PureRGBnote: ADDED: New item, Used to be COIN_CASE before coin case was switched to be an event only
 	const OAKS_PARCEL   ; $46
 	const ITEMFINDER    ; $47
 	const SILPH_SCOPE   ; $48
 	const POKE_FLUTE    ; $49
 	const LIFT_KEY      ; $4A
-	const EXP_ALL       ; $4B
+	const BOOSTER_CHIP  ; $4B ; PureRGBnote: ADDED: New item, used to be EXP.ALL
 	const OLD_ROD       ; $4C
 	const GOOD_ROD      ; $4D
 	const SUPER_ROD     ; $4E
@@ -110,7 +108,16 @@ DEF NUM_ITEMS EQU const_value - 1
 	const FLOOR_11F     ; $60
 	const FLOOR_B4F     ; $61
 DEF NUM_FLOORS EQU const_value - 1 - NUM_ITEMS
-
+;;;;;;;;;; PureRGBnote: MOVED: these constants used to be defined higher up as actual items, they are only used to generate a menu in cerulean city
+	const BOULDERBADGE  ; $62
+	const CASCADEBADGE  ; $63
+	const THUNDERBADGE  ; $64
+	const RAINBOWBADGE  ; $65
+	const SOULBADGE     ; $66
+	const MARSHBADGE    ; $67
+	const VOLCANOBADGE  ; $68
+	const EARTHBADGE    ; $69
+;;;;;;;;;;
 	const_next $C4
 
 ; HMs are defined before TMs, so the actual number of TM definitions
@@ -156,56 +163,57 @@ MACRO add_tm
 	add_tmnum \1
 ENDM
 
+;;;;; PureRGBnote: CHANGED: TMs were reassigned better moves
 DEF TM01 EQU const_value
-	add_tm MEGA_PUNCH   ; $C9
-	add_tm RAZOR_WIND   ; $CA
-	add_tm SWORDS_DANCE ; $CB
-	add_tm WHIRLWIND    ; $CC
-	add_tm MEGA_KICK    ; $CD
+	add_tm ICE_PUNCH   	; $C9
+	add_tm RAZOR_WIND   ; $CA ROOST
+	add_tm LEECH_SEED 	; $CB
+	add_tm PIN_MISSILE  ; $CC
+	add_tm FIRE_PUNCH   ; $CD
 	add_tm TOXIC        ; $CE
 	add_tm HORN_DRILL   ; $CF
 	add_tm BODY_SLAM    ; $D0
-	add_tm TAKE_DOWN    ; $D1
+	add_tm SLASH    	; $D1
 	add_tm DOUBLE_EDGE  ; $D2
 	add_tm BUBBLEBEAM   ; $D3
-	add_tm WATER_GUN    ; $D4
+	add_tm AURORA_BEAM  ; $D4
 	add_tm ICE_BEAM     ; $D5
 	add_tm BLIZZARD     ; $D6
 	add_tm HYPER_BEAM   ; $D7
-	add_tm PAY_DAY      ; $D8
-	add_tm SUBMISSION   ; $D9
-	add_tm COUNTER      ; $DA
-	add_tm SEISMIC_TOSS ; $DB
-	add_tm RAGE         ; $DC
-	add_tm MEGA_DRAIN   ; $DD
+	add_tm AMNESIA      ; $D8
+	add_tm HI_JUMP_KICK ; $D9
+	add_tm THUNDERPUNCH ; $DA
+	add_tm ROLLING_KICK ; $DB
+	add_tm BARRIER      ; $DC
+	add_tm RAZOR_LEAF   ; $DD
 	add_tm SOLARBEAM    ; $DE
 	add_tm DRAGON_RAGE  ; $DF
 	add_tm THUNDERBOLT  ; $E0
 	add_tm THUNDER      ; $E1
 	add_tm EARTHQUAKE   ; $E2
-	add_tm FISSURE      ; $E3
+	add_tm CRABHAMMER	; $E3
 	add_tm DIG          ; $E4
 	add_tm PSYCHIC_M    ; $E5
-	add_tm TELEPORT     ; $E6
-	add_tm MIMIC        ; $E7
-	add_tm DOUBLE_TEAM  ; $E8
+	add_tm MEGA_DRAIN   ; $E6
+	add_tm KINESIS      ; $E7 FIREWALL
+	add_tm SWORDS_DANCE ; $E8
 	add_tm REFLECT      ; $E9
-	add_tm BIDE         ; $EA
-	add_tm METRONOME    ; $EB
-	add_tm SELFDESTRUCT ; $EC
-	add_tm EGG_BOMB     ; $ED
+	add_tm BIDE         ; $EA 
+	add_tm AGILITY    	; $EB
+	add_tm BARRAGE 		; $EC
+	add_tm FLAMETHROWER ; $ED
 	add_tm FIRE_BLAST   ; $EE
-	add_tm SWIFT        ; $EF
-	add_tm SKULL_BASH   ; $F0
-	add_tm SOFTBOILED   ; $F1
-	add_tm DREAM_EATER  ; $F2
+	add_tm SLAM        	; $EF FILTHY SLAM
+	add_tm KARATE_CHOP  ; $F0
+	add_tm MEDITATE   	; $F1 
+	add_tm LOVELY_KISS  ; $F2
 	add_tm SKY_ATTACK   ; $F3
-	add_tm REST         ; $F4
+	add_tm LIGHT_SCREEN ; $F4
 	add_tm THUNDER_WAVE ; $F5
-	add_tm PSYWAVE      ; $F6
-	add_tm EXPLOSION    ; $F7
+	add_tm PSYBEAM      ; $F6
+	add_tm SLUDGE    	; $F7
 	add_tm ROCK_SLIDE   ; $F8
-	add_tm TRI_ATTACK   ; $F9
+	add_tm GLARE   		; $F9
 	add_tm SUBSTITUTE   ; $FA
 ASSERT NUM_TMS == const_value - TM01, "NUM_TMS ({d:NUM_TMS}) does not match the number of add_tm definitions"
 

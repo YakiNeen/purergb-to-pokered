@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo4F_Script:
 	call SilphCo4FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -81,10 +83,28 @@ SilphCo4FUnlockedDoorEventScript:
 	cp $1
 	jr nz, .unlock_door1
 	SetEventReuseHL EVENT_SILPH_CO_4_UNLOCKED_DOOR1
-	ret
+	callfar CheckAllCardKeyEvents
+	jp Load4FCheckCardKeyText
 .unlock_door1
 	SetEventAfterBranchReuseHL EVENT_SILPH_CO_4_UNLOCKED_DOOR2, EVENT_SILPH_CO_4_UNLOCKED_DOOR1
+	callfar CheckAllCardKeyEvents
+	jp Load4FCheckCardKeyText
+
+
+
+Load4FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO4F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo4Text8:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
+
 
 SilphCo4F_ScriptPointers:
 	def_script_pointers
@@ -98,9 +118,10 @@ SilphCo4F_TextPointers:
 	dw_const SilphCo4FRocket1Text,      TEXT_SILPHCO4F_ROCKET1
 	dw_const SilphCo4FScientistText,    TEXT_SILPHCO4F_SCIENTIST
 	dw_const SilphCo4FRocket2Text,      TEXT_SILPHCO4F_ROCKET2
-	dw_const PickUpItemText,            TEXT_SILPHCO4F_FULL_HEAL
-	dw_const PickUpItemText,            TEXT_SILPHCO4F_MAX_REVIVE
-	dw_const PickUpItemText,            TEXT_SILPHCO4F_ESCAPE_ROPE
+	dw_const PickUp3ItemText,           TEXT_SILPHCO4F_ITEM1
+	dw_const PickUpItemText,            TEXT_SILPHCO4F_ITEM2
+	dw_const PickUpItemText,            TEXT_SILPHCO4F_ITEM3
+	dw_const SilphCo4Text8,             TEXT_SILPHCO4F_CARD_KEY_DONE
 
 SilphCo4TrainerHeaders:
 	def_trainers 2
@@ -117,7 +138,7 @@ SilphCo4FSilphWorkerMText:
 	ld hl, .ImHidingText
 	ld de, .TeamRocketIsGoneText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .ImHidingText:
 	text_far _SilphCo4FSilphWorkerMImHidingText
@@ -131,7 +152,7 @@ SilphCo4FRocket1Text:
 	text_asm
 	ld hl, SilphCo4TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo4FRocket1BattleText:
 	text_far _SilphCo4FRocket1BattleText
@@ -149,7 +170,7 @@ SilphCo4FScientistText:
 	text_asm
 	ld hl, SilphCo4TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo4FScientistBattleText:
 	text_far _SilphCo4FScientistBattleText
@@ -167,7 +188,7 @@ SilphCo4FRocket2Text:
 	text_asm
 	ld hl, SilphCo4TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo4FRocket2BattleText:
 	text_far _SilphCo4FRocket2BattleText

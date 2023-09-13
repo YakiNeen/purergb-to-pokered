@@ -41,7 +41,6 @@ INCLUDE "text/PokemonMansion3F.asm"
 INCLUDE "text/PokemonMansionB1F.asm"
 INCLUDE "text/SafariZoneEast.asm"
 INCLUDE "text/SafariZoneNorth.asm"
-INCLUDE "text/SafariZoneWest.asm"
 INCLUDE "text/SafariZoneCenter.asm"
 INCLUDE "text/SafariZoneCenterRestHouse.asm"
 INCLUDE "text/SafariZoneSecretHouse.asm"
@@ -74,14 +73,17 @@ INCLUDE "text/ViridianForestSouthGate.asm"
 INCLUDE "text/MtMoonPokecenter.asm"
 INCLUDE "text/SaffronGates.asm"
 INCLUDE "text/Daycare.asm"
+; moved from Text 2
+INCLUDE "text/SafariZoneWest.asm"
 
 
 SECTION "Text 4", ROMX
 
 INCLUDE "text/Daycare_2.asm"
+INCLUDE "text/UndergroundPathNorthSouth.asm"
+INCLUDE "text/UndergroundPathEastWest.asm"
 INCLUDE "text/UndergroundPathRoute6.asm"
 INCLUDE "text/UndergroundPathRoute7.asm"
-INCLUDE "text/UndergroundPathRoute7Copy.asm"
 INCLUDE "text/UndergroundPathRoute8.asm"
 INCLUDE "text/RockTunnelPokecenter.asm"
 INCLUDE "text/RockTunnel1F.asm"
@@ -131,6 +133,7 @@ INCLUDE "text/Route21.asm"
 INCLUDE "text/Route22.asm"
 INCLUDE "text/Route23.asm"
 INCLUDE "text/Route24.asm"
+INCLUDE "text/ViridianSchoolHouseQuiz.asm"
 
 
 SECTION "Text 6", ROMX
@@ -168,6 +171,7 @@ INCLUDE "text/CeruleanGym.asm"
 INCLUDE "text/BikeShop.asm"
 INCLUDE "text/CeruleanMart.asm"
 INCLUDE "text/CeruleanBadgeHouse.asm"
+INCLUDE "text/CeruleanOldRodHouse.asm"
 INCLUDE "text/LavenderPokecenter.asm"
 INCLUDE "text/PokemonTower1F.asm"
 INCLUDE "text/PokemonTower2F.asm"
@@ -184,6 +188,8 @@ INCLUDE "text/VermilionPokecenter.asm"
 INCLUDE "text/PokemonFanClub.asm"
 INCLUDE "text/VermilionMart.asm"
 INCLUDE "text/VermilionGym.asm"
+
+INCLUDE "text/PokemonTowerB1F.asm"
 
 
 SECTION "Text 8", ROMX
@@ -212,11 +218,11 @@ INCLUDE "text/CeladonChiefHouse.asm"
 INCLUDE "text/CeladonHotel.asm"
 INCLUDE "text/FuchsiaMart.asm"
 INCLUDE "text/FuchsiaBillsGrandpasHouse.asm"
+INCLUDE "text/FuchsiaTreeDeleterHouse.asm"
 INCLUDE "text/FuchsiaPokecenter.asm"
 INCLUDE "text/WardensHouse.asm"
 INCLUDE "text/SafariZoneGate.asm"
 INCLUDE "text/FuchsiaGym.asm"
-
 
 SECTION "Text 9", ROMX
 
@@ -241,6 +247,7 @@ INCLUDE "text/SaffronMart.asm"
 INCLUDE "text/SilphCo1F.asm"
 INCLUDE "text/SaffronPokecenter.asm"
 INCLUDE "text/MrPsychicsHouse.asm"
+INCLUDE "text/FossilGuysHouse.asm"
 
 INCLUDE "data/text/text_4.asm"
 
@@ -262,10 +269,22 @@ INCLUDE "text/SaffronCity.asm"
 
 INCLUDE "data/text/text_6.asm"
 
+INCLUDE "text/CinnabarLabColorChanger.asm"
+INCLUDE "text/CeladonLaprasGuy.asm"
+INCLUDE "text/SafariZoneNewRestHouseText.asm"
+
 
 SECTION "Text 11", ROMX
 
 INCLUDE "data/text/text_7.asm"
+INCLUDE "text/CeruleanRocketHouse.asm"
+INCLUDE "text/CeladonMart1FPhoneCalls.asm"
+INCLUDE "text/PalletPhoneResultEvents.asm"
+INCLUDE "text/BillsGarden.asm"
+INCLUDE "text/SecretLab.asm"
+
+SECTION "Text 12", ROMX
+INCLUDE "text/TypeGuysHouse.asm"
 
 
 SECTION "Pokédex Text", ROMX
@@ -276,3 +295,11 @@ INCLUDE "data/pokemon/dex_text.asm"
 SECTION "Move Names", ROMX
 
 INCLUDE "data/moves/names.asm"
+
+SECTION "Movedex Text", ROMX
+
+INCLUDE "data/moves/movedex_text.asm"
+
+SECTION "Movedex Text 2", ROMX
+
+INCLUDE "data/moves/movedex_text2.asm"

@@ -1,6 +1,5 @@
 MrFujisHouse_Script:
-	call EnableAutoTextBoxDrawing
-	ret
+	jp EnableAutoTextBoxDrawing
 
 MrFujisHouse_TextPointers:
 	def_text_pointers
@@ -16,13 +15,13 @@ MrFujisHouseSuperNerdText:
 	CheckEvent EVENT_RESCUED_MR_FUJI
 	jr nz, .rescued_mr_fuji
 	ld hl, .MrFujiIsntHereText
-	call PrintText
+	rst _PrintText
 	jr .done
 .rescued_mr_fuji
 	ld hl, .MrFujiHadBeenPrayingText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .MrFujiIsntHereText:
 	text_far _MrFujisHouseSuperNerdMrFujiIsntHereText
@@ -37,13 +36,13 @@ MrFujisHouseLittleGirlText:
 	CheckEvent EVENT_RESCUED_MR_FUJI
 	jr nz, .rescued_mr_fuji
 	ld hl, .ThisIsMrFujisHouseText
-	call PrintText
+	rst _PrintText
 	jr .done
 .rescued_mr_fuji
 	ld hl, .PokemonAreNiceToHugText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .ThisIsMrFujisHouseText:
 	text_far _MrFujisHouseLittleGirlThisIsMrFujisHouseText
@@ -58,37 +57,37 @@ MrFujisHousePsyduckText:
 	text_asm
 	ld a, PSYDUCK
 	call PlayCry
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MrFujisHouseNidorinoText:
 	text_far _MrFujisHouseNidorinoText
 	text_asm
 	ld a, NIDORINO
 	call PlayCry
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MrFujisHouseMrFujiText:
 	text_asm
 	CheckEvent EVENT_GOT_POKE_FLUTE
 	jr nz, .got_item
 	ld hl, .IThinkThisMayHelpYourQuestText
-	call PrintText
+	rst _PrintText
 	lb bc, POKE_FLUTE, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld hl, .ReceivedPokeFluteText
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_GOT_POKE_FLUTE
 	jr .done
 .bag_full
 	ld hl, .PokeFluteNoRoomText
-	call PrintText
+	rst _PrintText
 	jr .done
 .got_item
 	ld hl, .HasMyFluteHelpedYouText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .IThinkThisMayHelpYourQuestText:
 	text_far _MrFujisHouseMrFujiIThinkThisMayHelpYourQuestText

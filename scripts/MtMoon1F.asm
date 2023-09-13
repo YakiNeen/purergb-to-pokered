@@ -22,12 +22,12 @@ MtMoon1F_TextPointers:
 	dw_const MtMoon1FCooltrainerF2Text, TEXT_MTMOON1F_COOLTRAINER_F2
 	dw_const MtMoon1FYoungster2Text,    TEXT_MTMOON1F_YOUNGSTER2
 	dw_const MtMoon1FYoungster3Text,    TEXT_MTMOON1F_YOUNGSTER3
-	dw_const PickUpItemText,            TEXT_MTMOON1F_POTION1
-	dw_const PickUpItemText,            TEXT_MTMOON1F_MOON_STONE
-	dw_const PickUpItemText,            TEXT_MTMOON1F_RARE_CANDY
-	dw_const PickUpItemText,            TEXT_MTMOON1F_ESCAPE_ROPE
-	dw_const PickUpItemText,            TEXT_MTMOON1F_POTION2
-	dw_const PickUpItemText,            TEXT_MTMOON1F_TM_WATER_GUN
+	dw_const PickUp3ItemText,           TEXT_MTMOON1F_ITEM1
+	dw_const PickUpItemText,            TEXT_MTMOON1F_ITEM2
+	dw_const PickUpItemText,            TEXT_MTMOON1F_ITEM3
+	dw_const PickUpItemText,            TEXT_MTMOON1F_ITEM4
+	dw_const PickUp3ItemText,           TEXT_MTMOON1F_ITEM5
+	dw_const PickUpItemText,            TEXT_MTMOON1F_ITEM6
 	dw_const MtMoon1FBewareZubatSign,   TEXT_MTMOON1F_BEWARE_ZUBAT_SIGN
 
 MtMoon1TrainerHeaders:
@@ -52,43 +52,43 @@ MtMoon1FHikerText:
 	text_asm
 	ld hl, MtMoon1TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FYoungster1Text:
 	text_asm
 	ld hl, MtMoon1TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FCooltrainerF1Text:
 	text_asm
 	ld hl, MtMoon1TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FSuperNerdText:
 	text_asm
 	ld hl, MtMoon1TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FCooltrainerF2Text:
 	text_asm
 	ld hl, MtMoon1TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FYoungster2Text:
 	text_asm
 	ld hl, MtMoon1TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FYoungster3Text:
 	text_asm
 	ld hl, MtMoon1TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 MtMoon1FHikerBattleText:
 	text_far _MtMoon1FHikerBattleText

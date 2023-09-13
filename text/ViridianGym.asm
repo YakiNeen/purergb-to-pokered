@@ -59,20 +59,27 @@ _ViridianGymGiovanniEarthBadgeInfoText::
 	para "It is my gift for"
 	line "your #MON"
 	cont "LEAGUE challenge!"
+
+	para "Take this TM"
+	line "as well!"
 	done
 
 _ViridianGymGiovanniReceivedTM27Text::
 	text "<PLAYER> received"
-	line "TM27!@"
+	line "@"
+	text_ram wStringBuffer
+	text "!@"
 	text_end
 
 _ViridianGymGiovanniTM27ExplanationText::
 	text_start
 
-	para "TM27 is FISSURE!"
-	line "It will take out"
-	cont "#MON with just"
-	cont "one hit!"
+	para "@"
+	text_ram wStringBuffer
+	text ": EARTHQUAKE!"
+	line "A reliable and"
+	cont "immensely strong"
+	cont "GROUND-type move!"
 
 	para "I made it when I"
 	line "ran the GYM here,"
@@ -236,5 +243,22 @@ _ViridianGymGuidePreBattleText::
 _ViridianGymGuidePostBattleText::
 	text "Blow me away!"
 	line "GIOVANNI was the"
-	cont "GYM LEADER here?"
+	cont "GYM LEADER here?@"
+	text_end
+
+_ViridianGymGuideApexChipGroundText::
+	text "For ground"
+	line "#MON, an "
+	cont "APEX CHIP will"
+	cont "simulate a sandy"
+	cont "dry badland"
+	cont "environment with"
+	cont "rolling hills"
+	cont "and burrowable"
+	cont "earth below."
+	prompt 
+
+_ViridianGymGuideSeeAtPokemonLeagueText::
+	text "See you at the"
+	line "#MON LEAGUE!"
 	done

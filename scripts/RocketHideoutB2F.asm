@@ -27,7 +27,7 @@ RocketHideoutB2FDefaultScript:
 	set 7, [hl]
 	call StartSimulatingJoypadStates
 	ld a, SFX_ARROW_TILES
-	call PlaySound
+	rst _PlaySound
 	ld a, A_BUTTON | B_BUTTON | SELECT | START | D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
 	ld a, SCRIPT_ROCKETHIDEOUTB2F_PLAYER_SPINNING
@@ -273,10 +273,10 @@ INCLUDE "engine/overworld/spinners.asm"
 RocketHideoutB2F_TextPointers:
 	def_text_pointers
 	dw_const RocketHideoutB2FRocketText, TEXT_ROCKETHIDEOUTB2F_ROCKET
-	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_MOON_STONE
-	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_NUGGET
-	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_TM_HORN_DRILL
-	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_SUPER_POTION
+	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_ITEM1
+	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_ITEM2
+	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_ITEM3
+	dw_const PickUpItemText,             TEXT_ROCKETHIDEOUTB2F_ITEM4
 
 RocketHideout2TrainerHeaders:
 	def_trainers
@@ -288,7 +288,7 @@ RocketHideoutB2FRocketText:
 	text_asm
 	ld hl, RocketHideout2TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocketBattleText:
 	text_far _RocketHideoutB1FRocketBattleText

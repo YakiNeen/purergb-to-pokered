@@ -51,8 +51,8 @@ _Route25CooltrainerMAfterBattleText::
 	done
 
 _Route25CooltrainerF1BattleText::
-	text "Hi! My boy"
-	line "friend is cool!"
+	text "Hi! My boyfriend"
+	line "is cool!"
 	done
 
 _Route25CooltrainerF1EndBattleText::
@@ -153,4 +153,18 @@ _Route25Hiker3AfterBattleText::
 _Route25BillSignText::
 	text "SEA COTTAGE"
 	line "BILL lives here!"
+	done
+
+_Route25Text12::
+	text "TRAINER TIPS"
+	para "Hold both the"
+	line "A and B Buttons" 
+	cont "while standing"
+	cont "still."
+	para "Then press any" 
+	line "direction on the" 
+	cont "D-PAD to change"
+	cont "the direction"
+	cont "you're facing"
+	cont "without walking."
 	done

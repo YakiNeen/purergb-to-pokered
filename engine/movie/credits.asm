@@ -2,7 +2,7 @@ HallOfFamePC:
 	farcall AnimateHallOfFame
 	call ClearScreen
 	ld c, 100
-	call DelayFrames
+	rst _DelayFrames
 	call DisableLCD
 	ld hl, vFont
 	ld bc, ($80 tiles) / 2
@@ -20,6 +20,7 @@ HallOfFamePC:
 	call FillFourRowsWithBlack
 	ld a, %11000000
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	call EnableLCD
 	ld a, SFX_STOP_ALL_MUSIC
 	call PlaySoundWaitForCurrent
@@ -27,9 +28,8 @@ HallOfFamePC:
 	ld a, MUSIC_CREDITS
 	call PlayMusic
 	ld c, 128
-	call DelayFrames
+	rst _DelayFrames
 	xor a
-	ld [wUnusedCD3D], a ; not read
 	ld [wNumCreditsMonsDisplayed], a
 	jp Credits
 
@@ -39,8 +39,9 @@ FadeInCreditsText:
 .loop
 	ld a, [hli]
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld c, 5
-	call DelayFrames
+	rst _DelayFrames
 	dec b
 	jr nz, .loop
 	ret
@@ -78,6 +79,7 @@ DisplayCreditsMon:
 	call FillMiddleOfScreenWithWhite
 	ld a, %11111100 ; make the mon a black silhouette
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 
 ; scroll the mon left by one tile 7 times
 	ld bc, 7
@@ -102,6 +104,7 @@ DisplayCreditsMon:
 	ldh [hWY], a
 	ld a, %11000000
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ret
 
 INCLUDE "data/credits/credits_mons.asm"
@@ -119,11 +122,7 @@ ScrollCreditsMonLeft:
 	ret
 
 ScrollCreditsMonLeft_SetSCX:
-	ldh a, [rLY]
-	cp l
-	jr nz, ScrollCreditsMonLeft_SetSCX
-	ld a, h
-	ldh [rSCX], a
+	predef BGLayerScrollingUpdate ; shinpokerednote: gbcnote: consolidated into a predef that also fixes some issues
 .loop
 	ldh a, [rLY]
 	cp h
@@ -221,7 +220,7 @@ Credits:
 .showTextAndShowMon
 	ld c, 110
 .next1
-	call DelayFrames
+	rst _DelayFrames
 	call DisplayCreditsMon
 	jr .nextCreditsScreen
 .fadeInText
@@ -231,7 +230,7 @@ Credits:
 .showText
 	ld c, 140
 .next2
-	call DelayFrames
+	rst _DelayFrames
 	jr .nextCreditsScreen
 .showCopyrightText
 	push de
@@ -241,7 +240,7 @@ Credits:
 	jr .nextCreditsCommand
 .showTheEnd
 	ld c, 16
-	call DelayFrames
+	rst _DelayFrames
 	call FillMiddleOfScreenWithWhite
 	pop de
 	ld de, TheEndGfx

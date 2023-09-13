@@ -25,6 +25,9 @@ VictoryRoad1F_ScriptPointers:
 	dw_const EndTrainerBattle,                      SCRIPT_VICTORYROAD1F_END_BATTLE
 
 VictoryRoad1FDefaultScript:
+	ld a, [wFlags_0xcd60]
+	bit 1, a
+	ret nz ; PureRGBnote: ADDED: if a boulder animation is playing forget doing this, helps reduce lag
 	CheckEvent EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH
 	jp nz, CheckFightingMapTrainers
 	ld hl, .SwitchCoords
@@ -43,8 +46,8 @@ VictoryRoad1F_TextPointers:
 	def_text_pointers
 	dw_const VictoryRoad1FCooltrainerFText, TEXT_VICTORYROAD1F_COOLTRAINER_F
 	dw_const VictoryRoad1FCooltrainerMText, TEXT_VICTORYROAD1F_COOLTRAINER_M
-	dw_const PickUpItemText,                TEXT_VICTORYROAD1F_TM_SKY_ATTACK
-	dw_const PickUpItemText,                TEXT_VICTORYROAD1F_RARE_CANDY
+	dw_const PickUpItemText,                TEXT_VICTORYROAD1F_ITEM1
+	dw_const PickUpItemText,                TEXT_VICTORYROAD1F_ITEM2
 	dw_const BoulderText,                   TEXT_VICTORYROAD1F_BOULDER1
 	dw_const BoulderText,                   TEXT_VICTORYROAD1F_BOULDER2
 	dw_const BoulderText,                   TEXT_VICTORYROAD1F_BOULDER3
@@ -61,13 +64,13 @@ VictoryRoad1FCooltrainerFText:
 	text_asm
 	ld hl, VictoryRoad1TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad1FCooltrainerMText:
 	text_asm
 	ld hl, VictoryRoad1TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 VictoryRoad1FCooltrainerFBattleText:
 	text_far _VictoryRoad1FCooltrainerFBattleText

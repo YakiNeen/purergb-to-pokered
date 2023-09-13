@@ -1,3 +1,15 @@
+BigRecoilEffect_: ; PureRGBnote: ADDED: big recoil effect does 50% of the damage inflicted, used with selfdestruct, explosion, and struggle.
+	call RecoilEffect_
+	call GotRecoilDamage
+	ret
+
+DefaultRecoilEffect_:
+	call RecoilEffect_
+	srl b ; PureRGBnote: CHANGED: recoil effect does 50% by default, so divide that by 2 here to get the original 25% of damage done.
+	rr c
+	call GotRecoilDamage
+	ret
+
 RecoilEffect_:
 	ldh a, [hWhoseTurn]
 	and a
@@ -14,12 +26,9 @@ RecoilEffect_:
 	ld c, a
 	srl b
 	rr c
-	ld a, d
-	cp STRUGGLE ; struggle deals 50% recoil damage
-	jr z, .gotRecoilDamage
-	srl b
-	rr c
-.gotRecoilDamage
+	ret
+
+GotRecoilDamage:
 	ld a, b
 	or c
 	jr nz, .updateHP

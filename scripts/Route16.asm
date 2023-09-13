@@ -1,11 +1,28 @@
 Route16_Script:
 	call EnableAutoTextBoxDrawing
+	call Route16CheckHideCutTree
 	ld hl, Route16TrainerHeaders
 	ld de, Route16_ScriptPointers
 	ld a, [wRoute16CurScript]
 	call ExecuteCurMapScriptInTable
 	ld [wRoute16CurScript], a
 	ret
+
+Route16CheckHideCutTree:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl] ; did we load the map from a save/warp/door/battle, etc?
+	res 5, [hl]
+	ret z ; map wasn't just loaded
+	ld de, Route16CutAlcove
+	callfar FarArePlayerCoordsInRange
+	call c, .removeTreeBlocker
+	ret
+.removeTreeBlocker
+	; if we're in the cut alcove, remove the tree
+	lb bc, 4, 17
+	ld a, $6E
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlock
 
 Route16Script_59946:
 	xor a ; SCRIPT_ROUTE16_DEFAULT
@@ -32,7 +49,7 @@ Route16DefaultScript:
 	call DisplayTextID
 	ld a, SNORLAX
 	ld [wCurOpponent], a
-	ld a, 30
+	ld a, 40 ; PureRGBnote: CHANGED: raised snorlax's level to balance with party levels
 	ld [wCurEnemyLVL], a
 	ld a, HS_ROUTE_16_SNORLAX
 	ld [wMissableObjectIndex], a
@@ -96,7 +113,7 @@ Route16Biker1Text:
 	text_asm
 	ld hl, Route16TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16Biker1BattleText:
 	text_far _Route16Biker1BattleText
@@ -114,7 +131,7 @@ Route16Biker2Text:
 	text_asm
 	ld hl, Route16TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16Biker2BattleText:
 	text_far _Route16Biker2BattleText
@@ -132,7 +149,7 @@ Route16Biker3Text:
 	text_asm
 	ld hl, Route16TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16Biker3BattleText:
 	text_far _Route16Biker3BattleText
@@ -150,7 +167,7 @@ Route16Biker4Text:
 	text_asm
 	ld hl, Route16TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16biker4BattleText:
 	text_far _Route16biker4BattleText
@@ -168,7 +185,7 @@ Route16Biker5Text:
 	text_asm
 	ld hl, Route16TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16Biker5BattleText:
 	text_far _Route16Biker5BattleText
@@ -186,7 +203,7 @@ Route16Biker6Text:
 	text_asm
 	ld hl, Route16TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route16Biker6BattleText:
 	text_far _Route16Biker6BattleText

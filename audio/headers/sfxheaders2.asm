@@ -383,6 +383,15 @@ SFX_Pound::
 	channel_count 1
 	channel 8, SFX_Pound_Ch8
 
+SFX_Acid_Armor::
+	channel_count 1
+	channel 8, SFX_Acid_Armor_Ch8 ; PureRGBnote: ADDED: new sound effect for acid armor
+
+SFX_Ice::
+	channel_count 2
+	channel 5, SFX_Ice_Ch5 
+	channel 8, SFX_Ice_Ch8 ; PureRGBnote: ADDED: new sound effect for ice moves
+
 SFX_Battle_0B::
 	channel_count 1
 	channel 8, SFX_Battle_0B_Ch8
@@ -427,9 +436,9 @@ SFX_Vine_Whip::
 	channel_count 1
 	channel 8, SFX_Vine_Whip_Ch8
 
-SFX_Battle_16::
-	channel_count 1
-	channel 8, SFX_Battle_16_Ch8
+;SFX_Battle_16::
+;	channel_count 1
+;	channel 8, SFX_Battle_16_Ch8 ; PureRGBnote: REMOVED: unused move sound effect
 
 SFX_Battle_17::
 	channel_count 1

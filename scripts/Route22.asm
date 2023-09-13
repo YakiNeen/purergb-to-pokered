@@ -91,7 +91,7 @@ Route22FirstRivalBattleScript:
 	jr z, .walking
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 .walking
 	ld c, BANK(Music_MeetRival)
 	ld a, MUSIC_MEET_RIVAL
@@ -170,7 +170,7 @@ Route22Rival1AfterBattleScript:
 	call DisplayTextID
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	farcall Music_RivalAlternateStart
 	ld a, [wcf0d]
 	cp $1
@@ -244,11 +244,11 @@ Route22SecondRivalBattleScript:
 	jr z, .walking
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 .walking
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	farcall Music_RivalAlternateTempo
 	ld a, ROUTE22_RIVAL2
 	ldh [hSpriteIndex], a
@@ -329,7 +329,7 @@ Route22Rival2AfterBattleScript:
 	call DisplayTextID
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	farcall Music_RivalAlternateStartAndTempo
 	ld a, [wcf0d]
 	cp $1
@@ -381,33 +381,36 @@ Route22_TextPointers:
 	def_text_pointers
 	dw_const Route22Rival1Text,            TEXT_ROUTE22_RIVAL1
 	dw_const Route22Rival2Text,            TEXT_ROUTE22_RIVAL2
+	dw_const PickUp3ItemText,              TEXT_ROUTE22_ITEM1 ; PureRGBnote: ADDED: new item on this route
+	dw_const PickUpItemText,               TEXT_ROUTE22_ITEM2 ; PureRGBnote: ADDED: new item on this route
 	dw_const Route22PokemonLeagueSignText, TEXT_ROUTE22_POKEMON_LEAGUE_SIGN
+	dw_const Route22TrainerTipsText,       TEXT_ROUTE22_TRAINER_TIPS_SIGN ; PureRGBnote: ADDED: new trainer tips sign on this route.
 
 Route22Rival1Text:
 	text_asm
 	CheckEvent EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE
 	jr z, .before_battle
 	ld hl, Route22RivalAfterBattleText1
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .before_battle
 	ld hl, Route22RivalBeforeBattleText1
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route22Rival2Text:
 	text_asm
 	CheckEvent EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE
 	jr z, .before_battle
 	ld hl, Route22RivalAfterBattleText2
-	call PrintText
+	rst _PrintText
 	jr .text_script_end
 .before_battle
 	ld hl, Route22RivalBeforeBattleText2
-	call PrintText
+	rst _PrintText
 .text_script_end
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route22RivalBeforeBattleText1:
 	text_far _Route22RivalBeforeBattleText1
@@ -443,4 +446,8 @@ Route22Rival2VictoryText:
 
 Route22PokemonLeagueSignText:
 	text_far _Route22PokemonLeagueSignText
+	text_end
+
+Route22TrainerTipsText:
+	text_far _Route22TrainerTipsText
 	text_end

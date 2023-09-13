@@ -3,6 +3,7 @@ CeladonMansionRoof_Script:
 
 CeladonMansionRoof_TextPointers:
 	def_text_pointers
+	dw_const PickUp2ItemText, TEXT_CELADONMANSIONROOF_ITEM1 ; PureRGBnote: ADDED: new item location
 	dw_const CeladonMansionRoofHouseSignText, TEXT_CELADONMANSIONROOF_HOUSE_SIGN
 
 CeladonMansionRoofHouseSignText:

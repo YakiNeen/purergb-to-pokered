@@ -47,7 +47,7 @@ DEF MAX_NEUTRAL_DAMAGE EQU 999
 
 ; fixed damage constants
 DEF SONICBOOM_DAMAGE   EQU 20
-DEF DRAGON_RAGE_DAMAGE EQU 40
+;DEF DRAGON_RAGE_DAMAGE EQU 40
 
 ; type effectiveness factors, scaled by 10
 DEF SUPER_EFFECTIVE    EQU 20
@@ -72,7 +72,7 @@ DEF SPDSPCDV_TRAINER EQU $88
 
 ; wPlayerBattleStatus1 or wEnemyBattleStatus1 bit flags
 	const_def
-	const STORING_ENERGY           ; 0 ; Bide
+	const STORING_ENERGY           ; 0 ; Bide ; PureRGBnote: CHANGED: (now unused since bide is a normal buff move)
 	const THRASHING_ABOUT          ; 1 ; e.g. Thrash
 	const ATTACKING_MULTIPLE_TIMES ; 2 ; e.g. Double Kick, Fury Attack
 	const FLINCHED                 ; 3
@@ -83,14 +83,14 @@ DEF SPDSPCDV_TRAINER EQU $88
 
 ; wPlayerBattleStatus2 or wEnemyBattleStatus2 bit flags
 	const_def
-	const USING_X_ACCURACY    ; 0
-	const PROTECTED_BY_MIST   ; 1
-	const GETTING_PUMPED      ; 2 ; Focus Energy
-	const_skip                ; 3 ; unused
-	const HAS_SUBSTITUTE_UP   ; 4
-	const NEEDS_TO_RECHARGE   ; 5 ; Hyper Beam
-	const USING_RAGE          ; 6
-	const SEEDED              ; 7
+	const USING_X_ACCURACY         ; 0
+	const STAT_DOWN_IMMUNITY       ; 1 ; Mist and Guard Spec primary effect
+	const GETTING_PUMPED           ; 2 ; Focus Energy
+	const PSYCHIC_IMMUNITY         ; 3 ; Haze secondary effect
+	const HAS_SUBSTITUTE_UP        ; 4
+	const NEEDS_TO_RECHARGE        ; 5 ; Hyper Beam
+	const NORMAL_FIGHTING_IMMUNITY ; 6 ; Mist secondary effect
+	const SEEDED                   ; 7
 
 ; wPlayerBattleStatus3 or wEnemyBattleStatus3 bit flags
 	const_def
@@ -98,3 +98,4 @@ DEF SPDSPCDV_TRAINER EQU $88
 	const HAS_LIGHT_SCREEN_UP ; 1
 	const HAS_REFLECT_UP      ; 2
 	const TRANSFORMED         ; 3
+	const ALREADY_ACTED		  ; 4 ; PureRGBnote: ADDED: marker for whether an opponent used an item or switched pokemon at the start of a turn

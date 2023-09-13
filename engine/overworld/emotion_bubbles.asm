@@ -1,4 +1,17 @@
+; PureRGBnote: ADDED: the emotion bubble code was split into two functions that differ in how long the bubble shows.
 EmotionBubble:
+	call EmotionBubbleCommon
+	ld c, 60
+	rst _DelayFrames
+	jp EmotionBubbleCommon2
+
+EmotionBubbleQuick:
+	call EmotionBubbleCommon
+	ld c, 30
+	rst _DelayFrames
+	jp EmotionBubbleCommon2
+
+EmotionBubbleCommon:
 	ld a, [wWhichEmotionBubble]
 	ld c, a
 	ld b, 0
@@ -54,11 +67,14 @@ EmotionBubble:
 	ld de, EmotionBubblesOAM
 	xor a
 	call WriteOAMBlock
-	ld c, 60
-	call DelayFrames
 	pop af
+	ld d, a
+	ret
+
+EmotionBubbleCommon2:
+	ld a, d
 	ld [wUpdateSpritesEnabled], a
-	call DelayFrame
+	rst _DelayFrame
 	jp UpdateSprites
 
 EmotionBubblesPointerTable:

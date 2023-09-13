@@ -19,8 +19,27 @@ MarkTownVisitedAndLoadMissableObjects::
 
 LoadMissableObjects:
 	ld l, a
+
 	push hl
+;;;;;;;;;; PureRGBnote: ADDED: when in some maps we use a different set of flags for hiding/showing objects.
+	ld de, ExtraMissableObjects
+	; check if hl address is >= ExtraMissableObjects, if so load ExtraMissableObjects
+	ld a, d
+	sub h
+	jr c, .extraMissables
+	jr nz, .normal
+	ld a, e
+	sub l
+	jr z, .extraMissables
+	jr c, .extraMissables
+.normal
+	ResetEventA EVENT_IN_EXTRA_MISSABLE_OBJECTS_MAP
 	ld de, MissableObjects     ; calculate difference between out pointer and the base pointer
+	jr .load
+.extraMissables
+	SetEventA EVENT_IN_EXTRA_MISSABLE_OBJECTS_MAP
+.load
+;;;;;;;;;;
 	ld a, l
 	sub e
 	jr nc, .noCarry
@@ -67,6 +86,9 @@ LoadMissableObjects:
 	ld [de], a                 ; write sentinel
 	ret
 
+
+; PureRGBnote: ADDED: when in the safari zone we use a different set of flags for hiding/showing objects.
+; this function initializes these flags.
 InitializeMissableObjectsFlags:
 	ld hl, wMissableObjectFlags
 	ld bc, wMissableObjectFlagsEnd - wMissableObjectFlags
@@ -97,6 +119,36 @@ InitializeMissableObjectsFlags:
 	inc hl
 	jr .missableObjectsLoop
 
+InitializeExtraMissableObjectsFlags:
+	ld hl, wExtraMissableObjectFlags
+	ld bc, wExtraMissableObjectFlagsEnd - wExtraMissableObjectFlags
+	xor a
+	call FillMemory ; clear missable objects flags
+	ld hl, ExtraMissableObjects
+	xor a
+	ld [wMissableObjectCounter], a
+.missableObjectsLoop
+	ld a, [hli]
+	cp -1           ; end of list
+	ret z
+	push hl
+	inc hl
+	ld a, [hl]
+	cp HIDE
+	jr nz, .skip
+	ld hl, wExtraMissableObjectFlags
+	ld a, [wMissableObjectCounter]
+	ld c, a
+	ld b, FLAG_SET
+	call MissableObjectFlagAction ; set flag if Item is hidden
+.skip
+	ld hl, wMissableObjectCounter
+	inc [hl]
+	pop hl
+	inc hl
+	inc hl
+	jr .missableObjectsLoop
+
 ; tests if current sprite is a missable object that is hidden/has been removed
 IsObjectHidden:
 	ldh a, [hCurrentSpriteOffset]
@@ -112,7 +164,14 @@ IsObjectHidden:
 	jr nz, .loop
 	ld c, a
 	ld b, FLAG_TEST
+;;;;;;;;;; PureRGBnote: ADDED: when in certain maps we use a different set of flags for hiding/showing objects.
+	CheckEvent EVENT_IN_EXTRA_MISSABLE_OBJECTS_MAP
 	ld hl, wMissableObjectFlags
+	jr z, .doAction
+.extraMap
+	ld hl, wExtraMissableObjectFlags
+.doAction
+;;;;;;;;;;
 	call MissableObjectFlagAction
 	ld a, c
 	and a
@@ -126,8 +185,14 @@ IsObjectHidden:
 ; adds missable object (items, leg. pokemon, etc.) to the map
 ; [wMissableObjectIndex]: index of the missable object to be added (global index)
 ShowObject:
-ShowObject2:
 	ld hl, wMissableObjectFlags
+	jr ShowObjectCommon
+
+ShowExtraObject:
+	ld hl, wExtraMissableObjectFlags
+	jr ShowObjectCommon
+
+ShowObjectCommon:
 	ld a, [wMissableObjectIndex]
 	ld c, a
 	ld b, FLAG_RESET
@@ -138,6 +203,13 @@ ShowObject2:
 ; [wMissableObjectIndex]: index of the missable object to be removed (global index)
 HideObject:
 	ld hl, wMissableObjectFlags
+	jr HideObjectCommon
+
+HideExtraObject:
+	ld hl, wExtraMissableObjectFlags
+	jr HideObjectCommon
+
+HideObjectCommon:
 	ld a, [wMissableObjectIndex]
 	ld c, a
 	ld b, FLAG_SET

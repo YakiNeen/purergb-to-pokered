@@ -8,15 +8,36 @@
 	db 126 ; base exp
 
 	INCBIN "gfx/pokemon/front/haunter.pic", 0, 1 ; sprite dimensions
-	dw HaunterPicFront, HaunterPicBack
+	dw HaunterPicFront, HaunterPicBackSW
 
 	db LICK, CONFUSE_RAY, NIGHT_SHADE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_SLOW ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        RAGE,         MEGA_DRAIN,   THUNDERBOLT,  THUNDER,      \
-	     PSYCHIC_M,    MIMIC,        DOUBLE_TEAM,  BIDE,         SELFDESTRUCT, \
-	     DREAM_EATER,  REST,         PSYWAVE,      EXPLOSION,    SUBSTITUTE
+	tmhm \
+	ICE_PUNCH,\
+	TOXIC,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	THUNDERPUNCH,\
+	THUNDERBOLT,\
+	THUNDER,\
+	PSYCHIC_M,\
+	MEGA_DRAIN,\
+	KINESIS,\ ; FIREWALL
+	BIDE,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	KARATE_CHOP,\
+	LOVELY_KISS,\
+	PSYBEAM,\
+	SLUDGE,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(HaunterPicFront), BANK(HaunterPicBack)
+
+	dw 1, HaunterPicBack

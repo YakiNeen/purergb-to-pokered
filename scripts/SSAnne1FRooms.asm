@@ -24,7 +24,7 @@ SSAnne1FRooms_TextPointers:
 	dw_const SSAnne1FRoomsLittleGirlText,    TEXT_SSANNE1FROOMS_LITTLE_GIRL
 	dw_const SSAnne1FRoomsWigglytuffText,    TEXT_SSANNE1FROOMS_WIGGLYTUFF
 	dw_const SSAnne1FRoomsGirl2Text,         TEXT_SSANNE1FROOMS_GIRL2
-	dw_const PickUpItemText,                 TEXT_SSANNE1FROOMS_TM_BODY_SLAM
+	dw_const PickUpItemText,                 TEXT_SSANNE1FROOMS_ITEM1
 	dw_const SSAnne1FRoomsGentleman3Text,    TEXT_SSANNE1FROOMS_GENTLEMAN3
 
 SSAnne8TrainerHeaders:
@@ -43,32 +43,32 @@ SSAnne1FRoomsGentleman1Text:
 	text_asm
 	ld hl, SSAnne8TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnne1FRoomsGentleman2Text:
 	text_asm
 	ld hl, SSAnne8TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnne1FRoomsYoungsterText:
 	text_asm
 	ld hl, SSAnne8TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnne1FRoomsCooltrainerFText:
 	text_asm
 	ld hl, SSAnne8TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnne1FRoomsWigglytuffText:
 	text_far _SSAnne1FRoomsWigglytuffText
 	text_asm
 	ld a, WIGGLYTUFF
 	call PlayCry
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnne1FRoomsGentleman1BattleText:
 	text_far _SSAnne1FRoomsGentleman1BattleText

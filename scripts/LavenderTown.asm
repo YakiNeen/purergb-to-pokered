@@ -16,7 +16,7 @@ LavenderTown_TextPointers:
 LavenderTownLittleGirlText:
 	text_asm
 	ld hl, .DoYouBelieveInGhostsText
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
@@ -24,8 +24,8 @@ LavenderTownLittleGirlText:
 	jr nz, .got_text
 	ld hl, .SoThereAreBelieversText
 .got_text
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .DoYouBelieveInGhostsText:
 	text_far _LavenderTownLittleGirlDoYouBelieveInGhostsText

@@ -23,7 +23,12 @@ BrunoShowOrHideExitBlock:
 .setExitBlock
 	ld [wNewTileBlockID], a
 	lb bc, 0, 2
-	predef_jump ReplaceTileBlock
+	predef ReplaceTileBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl]
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 
 ResetBrunoScript:
 	xor a ; SCRIPT_BRUNOSROOM_DEFAULT
@@ -129,7 +134,7 @@ BrunosRoomBrunoText:
 	text_asm
 	ld hl, BrunosRoomTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 BrunoBeforeBattleText:
 	text_far _BrunoBeforeBattleText

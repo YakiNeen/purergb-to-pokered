@@ -1,5 +1,6 @@
 Route25_Script:
 	call Route25ShowHideBillScript
+	call Route25CheckHideCutTree
 	call EnableAutoTextBoxDrawing
 	ld hl, Route25TrainerHeaders
 	ld de, Route25_ScriptPointers
@@ -7,6 +8,25 @@ Route25_Script:
 	call ExecuteCurMapScriptInTable
 	ld [wRoute25CurScript], a
 	ret
+
+Route25CheckHideCutTree:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl] ; did we load the map from a save/warp/door/battle, etc?
+	res 5, [hl]
+	ret z ; map wasn't just loaded
+	ld a, [wSprite03StateData2MapY] ; guy who can move to not block us leaving the cut alcove
+	cp 12 ; guy is blocking us if his Y value is lower than this
+	ret nc ; if he's not blocking us, don't replace the cut tree
+	ld de, Route25CutAlcove
+	callfar FarArePlayerCoordsInRange
+	call c, .removeTreeBlocker
+	ret
+.removeTreeBlocker
+	; if we're in the cut alcove, remove the tree
+	lb bc, 2, 13
+	ld a, $6E
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlock
 
 Route25ShowHideBillScript:
 	ld hl, wCurrentMapScriptFlags
@@ -52,8 +72,9 @@ Route25_TextPointers:
 	dw_const Route25Hiker1Text,        TEXT_ROUTE25_HIKER1
 	dw_const Route25Hiker2Text,        TEXT_ROUTE25_HIKER2
 	dw_const Route25Hiker3Text,        TEXT_ROUTE25_HIKER3
-	dw_const PickUpItemText,           TEXT_ROUTE25_TM_SEISMIC_TOSS
+	dw_const PickUpItemText,           TEXT_ROUTE25_ITEM1
 	dw_const Route25BillSignText,      TEXT_ROUTE25_BILL_SIGN
+	dw_const Route25Text12,            TEXT_ROUTE25_TRAINER_TIPS ; PureRGBnote: ADDED: new trainer tips sign on this route.
 
 Route25TrainerHeaders:
 	def_trainers
@@ -81,55 +102,55 @@ Route25Youngster1Text:
 	text_asm
 	ld hl, Route25TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Youngster2Text:
 	text_asm
 	ld hl, Route25TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25CooltrainerMText:
 	text_asm
 	ld hl, Route25TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25CooltrainerF1Text:
 	text_asm
 	ld hl, Route25TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Youngster3Text:
 	text_asm
 	ld hl, Route25TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25CooltrainerF2Text:
 	text_asm
 	ld hl, Route25TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Hiker1Text:
 	text_asm
 	ld hl, Route25TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Hiker2Text:
 	text_asm
 	ld hl, Route25TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Hiker3Text:
 	text_asm
 	ld hl, Route25TrainerHeader8
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route25Youngster1BattleText:
 	text_far _Route25Youngster1BattleText
@@ -241,4 +262,8 @@ Route25Hiker3AfterBattleText:
 
 Route25BillSignText:
 	text_far _Route25BillSignText
+	text_end
+
+Route25Text12:
+	text_far _Route25Text12
 	text_end

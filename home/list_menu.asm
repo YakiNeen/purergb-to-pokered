@@ -8,13 +8,19 @@ DisplayListMenuID::
 	ldh [hJoy7], a ; joypad state update flag
 	ld a, [wBattleType]
 	and a ; is it the Old Man battle?
-	jr nz, .specialBattleType
 	ld a, $01 ; hardcoded bank
-	jr .bankswitch
-.specialBattleType ; Old Man battle
+	jr z, .bankswitch
 	ld a, BANK(DisplayBattleMenu)
 .bankswitch
 	call BankswitchHome
+;;;;;;;;;; PureRGBnote: ADDED: if we're in a menu that can display TM move names while scrolling over TMs, we need to save the screen tiles that
+;;;;;;;;;; appear behind the TM move name window so we can close it if needed
+	ld a, [wListMenuHoverTextType]
+	and a
+	jr z, .noSaveScreenTiles
+	call CheckSaveHoverTextScreenTiles
+.noSaveScreenTiles
+;;;;;;;;;;
 	ld hl, wd730
 	set 6, [hl] ; turn off letter printing delay
 	xor a
@@ -31,13 +37,13 @@ DisplayListMenuID::
 	call DisplayTextBoxID ; draw the menu text box
 	call UpdateSprites ; disable sprites behind the text box
 ; the code up to .skipMovingSprites appears to be useless
-	hlcoord 4, 2 ; coordinates of upper left corner of menu text box
-	lb de, 9, 14 ; height and width of menu text box
-	ld a, [wListMenuID]
-	and a ; PCPOKEMONLISTMENU?
-	jr nz, .skipMovingSprites
-	call UpdateSprites
-.skipMovingSprites
+;	hlcoord 4, 2 ; coordinates of upper left corner of menu text box
+;	lb de, 9, 14 ; height and width of menu text box
+;	ld a, [wListMenuID]
+;	and a ; PCPOKEMONLISTMENU?
+;	jr nz, .skipMovingSprites
+;	call UpdateSprites
+;.skipMovingSprites
 	ld a, 1 ; max menu item ID is 1 if the list has less than 2 entries
 	ld [wMenuWatchMovingOutOfBounds], a
 	ld a, [wListCount]
@@ -50,10 +56,15 @@ DisplayListMenuID::
 	ld [wTopMenuItemY], a
 	ld a, 5
 	ld [wTopMenuItemX], a
-	ld a, A_BUTTON | B_BUTTON | SELECT
+	ld a, A_BUTTON | B_BUTTON | SELECT | START | D_LEFT ; PureRGBnote: ADDED: tracking START and Dpad Left for new functions
 	ld [wMenuWatchedKeys], a
-	ld c, 10
-	call DelayFrames
+	ld a, [wBattleType]
+	and a ; is it the Old Man battle?
+	jr nz, .skipOffsetCheck
+	call CheckBadOffset
+.skipOffsetCheck
+	call CheckForHoverText ; PureRGBnote: ADDED: check for TM text to display on initializing the table (like if the first entry is a TM)
+	homecall PrepareOAMData	; shinpokerednote: gbcnote: makes mart menus cleaner by updating the OAM sprite table ahead of vblank
 
 DisplayListMenuIDLoop::
 	xor a
@@ -66,17 +77,8 @@ DisplayListMenuIDLoop::
 	and a ; is it the Old Man battle?
 	jr z, .notOldManBattle
 .oldManBattle
-	ld a, "▶"
-	ldcoord_a 5, 4 ; place menu cursor in front of first menu entry
-	ld c, 80
-	call DelayFrames
-	xor a
-	ld [wCurrentMenuItem], a
-	hlcoord 5, 4
-	ld a, l
-	ld [wMenuCursorLocation], a
-	ld a, h
-	ld [wMenuCursorLocation + 1], a
+	; we will be in BANK(DisplayBattleMenu) if old man battle so call a new function in that bank to save space in home
+	call OldManListMenuInit
 	jr .buttonAPressed
 .notOldManBattle
 	call LoadGBPal
@@ -84,17 +86,13 @@ DisplayListMenuIDLoop::
 	push af
 	call PlaceMenuCursor
 	pop af
+	call CheckButtonStartPressed ; PureRGBnote: ADDED: start button can trigger depositing items when in the item menu
+	jr nc, DisplayListMenuIDLoop
 	bit BIT_A_BUTTON, a
 	jp z, .checkOtherKeys
 .buttonAPressed
 	ld a, [wCurrentMenuItem]
 	call PlaceUnfilledArrowMenuCursor
-
-; pointless because both values are overwritten before they are read
-	ld a, $01
-	ld [wMenuExitMethod], a
-	ld [wChosenMenuItem], a
-
 	xor a
 	ld [wMenuWatchMovingOutOfBounds], a
 	ld a, [wCurrentMenuItem]
@@ -128,6 +126,8 @@ DisplayListMenuIDLoop::
 	ld a, [wListMenuID]
 	and a ; PCPOKEMONLISTMENU?
 	jr z, .pokemonList
+	cp CUSTOMLISTMENU
+	jr z, .skipGetName
 	push hl
 	call GetItemPrice
 	pop hl
@@ -158,12 +158,14 @@ DisplayListMenuIDLoop::
 .storeChosenEntry ; store the menu entry that the player chose and return
 	ld de, wcd6d
 	call CopyToStringBuffer
+.skipGetName
 	ld a, CHOSE_MENU_ITEM
 	ld [wMenuExitMethod], a
 	ld a, [wCurrentMenuItem]
 	ld [wChosenMenuItem], a
 	xor a
 	ldh [hJoy7], a ; joypad state update flag
+	ld [wListMenuHoverTextShown], a ; PureRGBnote: ADDED: once we pick a list entry, we consider TM text not shown so we will re-render it after finishing
 	ld hl, wd730
 	res 6, [hl] ; turn on letter printing delay
 	jp BankswitchBack
@@ -173,6 +175,8 @@ DisplayListMenuIDLoop::
 	bit BIT_SELECT, a
 	jp nz, HandleItemListSwapping ; if so, allow the player to swap menu entries
 	ld b, a
+	bit BIT_D_LEFT, b
+	jr nz, .handleListSkip ; PureRGBnote: ADDED: when pressing left we will check to skip to the top or bottom of the list
 	bit BIT_D_DOWN, b
 	ld hl, wListScrollOffset
 	jr z, .upPressed
@@ -184,13 +188,20 @@ DisplayListMenuIDLoop::
 	cp b ; will going down scroll past the Cancel button?
 	jp c, DisplayListMenuIDLoop
 	inc [hl] ; if not, go down
+	call CheckForHoverText ; PureRGBnote: ADDED: when scrolling down the list we need to load TM text if we scrolled over one
 	jp DisplayListMenuIDLoop
 .upPressed
 	ld a, [hl]
 	and a
 	jp z, DisplayListMenuIDLoop
 	dec [hl]
+	call CheckForHoverText ; PureRGBnote: ADDED: when scrolling up the list we need to load TM text if we scrolled over one
 	jp DisplayListMenuIDLoop
+.handleListSkip
+	; PureRGBnote: ADDED: code that will check to wrap to the top or bottom of the list menu when pressing left dpad
+	call WrapListMenu ; NOTE: WrapListMenu is in bank1, which will always be loaded when this line is hit
+	jp DisplayListMenuIDLoop
+
 
 DisplayChooseQuantityMenu::
 ; text box dimensions/coordinates for just quantity
@@ -228,6 +239,12 @@ DisplayChooseQuantityMenu::
 	jr nz, .incrementQuantity
 	bit BIT_D_DOWN, a
 	jr nz, .decrementQuantity
+;;;;;;;;;; PureRGBnote: ADDED: functionality to decrement or increment amounts by 10 when pressing right or left
+	bit BIT_D_RIGHT, a
+	jr nz, .incrementQuantity10
+	bit BIT_D_LEFT, a
+	jr nz, .decrementQuantity10
+;;;;;;;;;;
 	jr .waitForKeyPressLoop
 .incrementQuantity
 	ld a, [wMaxItemQuantity]
@@ -246,6 +263,35 @@ DisplayChooseQuantityMenu::
 	ld hl, wItemQuantity ; current quantity
 	dec [hl]
 	jr nz, .handleNewQuantity
+;;;;;;;;;; PureRGBnote: ADDED: functionality to decrement or increment amounts by 10 when pressing right or left
+; wrap to the max quantity if the player goes below 1
+	ld a, [wMaxItemQuantity]
+	ld [hl], a
+	jr .handleNewQuantity
+.incrementQuantity10
+	ld a, [wMaxItemQuantity]
+	inc a
+	ld b, a
+	ld hl, wItemQuantity ; current quantity
+	ld a, [hl]
+	add 10
+	ld [hl], a
+	cp b
+	jr c, .handleNewQuantity
+; wrap to 1 if the player goes above the max quantity
+	ld a, 1
+	ld [hl], a
+	jr .handleNewQuantity
+.decrementQuantity10
+	ld hl, wItemQuantity ; current quantity
+	ld a, [hl]
+	cp 11
+	jr c, .wrapMax
+	sub 10
+	ld [hl], a
+	jr .handleNewQuantity
+.wrapMax
+;;;;;;;;;;
 ; wrap to the max quantity if the player goes below 1
 	ld a, [wMaxItemQuantity]
 	ld [hl], a
@@ -310,7 +356,7 @@ DisplayChooseQuantityMenu::
 	ld [wMenuItemToSwap], a ; 0 means no item is currently being swapped
 	ld a, $ff
 	ret
-
+	
 InitialQuantityText::
 	db "×01@"
 
@@ -323,12 +369,12 @@ ExitListMenu::
 	ld a, CANCELLED_MENU
 	ld [wMenuExitMethod], a
 	ld [wMenuWatchMovingOutOfBounds], a
-	xor a
-	ldh [hJoy7], a
 	ld hl, wd730
 	res 6, [hl]
 	call BankswitchBack
 	xor a
+	ld [wListMenuHoverTextShown], a ; PureRGBnote: ADDED: when we leave a list menu we are no longer displaying any TM text
+	ldh [hJoy7], a
 	ld [wMenuItemToSwap], a ; 0 means no item is currently being swapped
 	scf
 	ret
@@ -378,9 +424,17 @@ PrintListMenuEntries::
 	jr z, .pokemonPCMenu
 	cp MOVESLISTMENU
 	jr z, .movesMenu
+	cp CUSTOMLISTMENU
+	jr z, .customListMenu
+;;;; code for printing item names
 .itemMenu
 	call GetItemName
 	jr .placeNameString
+;;;;
+.customListMenu
+	call CustomListMenuGetEntryText
+	jr .placeNameString
+;;;; code for printing pokemon names
 .pokemonPCMenu
 	push hl
 	ld hl, wPartyCount
@@ -400,8 +454,11 @@ PrintListMenuEntries::
 	call GetPartyMonName
 	pop hl
 	jr .placeNameString
+;;;;
+;;;; code for printing names of moves
 .movesMenu
 	call GetMoveName
+;;;;
 .placeNameString
 	call PlaceString
 	pop de
@@ -409,6 +466,7 @@ PrintListMenuEntries::
 	ld a, [wPrintItemPrices]
 	and a ; should prices be printed?
 	jr z, .skipPrintingItemPrice
+;;;; code for printing prices (specific to buy/sell menus)
 .printItemPrice
 	push hl
 	ld a, [de]
@@ -420,10 +478,12 @@ PrintListMenuEntries::
 	add hl, bc
 	ld c, $a3 ; no leading zeroes, right-aligned, print currency symbol, 3 bytes
 	call PrintBCDNumber
+;;;;
 .skipPrintingItemPrice
 	ld a, [wListMenuID]
 	and a ; PCPOKEMONLISTMENU?
 	jr nz, .skipPrintingPokemonLevel
+;;;; code for printing levels (specific to box menus)
 .printPokemonLevel
 	ld a, [wd11e]
 	push af
@@ -459,6 +519,7 @@ PrintListMenuEntries::
 	call PrintLevel
 	pop af
 	ld [wd11e], a
+;;;;
 .skipPrintingPokemonLevel
 	pop hl
 	pop de
@@ -466,6 +527,7 @@ PrintListMenuEntries::
 	ld a, [wListMenuID]
 	cp ITEMLISTMENU
 	jr nz, .nextListEntry
+;;;; code for printing item quantities (specific to item menus)
 .printItemQuantity
 	ld a, [wd11e]
 	ld [wcf91], a
@@ -491,6 +553,7 @@ PrintListMenuEntries::
 	pop af
 	ld [wd11e], a
 	pop hl
+;;;;
 .skipPrintingItemQuantity
 	inc de
 	pop bc
@@ -521,6 +584,7 @@ PrintListMenuEntries::
 .printCancelMenuItem
 	ld de, ListMenuCancelText
 	jp PlaceString
+
 
 ListMenuCancelText::
 	db "CANCEL@"

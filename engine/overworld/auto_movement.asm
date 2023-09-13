@@ -2,14 +2,21 @@ PlayerStepOutFromDoor::
 	ld hl, wd730
 	res 1, [hl]
 	call IsPlayerStandingOnDoorTile
-	jr nc, .notStandingOnDoor
+;;;;;;;;;; PureRGBnote: CHANGED: this code was slightly updated to allow calling from arbitrary places
+	jr nc, ForceStepFromDoor.notStandingOnDoor
+ForceStepOutFromDoor::
+	ld d, D_DOWN
+ForceStepFromDoor::
+	ld a, d
+	push af
 	ld a, SELECT | START | D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
 	ld hl, wd736
 	set 1, [hl]
 	ld a, $1
 	ld [wSimulatedJoypadStatesIndex], a
-	ld a, D_DOWN
+	pop af
+;;;;;;;;;;
 	ld [wSimulatedJoypadStatesEnd], a
 	xor a
 	ld [wSpritePlayerStateData1ImageIndex], a
@@ -17,7 +24,6 @@ PlayerStepOutFromDoor::
 	ret
 .notStandingOnDoor
 	xor a
-	ld [wWastedByteCD3A], a
 	ld [wSimulatedJoypadStatesIndex], a
 	ld [wSimulatedJoypadStatesEnd], a
 	ld hl, wd736
@@ -39,7 +45,6 @@ _EndNPCMovementScript::
 	ld [wNPCMovementScriptSpriteOffset], a
 	ld [wNPCMovementScriptPointerTableNum], a
 	ld [wNPCMovementScriptFunctionNum], a
-	ld [wWastedByteCD3A], a
 	ld [wSimulatedJoypadStatesIndex], a
 	ld [wSimulatedJoypadStatesEnd], a
 	ret
@@ -162,12 +167,13 @@ PewterMuseumGuyMovementScriptPointerTable::
 	dw PewterMovementScript_Done
 
 PewterMovementScript_WalkToMuseum:
+	call StopAllMusic
 	ld a, BANK(Music_MuseumGuy)
 	ld [wAudioROMBank], a
 	ld [wAudioSavedROMBank], a
 	ld a, MUSIC_MUSEUM_GUY
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	ld a, [wSpriteIndex]
 	swap a
 	ld [wNPCMovementScriptSpriteOffset], a
@@ -218,12 +224,13 @@ PewterGymGuyMovementScriptPointerTable::
 	dw PewterMovementScript_Done
 
 PewterMovementScript_WalkToGym:
+	call StopAllMusic
 	ld a, BANK(Music_MuseumGuy)
 	ld [wAudioROMBank], a
 	ld [wAudioSavedROMBank], a
 	ld a, MUSIC_MUSEUM_GUY
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	ld a, [wSpriteIndex]
 	swap a
 	ld [wNPCMovementScriptSpriteOffset], a

@@ -21,6 +21,7 @@ HallOfFameNoopScript:
 	ret
 
 HallOfFameResetEventsAndSaveScript:
+	callfar GBCSetCPU1xSpeed
 	call Delay3
 	ld a, [wLetterPrintingDelayFlags]
 	push af
@@ -41,6 +42,7 @@ HallOfFameResetEventsAndSaveScript:
 	ld [wLancesRoomCurScript], a
 	ld [wHallOfFameCurScript], a
 	; Elite 4 events
+	SetEvent EVENT_BECAME_CHAMP ; PureRGBnote: ADDED: new event to track whether we've beat the game once yet
 	ResetEventRange INDIGO_PLATEAU_EVENTS_START, INDIGO_PLATEAU_EVENTS_END, 1
 	xor a
 	ld [wHallOfFameCurScript], a
@@ -50,7 +52,7 @@ HallOfFameResetEventsAndSaveScript:
 	ld b, 5
 .delayLoop
 	ld c, 600 / 5
-	call DelayFrames
+	rst _DelayFrames
 	dec b
 	jr nz, .delayLoop
 	call WaitForTextScrollButtonPress
@@ -95,9 +97,31 @@ HallOfFameOakCongratulationsScript:
 	call DisplayTextID
 	ld a, A_BUTTON | B_BUTTON | SELECT | START | D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
+;;;;;;;;;; PureRGBnote: ADDED: hide the third pokeball in oak's lab because he's using it in battle now
+	ld a, [wPlayerStarter]
+	cp STARTER1
+	jr z, .hide3
+	cp STARTER2
+	jr z, .hide1
+	ld a, HS_STARTER_BALL_2
+	jr .hideStarterBall
+.hide3
+	ld a, HS_STARTER_BALL_3
+	jr .hideStarterBall
+.hide1
+	ld a, HS_STARTER_BALL_1
+.hideStarterBall
+	ld [wMissableObjectIndex], a
+	predef HideObject
+;;;;;;;;;;
 	ld a, HS_CERULEAN_CAVE_GUY
 	ld [wMissableObjectIndex], a
 	predef HideObject
+;;;;;;;;;; PureRGBnote: ADDED: hide the guy in the first floor of the secret house in cerulean - makes it appear he went downstairs.
+	ld a, HS_CERULEAN_ROCKET_HOUSE_1F_GUY
+	ld [wMissableObjectIndex], a
+	predef HideObject
+;;;;;;;;;;
 	ld a, SCRIPT_HALLOFFAME_RESET_EVENTS_AND_SAVE
 	ld [wHallOfFameCurScript], a
 	ret

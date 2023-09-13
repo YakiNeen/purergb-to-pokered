@@ -5,7 +5,7 @@ PrintBeginningBattleText:
 	ld a, [wCurMap]
 	cp POKEMON_TOWER_3F
 	jr c, .notPokemonTower
-	cp POKEMON_TOWER_7F + 1
+	cp POKEMON_TOWER_6F + 1 ; NEW: pokemon on floor 7 are treated as normal wild pokemon since we've passed the restless soul, allows normal marowak encounters
 	jr c, .pokemonTower
 .notPokemonTower
 	ld a, [wEnemyMonSpecies2]
@@ -20,14 +20,14 @@ PrintBeginningBattleText:
 .trainerBattle
 	call .playSFX
 	ld c, 20
-	call DelayFrames
+	rst _DelayFrames
 	ld hl, TrainerWantsToFightText
 .wildBattle
 	push hl
 	callfar DrawAllPokeballs
 	pop hl
-	call PrintText
-	jr .done
+	rst _PrintText
+	jp .done
 .pokemonTower
 	ld b, SILPH_SCOPE
 	call IsItemInBag
@@ -41,34 +41,54 @@ PrintBeginningBattleText:
 	callfar LoadEnemyMonData
 	jr .notPokemonTower
 .noSilphScope
+	call PlayGhostSfx
 	ld hl, EnemyAppearedText
-	call PrintText
+	rst _PrintText
 	ld hl, GhostCantBeIDdText
-	call PrintText
+	rst _PrintText
 	jr .done
 .isMarowak
 	ld a, b
 	and a
 	jr z, .noSilphScope
+	call PlayGhostSfx 
 	ld hl, EnemyAppearedText
-	call PrintText
+	rst _PrintText
 	ld hl, UnveiledGhostText
-	call PrintText
+	rst _PrintText
 	callfar LoadEnemyMonData
 	callfar MarowakAnim
+;;;;;;;;;; PureRGBnote: ADDED: when encountering ghost marowak, upon transforming it will play marowak's cry now
+	ld a, MAROWAK
+	call PlayCry
+;;;;;;;;;;
 	ld hl, WildMonAppearedText
-	call PrintText
-
+	rst _PrintText
 .playSFX
 	xor a
 	ld [wFrequencyModifier], a
 	ld a, $80
 	ld [wTempoModifier], a
 	ld a, SFX_SILPH_SCOPE
-	call PlaySound
+	rst _PlaySound
 	jp WaitForSoundToFinish
 .done
 	ret
+
+;;;;;;;;;; PureRGBnote: ADDED: a sound effect for ghosts encountered
+PlayGhostSfx:
+	ld a, $50
+	ld [wFrequencyModifier], a
+	ld a, $20
+	ld [wTempoModifier], a
+	ld a, SFX_BATTLE_2F
+	rst _PlaySound
+	call WaitForSoundToFinish
+	xor a
+	ld [wFrequencyModifier], a
+	ld [wTempoModifier], a
+	ret
+;;;;;;;;;;
 
 WildMonAppearedText:
 	text_far _WildMonAppearedText

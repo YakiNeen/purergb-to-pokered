@@ -71,7 +71,7 @@ ViridianCityFisherYouCanHaveThisText::
 	cont "off in the sun."
 
 	para "I had this dream"
-	line "about a DROWZEE"
+	line "about a GASTLY"
 	cont "eating my dream."
 	cont "What's this?"
 	cont "Where did this TM"
@@ -84,12 +84,14 @@ ViridianCityFisherYouCanHaveThisText::
 
 _ViridianCityFisherReceivedTM42Text::
 	text "<PLAYER> received"
-	line "TM42!@"
+	line "@"
+	text_ram wStringBuffer
+	text "!@"
 	text_end
 
 _ViridianCityFisherTM42ExplanationText::
 	text "TM42 contains"
-	line "DREAM EATER..."
+	line "LOVELY KISS..."
 	cont "...Snore..."
 	done
 

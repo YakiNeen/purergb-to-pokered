@@ -10,6 +10,19 @@ PrepareOakSpeech:
 	; In non-debug builds, the instructions can be removed.
 	ld a, [wd732]
 	push af
+;;;;;;;;;; PureRGBnote: ADDED: these new options variables need to be preserved when starting a new game.
+	ld a, [wSpriteOptions]
+	push af
+	ld a, [wSpriteOptions2]
+	push af
+	ld a, [wSpriteOptions3]
+	push af
+	ld a, [wSpriteOptions4]
+	push af
+	ld a, [wOptions2]
+	push af
+	ld a, [wOptions3]
+	push af
 	ld hl, wPlayerName
 	ld bc, wBoxDataEnd - wPlayerName
 	xor a
@@ -19,6 +32,20 @@ PrepareOakSpeech:
 	xor a
 	call FillMemory
 	pop af
+	ld [wOptions3], a
+	pop af
+	ld [wOptions2], a
+	pop af
+	ld [wSpriteOptions4], a
+	pop af
+	ld [wSpriteOptions3], a
+	pop af
+	ld [wSpriteOptions2], a
+	pop af
+	ld [wSpriteOptions], a
+;;;;;;;;;;
+	pop af
+	res 5, a ; prevent forced bike state on new game
 	ld [wd732], a
 	pop af
 	ld [wOptions], a
@@ -33,25 +60,34 @@ PrepareOakSpeech:
 	ld hl, DebugNewGamePlayerName
 	ld de, wPlayerName
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, DebugNewGameRivalName
 	ld de, wRivalName
 	ld bc, NAME_LENGTH
 	jp CopyData
 
+; PureRGBnote: CHANGED: this subroutine was modified to make debug mode (wd732 bit 1 = non-zero) skip through it quickly to start debugging faster
 OakSpeech:
+	callfar GBCSetCPU1xSpeed ; shinpokerednote: ADDED: GBC double speed cpu mode messes up oak speech, stay at 1x speed
 	ld a, SFX_STOP_ALL_MUSIC
-	call PlaySound
+	rst _PlaySound
+IF DEF(_DEBUG)
+	ld a, [wd732]
+	bit 1, a
+	jr nz, .skipMusic
+ENDC
 	ld a, BANK(Music_Routes2)
 	ld c, a
 	ld a, MUSIC_ROUTES2
 	call PlayMusic
+.skipMusic
 	call ClearScreen
 	call LoadTextBoxTilePatterns
 	call PrepareOakSpeech
 	predef InitPlayerData2
+	call RunDefaultPaletteCommand	; shinpokerednote: gbcnote: reinitialize the default palette in case the pointers got cleared
 	ld hl, wNumBoxItems
-	ld a, POTION
+	ld a, ITEM_INITIAL_PC_ITEM
 	ld [wcf91], a
 	ld a, 1
 	ld [wItemQuantity], a
@@ -69,7 +105,7 @@ OakSpeech:
 	call IntroDisplayPicCenteredOrUpperRight
 	call FadeInIntroPic
 	ld hl, OakSpeechText1
-	call PrintText
+	rst _PrintText
 	call GBFadeOutToWhite
 	call ClearScreen
 	ld a, NIDORINO
@@ -80,7 +116,7 @@ OakSpeech:
 	call LoadFlippedFrontSpriteByMonIndex
 	call MovePicLeft
 	ld hl, OakSpeechText2
-	call PrintText
+	rst _PrintText
 	call GBFadeOutToWhite
 	call ClearScreen
 	ld de, RedPicFront
@@ -88,7 +124,7 @@ OakSpeech:
 	call IntroDisplayPicCenteredOrUpperRight
 	call MovePicLeft
 	ld hl, IntroducePlayerText
-	call PrintText
+	rst _PrintText
 	call ChoosePlayerName
 	call GBFadeOutToWhite
 	call ClearScreen
@@ -97,9 +133,9 @@ OakSpeech:
 	call IntroDisplayPicCenteredOrUpperRight
 	call FadeInIntroPic
 	ld hl, IntroduceRivalText
-	call PrintText
+	rst _PrintText
 	call ChooseRivalName
-.skipSpeech
+;.skipSpeech
 	call GBFadeOutToWhite
 	call ClearScreen
 	ld de, RedPicFront
@@ -110,17 +146,17 @@ OakSpeech:
 	and a
 	jr nz, .next
 	ld hl, OakSpeechText3
-	call PrintText
+	rst _PrintText
 .next
 	ldh a, [hLoadedROMBank]
 	push af
 	ld a, SFX_SHRINK
-	call PlaySound
+	rst _PlaySound
 	pop af
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
 	ld c, 4
-	call DelayFrames
+	rst _DelayFrames
 	ld de, RedSprite
 	ld hl, vSprites
 	lb bc, BANK(RedSprite), $0C
@@ -129,11 +165,12 @@ OakSpeech:
 	lb bc, BANK(ShrinkPic1), $00
 	call IntroDisplayPicCenteredOrUpperRight
 	ld c, 4
-	call DelayFrames
+	rst _DelayFrames
 	ld de, ShrinkPic2
 	lb bc, BANK(ShrinkPic2), $00
 	call IntroDisplayPicCenteredOrUpperRight
 	call ResetPlayerSpriteData
+.skipSpeech
 	ldh a, [hLoadedROMBank]
 	push af
 	ld a, BANK(Music_PalletTown)
@@ -143,12 +180,17 @@ OakSpeech:
 	ld [wAudioFadeOutControl], a
 	ld a, SFX_STOP_ALL_MUSIC
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	pop af
 	ldh [hLoadedROMBank], a
 	ld [MBC1RomBank], a
+IF DEF(_DEBUG)
+	ld a, [wd732]
+	bit 1, a
+	jr nz, .skipDelay
+ENDC
 	ld c, 20
-	call DelayFrames
+	rst _DelayFrames
 	hlcoord 6, 5
 	ld b, 7
 	ld c, 7
@@ -157,15 +199,16 @@ OakSpeech:
 	ld a, 1
 	ld [wUpdateSpritesEnabled], a
 	ld c, 50
-	call DelayFrames
+	rst _DelayFrames
 	call GBFadeOutToWhite
+.skipDelay
 	jp ClearScreen
 OakSpeechText1:
 	text_far _OakSpeechText1
 	text_end
 OakSpeechText2:
 	text_far _OakSpeechText2A
-	; BUG: The cry played does not match the sprite displayed.
+	; BUG: The cry played does not match the sprite displayed. PureRGBnote: FIXED: Plays nidorino's cry now.
 	sound_cry_nidorina
 	text_far _OakSpeechText2B
 	text_end
@@ -185,8 +228,9 @@ FadeInIntroPic:
 .next
 	ld a, [hli]
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	dec b
 	jr nz, .next
 	ret
@@ -202,12 +246,13 @@ IntroFadePalettes:
 MovePicLeft:
 	ld a, 119
 	ldh [rWX], a
-	call DelayFrame
+	rst _DelayFrame
 
 	ld a, %11100100
 	ldh [rBGP], a
+	call UpdateGBCPal_BGP ; shinpokerednote: gbcnote: gbc color code from yellow 
 .next
-	call DelayFrame
+	rst _DelayFrame
 	ldh a, [rWX]
 	sub 8
 	cp $FF
@@ -227,7 +272,7 @@ IntroDisplayPicCenteredOrUpperRight:
 	ld hl, sSpriteBuffer1
 	ld de, sSpriteBuffer0
 	ld bc, $310
-	call CopyData
+	rst _CopyData
 	ld de, vFrontPic
 	call InterlaceMergeSpriteBuffers
 	pop bc

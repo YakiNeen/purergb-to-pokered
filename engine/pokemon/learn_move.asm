@@ -6,7 +6,7 @@ LearnMove:
 	ld hl, wcd6d
 	ld de, wLearnMoveMonName
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 
 DontAbandonLearning:
 	ld hl, wPartyMon1Moves
@@ -32,7 +32,7 @@ DontAbandonLearning:
 	ld [wd11e], a
 	call GetMoveName
 	ld hl, OneTwoAndText
-	call PrintText
+	rst _PrintText
 	pop de
 	pop hl
 .next
@@ -65,17 +65,19 @@ DontAbandonLearning:
 	ld l, e
 	ld de, wBattleMonMoves
 	ld bc, NUM_MOVES
-	call CopyData
+	rst _CopyData
 	ld bc, wPartyMon1PP - wPartyMon1OTID
 	add hl, bc
 	ld de, wBattleMonPP
 	ld bc, NUM_MOVES
-	call CopyData
+	rst _CopyData
 	jp PrintLearnedMove
 
 AbandonLearning:
+	CheckEvent FLAG_LEARNING_TM_MOVE
+	jr nz, .skipText ; skip this text if learning by TM
 	ld hl, AbandonLearningText
-	call PrintText
+	rst _PrintText
 	hlcoord 14, 7
 	lb bc, 8, 15
 	ld a, TWO_OPTION_MENU
@@ -84,42 +86,68 @@ AbandonLearning:
 	ld a, [wCurrentMenuItem]
 	and a
 	jp nz, DontAbandonLearning
+.skipText
 	ld hl, DidNotLearnText
-	call PrintText
+	rst _PrintText
 	ld b, 0
+	ResetEvent FLAG_LEARNING_TM_MOVE
 	ret
 
 PrintLearnedMove:
 	ld hl, LearnedMove1Text
-	call PrintText
+	rst _PrintText
 	ld b, 1
+	ResetEvent FLAG_LEARNING_TM_MOVE
 	ret
 
 TryingToLearn:
 	push hl
+	CheckEvent FLAG_LEARNING_TM_MOVE
+	ld hl, CantLearnMoreThanFourMoves
+	jr nz, .skipTryingToLearnText
 	ld hl, TryingToLearnText
-	call PrintText
-	hlcoord 14, 7
-	lb bc, 8, 15
-	ld a, TWO_OPTION_MENU
-	ld [wTextBoxID], a
-	call DisplayTextBoxID ; yes/no menu
-	pop hl
+	rst _PrintText
+	ld hl, ButCantLearnMoreThanFourMoves
+
+.skipTryingToLearnText
+
+	CheckEvent EVENT_HIDE_ALREADY_HAS_FOUR_MOVES_MSG
+	jr nz, .skipFourMovesQuestion
+
+	rst _PrintText
+	ld hl, YesNoHideTM
+	ld b, A_BUTTON | B_BUTTON
+	call DisplayMultiChoiceTextBox
+	jr nz, .no ; if B button was pressed assume "no"
 	ld a, [wCurrentMenuItem]
-	rra
-	ret c
+	and a
+	jr z, .yes ; jump if yes was chosen
+	cp 1
+	jr z, .no ; return if no was chosen
+
+	SetEvent EVENT_HIDE_ALREADY_HAS_FOUR_MOVES_MSG ; set this flag if SKIP was chosen
+	ld hl, SkippedForeverText2
+	rst _PrintText
+	jr .yes
+.no
+	pop hl
+	scf
+	ret
+.yes
+.skipFourMovesQuestion
+	pop hl
 	ld bc, -NUM_MOVES
 	add hl, bc
 	push hl
 	ld de, wMoves
 	ld bc, NUM_MOVES
-	call CopyData
+	rst _CopyData
 	callfar FormatMovesString
 	pop hl
 .loop
 	push hl
 	ld hl, WhichMoveToForgetText
-	call PrintText
+	rst _PrintText
 	hlcoord 4, 7
 	ld b, 4
 	ld c, 14
@@ -143,12 +171,15 @@ TryingToLearn:
 	inc hl
 	ld a, [wNumMovesMinusOne]
 	ld [hli], a ; wMaxMenuItem
-	ld a, A_BUTTON | B_BUTTON
+	ld a, A_BUTTON | START | B_BUTTON ; PureRGBnote: ADDED: START button is tracked in this menu 
 	ld [hli], a ; wMenuWatchedKeys
 	ld [hl], 0 ; wLastMenuItem
 	ld hl, hUILayoutFlags
 	set 1, [hl]
+.menuLoop	
 	call HandleMenuInput
+	bit BIT_A_BUTTON, a ; PureRGBnote: FIXED: Press START to learn a move instead of A to prevent accidental mashing A move-forget woes
+	jr nz, .pressStart
 	ld hl, hUILayoutFlags
 	res 1, [hl]
 	push af
@@ -165,22 +196,65 @@ TryingToLearn:
 	ld a, [hl]
 	push af
 	push bc
-	call IsMoveHM
+	push hl
+	push af
+	cp STRENGTH ; PureRGBnote: FIXED: if we are allowed to forget HM moves, strength needs to be turned off when we forget it
+	call z, ResetStrengthOverworldBit
+	pop af
+	cp SURF ; PureRGBnote: FIXED: if we are allowed to forget HM moves, surf needs to be turned off when we forget it
+	call z, ResetSurfOverworldBit
+	pop hl
 	pop bc
+	;push bc   ; PureRGBnote: FIXED: moves are never considered HMs and can always be deleted if desired
+	;call IsMoveHM
+	;pop bc
 	pop de
 	ld a, d
-	jr c, .hm
+	;jr c, .hm
 	pop hl
 	add hl, bc
 	and a
 	ret
-.hm
-	ld hl, HMCantDeleteText
-	call PrintText
+;.hm ; FIXED: moves are never considered HMs and can always be deleted if desired
+;	ld hl, HMCantDeleteText
+;	rst _PrintText
+;	pop hl
+;	jr .loop
+.pressStart ; PureRGBnote: FIXED: explain the start button is used to select a move now if A is pressed.
+	push hl
+	ld hl, PressStartToLearnText
+	rst _PrintText
 	pop hl
-	jr .loop
+	jr .menuLoop
 .cancel
 	scf
+	ret
+
+ResetStrengthOverworldBit:
+	ld d, STRENGTH
+	callfar IsMoveInParty
+	ld a, d ; how many pokemon with strength are in current party
+	cp 2
+	ret nc ; don't clear the bit if another pokemon has strength still
+	ld hl, wd728
+	res 0, [hl]
+	ret
+
+ResetSurfOverworldBit:
+	; if we're currently surfing, don't clear the autosurf bit, because landing on an island without surf could softlock the player
+	ld a, [wWalkBikeSurfState]
+	cp SURFING
+	ret z
+	ld d, SURF
+	callfar IsMoveInParty
+	ld a, d ; how many pokemon with surf are in current party
+	cp 2
+	ret nc ; don't clear the bit if another pokemon has surf still
+	; check if the player is on an island or map where we want to keep surf active even if deleted
+	callfar CheckInSurfRestrictedMapOrArea
+	ret c ; if so, don't clear the autosurf bit to avoid softlocks
+	ld hl, wd728
+	res 2, [hl]
 	ret
 
 LearnedMove1Text:
@@ -205,12 +279,25 @@ TryingToLearnText:
 	text_far _TryingToLearnText
 	text_end
 
+PressStartToLearnText:
+	text_far _PressStartToLearnText
+	text_end
+
 OneTwoAndText:
 	text_far _OneTwoAndText
 	text_pause
 	text_asm
+	ld a, [wIsInBattle]
+	and a
+	jr nz, .inBattlePoof ; PureRGBnote: FIXED: SFX_SWAP doesn't exist in the battle audio engine so it would play an arbitrary sound
 	ld a, SFX_SWAP
 	call PlaySoundWaitForCurrent
+	jr .done
+.inBattlePoof
+	push bc
+	farcall Music_LearnMovePoofInBattle ; play in-battle poof sound the same way the pokeflute is played in battle
+	pop bc
+.done
 	ld hl, PoofText
 	ret
 
@@ -221,6 +308,17 @@ ForgotAndText:
 	text_far _ForgotAndText
 	text_end
 
-HMCantDeleteText:
-	text_far _HMCantDeleteText
+ButCantLearnMoreThanFourMoves:
+	text_far _ButCantLearnMoreThanFourMoves
+	; fall through
+CantLearnMoreThanFourMoves:
+	text_far _CantLearnMoreThanFourMoves
 	text_end
+
+SkippedForeverText2:
+	text_far _SkippedForever
+	text_end
+
+;HMCantDeleteText: ; PureRGBnote: FIXED: moves are never considered HMs and can always be deleted if desired
+;	text_far _HMCantDeleteText
+;	text_end

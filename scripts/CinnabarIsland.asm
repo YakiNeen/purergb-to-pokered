@@ -1,7 +1,5 @@
 CinnabarIsland_Script:
 	call EnableAutoTextBoxDrawing
-	ld hl, wCurrentMapScriptFlags
-	set 5, [hl]
 	ResetEvent EVENT_MANSION_SWITCH_ON
 	ResetEvent EVENT_LAB_STILL_REVIVING_FOSSIL
 	ld hl, CinnabarIsland_ScriptPointers
@@ -14,8 +12,7 @@ CinnabarIsland_ScriptPointers:
 	dw_const CinnabarIslandPlayerMovingScript, SCRIPT_CINNABARISLAND_PLAYER_MOVING
 
 CinnabarIslandDefaultScript:
-	ld b, SECRET_KEY
-	call IsItemInBag
+	CheckEvent EVENT_USED_SECRET_KEY
 	ret nz
 	ld a, [wYCoord]
 	cp 4
@@ -28,6 +25,8 @@ CinnabarIslandDefaultScript:
 	ld a, TEXT_CINNABARISLAND_DOOR_IS_LOCKED
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
+	CheckEvent EVENT_USED_SECRET_KEY
+	ret nz
 	xor a
 	ldh [hJoyHeld], a
 	ld a, $1
@@ -62,7 +61,39 @@ CinnabarIsland_TextPointers:
 	dw_const CinnabarIslandGymSignText,        TEXT_CINNABARISLAND_GYM_SIGN
 	dw_const CinnabarIslandDoorIsLockedText,   TEXT_CINNABARISLAND_DOOR_IS_LOCKED
 
-CinnabarIslandDoorIsLockedText:
+CinnabarIslandDoorIsLockedText: ; PureRGBnote: CHANGED: secret key gets consumed on usage and the door is permanently unlocked.
+	text_asm
+	ld b, SECRET_KEY
+	predef GetIndexOfItemInBag
+	ld a, b
+	cp $FF ; not in bag
+	jr z, .noKey
+	; FIXED: if we have the SECRET_KEY, remove it from bag and unlock the door forever
+	ld [wWhichPokemon], a ; load item index to be removed
+	ld hl, wNumBagItems
+	ld a, 1 ; one item
+	ld [wItemQuantity], a
+	call RemoveItemFromInventory
+	SetEvent EVENT_USED_SECRET_KEY
+    ld a, SFX_WITHDRAW_DEPOSIT
+    rst _PlaySound
+    call WaitForSoundToFinish
+    ld a, SFX_59
+    rst _PlaySound
+    call WaitForSoundToFinish
+	ld hl, UnlockedDoorText
+	rst _PrintText
+	rst TextScriptEnd
+.noKey
+	ld hl, NoKeyText
+	rst _PrintText
+	rst TextScriptEnd
+
+UnlockedDoorText:
+	text_far _UnlockedCinnabarGymDoorText
+	text_end
+
+NoKeyText:
 	text_far _CinnabarIslandDoorIsLockedText
 	text_end
 

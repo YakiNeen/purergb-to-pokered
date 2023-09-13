@@ -15,23 +15,30 @@ Delay3::
 ; The bg map is updated each frame in thirds.
 ; Wait three frames to let the bg map fully update.
 	ld c, 3
-	jp DelayFrames
+	rst _DelayFrames
+	ret
 
 GBPalNormal::
 ; Reset BGP and OBP0.
 	ld a, %11100100 ; 3210
 	ldh [rBGP], a
 	ld a, %11010000 ; 3100
-	ldh [rOBP0], a
-	ret
+	jr UpdatePal
 
 GBPalWhiteOut::
 ; White out all palettes.
 	xor a
 	ldh [rBGP], a
-	ldh [rOBP0], a
 	ldh [rOBP1], a
+	;fall through
+
+UpdatePal: ; shinpokerednote: gbcnote: gbc color code from pokeyellow
+	ldh [rOBP0], a
+	call UpdateGBCPal_BGP
+	call UpdateGBCPal_OBP0
+	call UpdateGBCPal_OBP1
 	ret
+
 
 RunDefaultPaletteCommand::
 	ld b, SET_PAL_DEFAULT

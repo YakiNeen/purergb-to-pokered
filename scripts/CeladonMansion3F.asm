@@ -30,15 +30,15 @@ CeladonMansion3FGameDesignerText:
 	ld b, wPokedexOwnedEnd - wPokedexOwned
 	call CountSetBits
 	ld a, [wNumSetBits]
-	cp NUM_POKEMON - 1 ; discount Mew
+	cp NUM_POKEMON - 2 ; PureRGBnote: CHANGED: discount Mew and Missingno when checking for if the player has caught everything
 	jr nc, .completed_dex
 	ld hl, .Text
 	jr .done
 .completed_dex
 	ld hl, .CompletedDexText
 .done
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 .Text:
 	text_far _CeladonMansion3FGameDesignerText
@@ -51,7 +51,7 @@ CeladonMansion3FGameDesignerText:
 	callfar DisplayDiploma
 	ld a, TRUE
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonMansion3FGameProgramPCText:
 	text_far _CeladonMansion3FGameProgramPCText

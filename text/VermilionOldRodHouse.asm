@@ -1,6 +1,7 @@
 _VermilionOldRodHouseFishingGuruDoYouLikeToFishText::
 	text "I'm the FISHING"
-	line "GURU!"
+	line "GURU's older"
+	cont "brother!"
 
 	para "I simply Looove"
 	line "fishing!"
@@ -17,22 +18,10 @@ _VermilionOldRodHouseFishingGuruTakeThisText::
 	line "fish, young one!"
 
 	para "<PLAYER> received"
-	line "an @"
+	line "a @"
 	text_ram wStringBuffer
 	text "!@"
 	text_end
-
-_VermilionOldRodHouseFishingGuruFishingIsAWayOfLifeText::
-	text_start
-
-	para "Fishing is a way"
-	line "of life!"
-
-	para "From the seas to"
-	line "rivers, go out"
-	cont "and land the big"
-	cont "one, young one!"
-	done
 
 _VermilionOldRodHouseFishingGuruThatsSoDisappointingText::
 	text "Oh... That's so"
@@ -45,6 +34,18 @@ _VermilionOldRodHouseFishingGuruHowAreTheFishBitingText::
 
 	para "How are the fish"
 	line "biting?"
+
+	para "That GOOD ROD I"
+	line "gave you is a"
+	cont "reliable piece!"
+
+	para "Try using it"
+	line "in lakes or"
+	cont "the ocean."
+
+	para "It can hook lots"
+	line "of different"
+	cont "#MON!"
 	done
 
 _VermilionOldRodHouseFishingGuruNoRoomText::

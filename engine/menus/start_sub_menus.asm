@@ -2,7 +2,7 @@ StartMenu_Pokedex::
 	predef ShowPokedexMenu
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
 	call Delay3
-	call LoadGBPal
+	;call LoadGBPal ; shinpokerednote: gbcnote: moved to redisplaystartmenu for better visual effect
 	call UpdateSprites
 	jp RedisplayStartMenu
 
@@ -26,7 +26,7 @@ StartMenu_Pokemon::
 .exitMenu
 	call GBPalWhiteOutWithDelay3
 	call RestoreScreenTilesAndReloadTilePatterns
-	call LoadGBPal
+	;call LoadGBPal ; shinpokerednote: gbcnote: moved to redisplaystartmenu for better visual effect
 	jp RedisplayStartMenu
 .chosePokemon
 	call SaveScreenTilesToBuffer1
@@ -97,8 +97,7 @@ StartMenu_Pokemon::
 	call ClearSprites
 	xor a ; PLAYER_PARTY_DATA
 	ld [wMonDataLocation], a
-	predef StatusScreen
-	predef StatusScreen2
+	predef StatusScreenLoop
 	call ReloadMapData
 	jp StartMenu_Pokemon
 .choseOutOfBattleMove
@@ -123,7 +122,6 @@ StartMenu_Pokemon::
 	dw .cut
 	dw .fly
 	dw .surf
-	dw .surf
 	dw .strength
 	dw .flash
 	dw .dig
@@ -132,23 +130,26 @@ StartMenu_Pokemon::
 .fly
 	bit BIT_THUNDERBADGE, a
 	jp z, .newBadgeRequired
-	call CheckIfInOutsideMap
+	call CheckIfInFlyMap ; PureRGBnote: CHANGED: you can FLY from more places than vanilla game.
 	jr z, .canFly
 	ld a, [wWhichPokemon]
 	ld hl, wPartyMonNicks
 	call GetPartyMonName
 	ld hl, .cannotFlyHereText
-	call PrintText
+	rst _PrintText
 	jp .loop
 .canFly
 	call ChooseFlyDestination
 	ld a, [wd732]
 	bit 3, a ; did the player decide to fly?
-	jp nz, .goBackToMap
+	jr nz, .doFly
 	call LoadFontTilePatterns
 	ld hl, wd72e
 	set 1, [hl]
 	jp StartMenu_Pokemon
+.doFly
+	callfar ClearSafariFlags ; PureRGBnote: CHANGED: safari zone stuff is cleared when initiating fly
+	jp .goBackToMap
 .cut
 	bit BIT_CASCADEBADGE, a
 	jp z, .newBadgeRequired
@@ -186,7 +187,7 @@ StartMenu_Pokemon::
 	xor a
 	ld [wMapPalOffset], a
 	ld hl, .flashLightsAreaText
-	call PrintText
+	rst _PrintText
 	call GBPalWhiteOutWithDelay3
 	jp .goBackToMap
 .flashLightsAreaText
@@ -203,17 +204,17 @@ StartMenu_Pokemon::
 	call GBPalWhiteOutWithDelay3
 	jp .goBackToMap
 .teleport
-	call CheckIfInOutsideMap
-	jr z, .canTeleport
-	ld a, [wWhichPokemon]
-	ld hl, wPartyMonNicks
-	call GetPartyMonName
-	ld hl, .cannotUseTeleportNowText
-	call PrintText
-	jp .loop
+	;call CheckIfInOutsideMap ; PureRGBnote: CHANGED: teleport can be used anywhere.
+	jr .canTeleport
+	; ld a, [wWhichPokemon]
+	;ld hl, wPartyMonNicks
+	;call GetPartyMonName
+	;ld hl, .cannotUseTeleportNowText
+	;rst _PrintText
+	;jp .loop
 .canTeleport
 	ld hl, .warpToLastPokemonCenterText
-	call PrintText
+	rst _PrintText
 	ld hl, wd732
 	set 3, [hl]
 	set 6, [hl]
@@ -221,8 +222,9 @@ StartMenu_Pokemon::
 	set 1, [hl]
 	res 4, [hl]
 	ld c, 60
-	call DelayFrames
+	rst _DelayFrames
 	call GBPalWhiteOutWithDelay3
+	callfar ClearSafariFlags ; PureRGBnote: CHANGED: when teleporting, safari stuff is cleared.
 	jp .goBackToMap
 .warpToLastPokemonCenterText
 	text_far _WarpToLastPokemonCenterText
@@ -267,7 +269,7 @@ StartMenu_Pokemon::
 	jp .loop
 .notHealthyEnough ; if current HP is less than 1/5 of max HP
 	ld hl, .notHealthyEnoughText
-	call PrintText
+	rst _PrintText
 	jp .loop
 .notHealthyEnoughText
 	text_far _NotHealthyEnoughText
@@ -277,7 +279,7 @@ StartMenu_Pokemon::
 	jp CloseTextDisplay
 .newBadgeRequired
 	ld hl, .newBadgeRequiredText
-	call PrintText
+	rst _PrintText
 	jp .loop
 .newBadgeRequiredText
 	text_far _NewBadgeRequiredText
@@ -300,11 +302,13 @@ ItemMenuLoop:
 	call RunDefaultPaletteCommand
 
 StartMenu_Item::
+	ld a, 1
+	ld [wListMenuHoverTextType], a ; PureRGBnote: ADDED: we want TM names to get printed in this list menu
 	ld a, [wLinkState]
 	dec a ; is the player in the Colosseum or Trade Centre?
 	jr nz, .notInCableClubRoom
 	ld hl, CannotUseItemsHereText
-	call PrintText
+	rst _PrintText
 	jr .exitMenu
 .notInCableClubRoom
 	ld bc, wNumBagItems
@@ -316,19 +320,31 @@ StartMenu_Item::
 	ld [wPrintItemPrices], a
 	ld a, ITEMLISTMENU
 	ld [wListMenuID], a
-	ld a, [wBagSavedMenuItem]
-	ld [wCurrentMenuItem], a
+	call CheckLoadSavedIndex ; PureRGBnote: CHANGED: we can save the position in the item menu in multiple ways now
 	call DisplayListMenuID
 	ld a, [wCurrentMenuItem]
 	ld [wBagSavedMenuItem], a
 	jr nc, .choseItem
 .exitMenu
+	xor a
+	ld [wListMenuHoverTextType], a ; PureRGBnote: ADDED: done with the item list interaction, so no TM names need to be printed anymore
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
 	call LoadTextBoxTilePatterns
 	call UpdateSprites
 	jp RedisplayStartMenu
 .choseItem
-; erase menu cursor (blank each tile in front of an item name)
+;;;;;;;;;; PureRGBnote: ADDED: code to facilitate depositing an item from the item menu directly to PC. 
+;;;;;;;;;;                     wUnusedC000 is set when we pressed start in the item list.
+	ld a, [wUnusedC000]
+	and a
+	jr z, .noStartButton
+	callfar DepositItemFromItemMenu
+	xor a
+	ld [wUnusedC000], a
+	jp ItemMenuLoop
+.noStartButton
+;;;;;;;;;;
+; erase menu cursor (blank each tile in front of an item name) 
 	ld a, " "
 	ldcoord_a 5, 4
 	ldcoord_a 5, 6
@@ -340,7 +356,11 @@ StartMenu_Item::
 	ld a, [wcf91]
 	cp BICYCLE
 	jp z, .useOrTossItem
+	cp POCKET_ABRA
+	jp z, .useOrTossItem ; PureRGBnote: ADDED: Pocket Abra doesn't bring up Use/toss dialog before usage
 .notBicycle1
+	xor a
+	ld [wListMenuHoverTextType], a ; PureRGBnote: ADDED: done with the item list interaction, so no TM names need to be printed anymore
 	ld a, USE_TOSS_MENU_TEMPLATE
 	ld [wTextBoxID], a
 	call DisplayTextBoxID
@@ -370,12 +390,20 @@ StartMenu_Item::
 	call CopyToStringBuffer
 	ld a, [wcf91]
 	cp BICYCLE
-	jr nz, .notBicycle2
+;;;;;;;;;; PureRGBnote: ADDED: pocket abra closes the item menu after usage.
+	jr z, .yesBicycle
+	cp POCKET_ABRA
+	jr z, .pocketAbra
+	jr .notBicycle2
+.pocketAbra
+	jr .useItem_closeMenu
+.yesBicycle
+;;;;;;;;;;
 	ld a, [wd732]
 	bit 5, a
 	jr z, .useItem_closeMenu
 	ld hl, CannotGetOffHereText
-	call PrintText
+	rst _PrintText
 	jp ItemMenuLoop
 .notBicycle2
 	ld a, [wCurrentMenuItem]
@@ -395,20 +423,22 @@ StartMenu_Item::
 	ld de, 1
 	call IsInArray
 	jr c, .useItem_partyMenu
-	call UseItem
+	call UseItemWithIndexBackup
 	jp ItemMenuLoop
 .useItem_closeMenu
 	xor a
 	ld [wPseudoItemID], a
-	call UseItem
+	call UseItemWithIndexBackup
 	ld a, [wActionResultOrTookBattleTurn]
 	and a
 	jp z, ItemMenuLoop
+	xor a
+	ld [wListMenuHoverTextType], a ; PureRGBnote: ADDED: done with the item list interaction, so no TM names need to be printed anymore
 	jp CloseStartMenu
 .useItem_partyMenu
 	ld a, [wUpdateSpritesEnabled]
 	push af
-	call UseItem
+	call UseItemWithIndexBackup
 	ld a, [wActionResultOrTookBattleTurn]
 	cp $02
 	jp z, .partyMenuNotDisplayed
@@ -433,10 +463,36 @@ StartMenu_Item::
 	inc a
 	jr z, .tossZeroItems
 .skipAskingQuantity
+	call ItemMenuBackupItemIndex
 	ld hl, wNumBagItems
 	call TossItem
+	call ItemMenuRestoreItemIndex
 .tossZeroItems
 	jp ItemMenuLoop
+
+UseItemWithIndexBackup:
+	call ItemMenuBackupItemIndex
+	call UseItem
+	call ItemMenuRestoreItemIndex
+	ret
+
+ItemMenuBackupItemIndex:
+	pop hl
+	ld a, [wBagSavedMenuItem]
+	push af
+	ld a, [wListScrollOffset]
+	push af
+	push hl
+	ret
+
+ItemMenuRestoreItemIndex:
+	pop hl
+	pop af
+	ld [wListScrollOffset], a
+	pop af
+	ld [wBagSavedMenuItem], a
+	push hl
+	ret
 
 CannotUseItemsHereText:
 	text_far _CannotUseItemsHereText
@@ -469,7 +525,7 @@ StartMenu_TrainerInfo::
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
 	call RunDefaultPaletteCommand
 	call ReloadMapData
-	call LoadGBPal
+	;call LoadGBPal ; shinpokerednote: gbcnote: moved to redisplaystartmenu for better visual effect
 	pop af
 	ldh [hTileAnimations], a
 	jp RedisplayStartMenu
@@ -488,7 +544,7 @@ DrawTrainerInfo:
 	ld hl, vChars2 tile $07
 	ld de, vChars2 tile $00
 	ld bc, $1c tiles
-	call CopyData
+	rst _CopyData
 	ld hl, TrainerInfoTextBoxTileGraphics ; trainer info text box tile patterns
 	ld de, vChars2 tile $77
 	ld bc, 8 tiles
@@ -649,6 +705,8 @@ StartMenu_SaveReset::
 StartMenu_Option::
 	xor a
 	ldh [hAutoBGTransferEnabled], a
+	ld [wOptionsCancelCursorX], a
+	ld [wTopMenuItemY], a
 	call ClearScreen
 	call UpdateSprites
 	callfar DisplayOptionMenu
@@ -658,12 +716,53 @@ StartMenu_Option::
 	jp RedisplayStartMenu
 
 SwitchPartyMon::
+	;mechanicalpennote: ADDED: make sure the animation is reset.
+	push bc
+	callfar ResetPartyAnimation
+	pop bc
+	; then swap
 	call SwitchPartyMon_InitVarOrSwapData ; swap data
 	ld a, [wSwappedMenuItem]
 	call SwitchPartyMon_ClearGfx
 	ld a, [wCurrentMenuItem]
 	call SwitchPartyMon_ClearGfx
+	call SwapPartyMonIcons
 	jp RedrawPartyMenu_
+
+; mechanicalpennote: ADDED: new code to swap pokemon icons when swapping pokemon on the party menu
+SwapPartyMonIcons:
+	ld a, [wSwappedMenuItem]
+	ld hl, wShadowOAM
+	ld bc, 16
+	call AddNTimes ; add bc to hl, a times
+	inc hl ; add 2 to hl for tileid.
+	inc hl
+	push hl
+	pop de
+	ld a, [wCurrentMenuItem]
+	ld hl, wShadowOAM
+	ld bc, 16
+	call AddNTimes ; add bc to hl, a times
+	inc hl ; add 2 to hl for tileid.
+	inc hl
+	ld c, 4 ; four tiles
+.swapMonOAMLoop
+	ld a, [hl]
+	ldh [hDividend], a ;hSwapTemp
+	ld a, [de]
+	ld [hl], a
+	ldh a, [hDividend] ;hSwapTemp
+	ld [de], a
+	ld a, 4 ; add 4 to get to the next tiles.
+rept 4
+	inc hl
+endr
+rept 4
+	inc de
+endr
+	dec c
+	jr nz, .swapMonOAMLoop
+	ret
 
 SwitchPartyMon_ClearGfx:
 	push af
@@ -749,7 +848,7 @@ SwitchPartyMon_InitVarOrSwapData:
 	push hl
 	ld de, wSwitchPartyMonTempBuffer
 	ld bc, wPartyMon2 - wPartyMon1
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMons
 	ld bc, wPartyMon2 - wPartyMon1
 	ld a, [wMenuItemToSwap]
@@ -757,47 +856,47 @@ SwitchPartyMon_InitVarOrSwapData:
 	pop de
 	push hl
 	ld bc, wPartyMon2 - wPartyMon1
-	call CopyData
+	rst _CopyData
 	pop de
 	ld hl, wSwitchPartyMonTempBuffer
 	ld bc, wPartyMon2 - wPartyMon1
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMonOT
 	ld a, [wCurrentMenuItem]
 	call SkipFixedLengthTextEntries
 	push hl
 	ld de, wSwitchPartyMonTempBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMonOT
 	ld a, [wMenuItemToSwap]
 	call SkipFixedLengthTextEntries
 	pop de
 	push hl
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop de
 	ld hl, wSwitchPartyMonTempBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMonNicks
 	ld a, [wCurrentMenuItem]
 	call SkipFixedLengthTextEntries
 	push hl
 	ld de, wSwitchPartyMonTempBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMonNicks
 	ld a, [wMenuItemToSwap]
 	call SkipFixedLengthTextEntries
 	pop de
 	push hl
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop de
 	ld hl, wSwitchPartyMonTempBuffer
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld a, [wMenuItemToSwap]
 	ld [wSwappedMenuItem], a
 	xor a
@@ -806,3 +905,55 @@ SwitchPartyMon_InitVarOrSwapData:
 	pop de
 	pop hl
 	ret
+
+; PureRGBnote: ADDED: when fishing we can save the item list offset in a more permanent manner
+;                     so the fishing rod can be quickly reselected after battling a pokemon during fishing
+CheckLoadSavedIndex:
+	ld a, [wBagSavedMenuItem]
+	and a
+	jr nz, .done
+	ld a, [wListScrollOffset]
+	and a
+	jr nz, .default
+	; try loading the fishing item offset if we don't have any offsets saved
+	ld a, [wSavedFishingItemOffset]
+	ld [wListScrollOffset], a
+	xor a
+	ld [wSavedFishingItemOffset], a
+	ld a, [wSavedFishingItem]
+	push bc
+	ld b, a
+	xor a
+	ld [wSavedFishingItem], a
+	ld a, b
+	pop bc
+	jr .done
+.default
+	ld a, [wBagSavedMenuItem]	
+.done	
+	ld [wCurrentMenuItem], a
+	ret
+
+; PureRGBnote: ADDED: when pressing SELECT on the start menu over the SAVE option, we can change boxes whenever we want.
+StartMenu_SelectPressed::
+	ld a, [wCurrentMenuItem]
+	ld [wBattleAndStartSavedMenuItem], a ; save current menu selection
+	ld a, [wMapTextPtr]
+	ld b, a
+	ld a, [wMapTextPtr + 1]
+	ld c, a
+	push bc ; save the current maptextptr for later because that property can be modified by changing boxes
+	call SaveScreenTilesToBuffer2 ; copy background from wTileMap to wTileMapBackup2
+	callfar LoadBillsPCExtraTiles
+	farcall ChangeBox
+	call LoadScreenTilesFromBuffer2 ; restore saved screen
+	call Delay3 ; allow the old screen to load before putting back the textbox tile patterns
+	call LoadTextBoxTilePatterns
+	call UpdateSprites
+	pop bc ; recover the original maptextptr in case we changed the value by changing boxes
+	ld a, b
+	ld [wMapTextPtr], a 
+	ld a, c
+	ld [wMapTextPtr + 1], a
+.done
+	jp RedisplayStartMenu

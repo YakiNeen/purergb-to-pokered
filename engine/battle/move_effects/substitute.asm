@@ -1,6 +1,6 @@
 SubstituteEffect_:
 	ld c, 50
-	call DelayFrames
+	rst _DelayFrames
 	ld hl, wBattleMonMaxHP
 	ld de, wPlayerSubstituteHP
 	ld bc, wPlayerBattleStatus2
@@ -37,9 +37,17 @@ SubstituteEffect_:
 	sbc 0
 	pop bc
 	jr c, .notEnoughHP ; underflow means user would be left with negative health
-                           ; bug: since it only branches on carry, it will possibly leave user with 0 HP
-.userHasZeroOrMoreHP
-	ldi [hl], a ; save resulting HP after subtraction into current HP
+    ; bug: since it only branches on carry, it will possibly leave user with 0 HP 
+;;;;;;;;;; PureRGBnote: FIXED: will set to 1 when at 0 health after subtraction
+	jr nz, .userHasEnoughHP
+	inc d
+	dec d
+	jr nz, .userHasEnoughHP ; if d didn't set the zero flag by those two operations, it's not zero
+	; user has 0 HP after subtraction - set it to 1 instead
+	inc d
+.userHasEnoughHP
+;;;;;;;;;;
+	ld [hli], a ; save resulting HP after subtraction into current HP
 	ld [hl], d
 	ld h, b
 	ld l, c
@@ -52,9 +60,9 @@ SubstituteEffect_:
 	ld hl, AnimationSubstitute
 	ld b, BANK(AnimationSubstitute)
 .animationEnabled
-	call Bankswitch ; jump to routine depending on animation setting
+	rst _Bankswitch ; jump to routine depending on animation setting
 	ld hl, SubstituteText
-	call PrintText
+	rst _PrintText
 	jpfar DrawHUDsAndHPBars
 .alreadyHasSubstitute
 	ld hl, HasSubstituteText

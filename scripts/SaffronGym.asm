@@ -1,8 +1,4 @@
 SaffronGym_Script:
-	ld hl, wCurrentMapScriptFlags
-	bit 6, [hl]
-	res 6, [hl]
-	call nz, .LoadNames
 	call EnableAutoTextBoxDrawing
 	ld hl, SaffronGymTrainerHeaders
 	ld de, SaffronGym_ScriptPointers
@@ -10,17 +6,6 @@ SaffronGym_Script:
 	call ExecuteCurMapScriptInTable
 	ld [wSaffronGymCurScript], a
 	ret
-
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "SAFFRON CITY@"
-
-.LeaderName:
-	db "SABRINA@"
 
 SaffronGymResetScripts:
 	xor a ; SCRIPT_SAFFRONGYM_DEFAULT
@@ -48,7 +33,7 @@ SaffronGymSabrinaReceiveTM46Script:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_SABRINA
-	lb bc, TM_PSYWAVE, 1
+	lb bc, TM_SABRINA, 1
 	call GiveItem
 	jr nc, .BagFull
 	ld a, TEXT_SAFFRONGYM_SABRINA_RECEIVED_TM46
@@ -115,11 +100,11 @@ SaffronGymSabrinaText:
 	jr .done
 .afterBeat
 	ld hl, .PostBattleAdviceText
-	call PrintText
+	rst _PrintText
 	jr .done
 .beforeBeat
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -135,7 +120,7 @@ SaffronGymSabrinaText:
 	ld a, SCRIPT_SAFFRONGYM_SABRINA_POST_BATTLE
 	ld [wSaffronGymCurScript], a
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _SaffronGymSabrinaText
@@ -169,63 +154,115 @@ SaffronGymChanneler1Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymYoungster1Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymChanneler2Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymYoungster2Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymChanneler3Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymYoungster3Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SaffronGymYoungster4Text:
 	text_asm
 	ld hl, SaffronGymTrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
-SaffronGymGymGuideText:
+SaffronGymGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	CheckEvent EVENT_BEAT_SABRINA
 	jr nz, .afterBeat
-	ld hl, .ChampInMakingText
-	call PrintText
+	ld hl, SaffronGymGuideChampInMakingText
+	rst _PrintText
 	jr .done
 .afterBeat
-	ld hl, .BeatSabrinaText
-	call PrintText
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS ; have to hear about apex chips to receive them after that
+	jr z, .donePrompt
+	ld hl, SaffronGymGuideBeatSabrinaTextPrompt
+	rst _PrintText
+	CheckEvent EVENT_GOT_SAFFRON_APEX_CHIPS
+	jr nz, .alreadyApexChips
+.giveApexChips
+	ld hl, GymGuideMoreApexChipText6
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsText6
+	rst _PrintText
+	ld hl, SaffronGymGuideApexChipPsychicText
+	rst _PrintText
+	SetEvent EVENT_GOT_SAFFRON_APEX_CHIPS
+.alreadyApexChips
+	ld hl, AlreadyReceivedApexChipsText6
+	rst _PrintText
+	jr .done
+.BagFull
+	ld hl, ApexNoRoomText6
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
+.donePrompt
+	ld hl, SaffronGymGuideBeatSabrinaText
+	rst _PrintText
+	jr .done
 
-.ChampInMakingText:
+ReceivedApexChipsText6:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_end
+
+ApexNoRoomText6:
+	text_far _PewterGymTM34NoRoomText
+	text_end
+
+GymGuideMoreApexChipText6:
+	text_far _GymGuideMoreApexChipText
+	text_end
+
+AlreadyReceivedApexChipsText6:
+	text_far _AlreadyReceivedApexChipsText
+	text_end
+
+SaffronGymGuideApexChipPsychicText:
+	text_far _SaffronGymGuideApexChipPsychicText
+	text_end
+
+SaffronGymGuideChampInMakingText:
 	text_far _SaffronGymGuideChampInMakingText
 	text_end
 
-.BeatSabrinaText:
+SaffronGymGuideBeatSabrinaText:
 	text_far _SaffronGymGuideBeatSabrinaText
+	text_end
+
+SaffronGymGuideBeatSabrinaTextPrompt:
+	text_far _SaffronGymGuideBeatSabrinaText
+	text_promptbutton
 	text_end
 
 SaffronGymChanneler1BattleText:
@@ -249,7 +286,23 @@ SaffronGymYoungster1EndBattleText:
 	text_end
 
 SaffronGymYoungster1AfterBattleText:
+	text_asm
+	ld a, [wOptions3]
+	bit BIT_GHOST_PSYCHIC, a
+	ld hl, .onlyBugText
+	jr nz, .print
+	ld hl, .bugAndGhostText
+.print
+	rst _PrintText
+	rst TextScriptEnd
+.onlyBugText
 	text_far _SaffronGymYoungster1AfterBattleText
+	text_far _ExclamationPointText
+	text_end
+.bugAndGhostText
+	text_far _SaffronGymYoungster1AfterBattleText
+	text_promptbutton
+	text_far _SaffronGymYoungster1AfterBattleText3
 	text_end
 
 SaffronGymChanneler2BattleText:

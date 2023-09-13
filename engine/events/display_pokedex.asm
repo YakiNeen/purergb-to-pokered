@@ -1,3 +1,4 @@
+; Note: don't try to display missingno with this
 _DisplayPokedex::
 	ld hl, wd730
 	set 6, [hl]
@@ -6,7 +7,7 @@ _DisplayPokedex::
 	res 6, [hl]
 	call ReloadMapData
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	predef IndexToPokedex
 	ld a, [wd11e]
 	dec a

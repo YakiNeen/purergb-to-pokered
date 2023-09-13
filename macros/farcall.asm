@@ -1,13 +1,13 @@
 MACRO farcall
 	ld b, BANK(\1)
 	ld hl, \1
-	call Bankswitch
+	rst _Bankswitch ; pureRGBnote: CHANGED: using a rst vector here saves a bunch of space
 ENDM
 
 MACRO callfar
 	ld hl, \1
 	ld b, BANK(\1)
-	call Bankswitch
+	rst _Bankswitch ; pureRGBnote: CHANGED: using a rst vector here saves a bunch of space
 ENDM
 
 MACRO farjp
@@ -20,6 +20,12 @@ MACRO jpfar
 	ld hl, \1
 	ld b, BANK(\1)
 	jp Bankswitch
+ENDM
+
+MACRO callbs	; shinpokerednote: audionote: added from pokeyellow
+	ld a, BANK(\1)
+	call BankswitchCommon
+	call \1
 ENDM
 
 MACRO homecall

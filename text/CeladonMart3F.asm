@@ -15,10 +15,18 @@ _CeladonMart3FClerkReceivedTM18Text::
 	text_end
 
 _CeladonMart3FClerkTM18ExplanationText::
-	text "TM18 is COUNTER!"
-	line "Not like the one"
-	cont "I'm leaning on,"
-	cont "mind you!"
+	text "TM35 is AGILITY!"
+	para "Use speed to your"
+	line "advantage!"
+	para "If you go first,"
+	line "you can control"
+	cont "what happens in"
+	cont "battle easily!"
+	para "Trust me, I know"
+	line "how things work!"
+	para "That's why I'm"
+	line "the one behind"
+	cont "this counter!"
 	done
 
 _CeladonMart3FClerkTM18NoRoomText::
@@ -94,6 +102,39 @@ _CeladonMart3FCurrentFloorSignText::
 	done
 
 _CeladonMart3FPokemonPosterText::
-	text "Red and Blue!"
-	line "Both are #MON!"
+	text "Red, Blue, and"
+	line "Green!"
+	cont "All are #MON!"
+	done
+
+_CeladonMartTMKidFlavor::
+	text "My dad got kicked"
+	line "out of CELADON"
+	cont "GYM! How funny is"
+	cont "that!"
+
+	para "They said men"
+	line "aren't allowed to"
+	cont "loiter inside!"
+
+	para "Now he's goofing"
+	line "off at the GAME"
+	cont "CORNER."
+
+	para "For once the"
+	line "MART here has TMs"
+	cont "so I'm not selling"
+	cont "any of my own!"
+
+	para "I think I'll use"
+	line "some of the cash"
+	cont "I made selling"
+	cont "TMs to buy a"
+	cont "GAME BOY COLOR."
+	
+	para "I heard that"
+	line "WARIO LAND 3 is"
+	cont "the best game!"
+	
+	para "Catch you later!"
 	done

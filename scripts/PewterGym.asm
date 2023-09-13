@@ -1,8 +1,4 @@
 PewterGym_Script:
-	ld hl, wCurrentMapScriptFlags
-	bit 6, [hl]
-	res 6, [hl]
-	call nz, .LoadNames
 	call EnableAutoTextBoxDrawing
 	ld hl, PewterGymTrainerHeaders
 	ld de, PewterGym_ScriptPointers
@@ -10,17 +6,6 @@ PewterGym_Script:
 	call ExecuteCurMapScriptInTable
 	ld [wPewterGymCurScript], a
 	ret
-
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "PEWTER CITY@"
-
-.LeaderName:
-	db "BROCK@"
 
 PewterGymResetScripts:
 	xor a
@@ -48,7 +33,7 @@ PewterGymScriptReceiveTM34:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_BROCK
-	lb bc, TM_BIDE, 1
+	lb bc, TM_BROCK, 1
 	call GiveItem
 	jr nc, .BagFull
 	ld a, TEXT_PEWTERGYM_RECEIVED_TM34
@@ -106,11 +91,11 @@ PewterGymBrockText:
 	jr .done
 .afterBeat
 	ld hl, .PostBattleAdviceText
-	call PrintText
+	rst _PrintText
 	jr .done
 .beforeBeat
 	ld hl, .PreBattleText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -129,7 +114,7 @@ PewterGymBrockText:
 	ld [wPewterGymCurScript], a
 	ld [wCurMapScript], a
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .PreBattleText:
 	text_far _PewterGymBrockPreBattleText
@@ -163,7 +148,7 @@ PewterGymCooltrainerMText:
 	text_asm
 	ld hl, PewterGymTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PewterGymCooltrainerMBattleText:
 	text_far _PewterGymCooltrainerMBattleText
@@ -177,32 +162,50 @@ PewterGymCooltrainerMAfterBattleText:
 	text_far _PewterGymCooltrainerMAfterBattleText
 	text_end
 
-PewterGymGuideText:
+PewterGymGuideText: ; PureRGBnote: ADDED: gym guide gives you apex chips after beating the leader
 	text_asm
 	ld a, [wBeatGymFlags]
 	bit BIT_BOULDERBADGE, a
 	jr nz, .afterBeat
 	ld hl, PewterGymGuidePreAdviceText
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
 	jr nz, .PewterGymGuideBeginAdviceText
 	ld hl, PewterGymGuideBeginAdviceText
-	call PrintText
+	rst _PrintText
 	jr .PewterGymGuideAdviceText
 .PewterGymGuideBeginAdviceText
 	ld hl, PewterGymGuideFreeServiceText
-	call PrintText
+	rst _PrintText
 .PewterGymGuideAdviceText
 	ld hl, PewterGymGuideAdviceText
-	call PrintText
+	rst _PrintText
 	jr .done
 .afterBeat
 	ld hl, PewterGymGuidePostBattleText
-	call PrintText
+	rst _PrintText
+	CheckEvent EVENT_GOT_PEWTER_APEX_CHIPS
+	jr nz, .alreadyApexChips
+.giveApexChips
+	ld hl, PewterGymGuideApexChipText
+	rst _PrintText
+	lb bc, APEX_CHIP, 2
+	call GiveItem
+	jr nc, .BagFull
+	ld hl, ReceivedApexChipsTextPewter
+	rst _PrintText
+	SetEvent EVENT_GOT_PEWTER_APEX_CHIPS
+.alreadyApexChips
+	ld hl, AlreadyReceivedApexChipsText
+	rst _PrintText
+	jr .done
+.BagFull
+	ld hl, PewterGymTM34NoRoomText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PewterGymGuidePreAdviceText:
 	text_far _PewterGymGuidePreAdviceText
@@ -222,4 +225,18 @@ PewterGymGuideFreeServiceText:
 
 PewterGymGuidePostBattleText:
 	text_far _PewterGymGuidePostBattleText
+	text_end
+
+PewterGymGuideApexChipText:
+	text_far _PewterGymGuideApexChipText
+	text_end
+
+ReceivedApexChipsTextPewter:
+	text_far _ReceivedApexChipsText
+	sound_get_item_1
+	text_far _ApexChipExplanationText
+	text_end
+
+AlreadyReceivedApexChipsText:
+	text_far _AlreadyReceivedApexChipsText
 	text_end

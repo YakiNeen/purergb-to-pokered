@@ -33,6 +33,10 @@ PokemonTower6FDefaultScript:
 	ld a, TEXT_POKEMONTOWER6F_BEGONE
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak uses a special color palette if the feature is enabled
+	ld a, 1
+	ld [wIsAltPalettePkmnData], a
+;;;;;;;;;;
 	ld a, RESTLESS_SOUL
 	ld [wCurOpponent], a
 	ld a, 30
@@ -58,16 +62,20 @@ PokemonTower6FMarowakBattleScript:
 	call UpdateSprites
 	ld a, D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak can be caught and the event will complete if you do so
+	CheckEvent EVENT_CAUGHT_GHOST_MAROWAK
+	jr nz, .success 
+;;;;;;;;;;
 	ld a, [wBattleResult]
 	and a
 	jr nz, .did_not_defeat
+.success
 	SetEvent EVENT_BEAT_GHOST_MAROWAK
 	ld a, TEXT_POKEMONTOWER6F_MAROWAK_DEPARTED
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
-	xor a
+	xor a ; same as SCRIPT_POKEMONTOWER6F_DEFAULT
 	ld [wJoyIgnore], a
-	ld a, SCRIPT_POKEMONTOWER6F_DEFAULT
 	ld [wPokemonTower6FCurScript], a
 	ld [wCurMapScript], a
 	ret
@@ -101,8 +109,8 @@ PokemonTower6F_TextPointers:
 	dw_const PokemonTower6FChanneler1Text,      TEXT_POKEMONTOWER6F_CHANNELER1
 	dw_const PokemonTower6FChanneler2Text,      TEXT_POKEMONTOWER6F_CHANNELER2
 	dw_const PokemonTower6FChanneler3Text,      TEXT_POKEMONTOWER6F_CHANNELER3
-	dw_const PickUpItemText,                    TEXT_POKEMONTOWER6F_RARE_CANDY
-	dw_const PickUpItemText,                    TEXT_POKEMONTOWER6F_X_ACCURACY
+	dw_const PickUpItemText,                    TEXT_POKEMONTOWER6F_ITEM1
+	dw_const PickUp2ItemText,                   TEXT_POKEMONTOWER6F_ITEM2
 	dw_const PokemonTower6FBeGoneText,          TEXT_POKEMONTOWER6F_BEGONE
 	dw_const PokemonTower6FMarowakDepartedText, TEXT_POKEMONTOWER6F_MAROWAK_DEPARTED
 
@@ -120,32 +128,42 @@ PokemonTower6FChanneler1Text:
 	text_asm
 	ld hl, PokemonTower6TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower6FChanneler2Text:
 	text_asm
 	ld hl, PokemonTower6TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower6FChanneler3Text:
 	text_asm
 	ld hl, PokemonTower6TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonTower6FMarowakDepartedText:
 	text_asm
 	ld hl, PokemonTower6FGhostWasCubonesMotherText
-	call PrintText
+	rst _PrintText
 	ld a, RESTLESS_SOUL
 	call PlayCry
 	call WaitForSoundToFinish
 	ld c, 30
-	call DelayFrames
+	rst _DelayFrames
 	ld hl, PokemonTower6FSoulWasCalmedText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak can be caught and the event will complete if you do so
+	CheckEvent EVENT_CAUGHT_GHOST_MAROWAK
+	jr nz, .caughtGhostMarowak
+	ld hl, PokemonTower2Text_toAfterlife
+	jr .done
+.caughtGhostMarowak
+	ld hl, PokemonTower2Text_CaughtGhostMarowak	
+.done
+	rst _PrintText
+;;;;;;;;;;
+	rst TextScriptEnd
 
 PokemonTower6FGhostWasCubonesMotherText:
 	text_far _PokemonTower6FGhostWasCubonesMotherText
@@ -154,6 +172,16 @@ PokemonTower6FGhostWasCubonesMotherText:
 PokemonTower6FSoulWasCalmedText:
 	text_far _PokemonTower6FSoulWasCalmedText
 	text_end
+
+;;;;;;;;;; PureRGBnote: ADDED: ghost marowak can be caught and the event will complete if you do so
+PokemonTower2Text_CaughtGhostMarowak:
+	text_far _PokemonTower2Text_Caught
+	text_end
+
+PokemonTower2Text_toAfterlife:
+	text_far _PokemonTower2Text_toAfterlife
+	text_end
+;;;;;;;;;;
 
 PokemonTower6FChanneler1BattleText:
 	text_far _PokemonTower6FChanneler1BattleText

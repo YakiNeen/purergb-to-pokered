@@ -131,11 +131,11 @@ _DexRatingText::
 	done
 
 _GymStatueText1::
-	text_ram wGymCityName
+	text_ram wStringBuffer
 	text_start
 	line "#MON GYM"
 	cont "LEADER: @"
-	text_ram wGymLeaderName
+	text_ram wcd6d
 	text_start
 
 	para "WINNING TRAINERS:"
@@ -143,11 +143,11 @@ _GymStatueText1::
 	done
 
 _GymStatueText2::
-	text_ram wGymCityName
+	text_ram wStringBuffer
 	text_start
 	line "#MON GYM"
 	cont "LEADER: @"
-	text_ram wGymLeaderName
+	text_ram wcd6d
 	text_start
 
 	para "WINNING TRAINERS:"
@@ -279,11 +279,6 @@ _CeladonCityHotelText::
 	line "on this vacation!"
 	done
 
-_BookcaseText::
-	text "Crammed full of"
-	line "#MON books!"
-	done
-
 _NewBicycleText::
 	text "A shiny new"
 	line "BICYCLE!"
@@ -318,6 +313,19 @@ _GameOverText::
 	line "GAME is over!"
 	done
 
+_RangerHuntSuccessText::
+	text "PA: <PLAYER>"
+	line "has defeated all"
+	cont "5 RANGERs!!"
+
+	para "Congratulations!"
+	done
+
+_CinnabarGymQuizStartText::
+	text "#MON Quiz!"
+	line "Here we go!"
+	prompt
+
 _CinnabarGymQuizIntroText::
 	text "#MON Quiz!"
 
@@ -338,39 +346,38 @@ _CinnabarGymQuizIntroText::
 	prompt
 
 _CinnabarQuizQuestionsText1::
-	text "CATERPIE evolves"
+	text "METAPOD evolves"
 	line "into BUTTERFREE?"
-	done
+	prompt
 
 _CinnabarQuizQuestionsText2::
-	text "There are 9"
+	text "Are there 9"
 	line "certified #MON"
 	cont "LEAGUE BADGEs?"
-	done
+	prompt
 
 _CinnabarQuizQuestionsText3::
-	text "POLIWAG evolves 3"
-	line "times?"
-	done
+	text "Does POLIWAG"
+	line "evolve 3 times?"
+	prompt
 
 _CinnabarQuizQuestionsText4::
-	text "Are thunder moves"
-	line "effective against"
-	cont "ground element-"
+	text "Are electric"
+	line "moves effective"
+	cont "against ground-"
 	cont "type #MON?"
-	done
+	prompt
 
 _CinnabarQuizQuestionsText5::
-	text "#MON of the"
-	line "same kind and"
-	cont "level are not"
-	cont "identical?"
-	done
+	text "Are #MON of the"
+	line "same species and"
+	cont "level identical?"
+	prompt
 
 _CinnabarQuizQuestionsText6::
 	text "TM28 contains"
 	line "TOMBSTONER?"
-	done
+	prompt
 
 _CinnabarGymQuizCorrectText::
 	text "You're absolutely"
@@ -491,6 +498,11 @@ _TurnPageText::
 
 _ViridianSchoolNotebookText5::
 	text "GIRL: Hey! Don't"
+	line "look at my notes!@"
+	text_end
+
+_ViridianSchoolNotebookTextGus::
+	text "GUS: Hey! Don't"
 	line "look at my notes!@"
 	text_end
 
@@ -653,6 +665,9 @@ _ViridianBlackboardSleepText::
 	line "attack if it's"
 	cont "asleep!"
 
+	para "It can wake up"
+	line "during battle."
+
 	para "#MON will stay"
 	line "asleep even after"
 	cont "battles."
@@ -678,6 +693,9 @@ _ViridianBlackboardPrlzText::
 	line "make #MON"
 	cont "moves misfire!"
 
+	para "It cuts SPEED"
+	line "stat as well."
+
 	para "Paralysis remains"
 	line "after battles."
 
@@ -687,7 +705,7 @@ _ViridianBlackboardPrlzText::
 
 _ViridianBlackboardBurnText::
 	text "A burn reduces"
-	line "power and speed."
+	line "the ATTACK stat."
 	cont "It also causes"
 	cont "ongoing damage."
 
@@ -755,6 +773,15 @@ _FoundHiddenItemText::
 	text "!@"
 	text_end
 
+_FoundHiddenItemMultiText::
+	text "<PLAYER> found"
+	line "@"
+	text_ram wcd6d
+	text " ×@"
+	text_ram wTempStore1
+	text "!@"
+	text_end
+
 _HiddenItemBagFullText::
 	text "But, <PLAYER> has"
 	line "no more room for"
@@ -797,6 +824,7 @@ _IndigoPlateauStatuesText3::
 	cont "#MON LEAGUE HQ"
 	done
 
+_BookcaseText::
 _PokemonBooksText::
 	text "Crammed full of"
 	line "#MON books!"
@@ -889,7 +917,7 @@ _UseNextMonText::
 	done
 
 _Rival1WinText::
-	text "<RIVAL>: Yeah! Am"
+	text "Yeah! Am"
 	line "I great or what?"
 	prompt
 
@@ -912,7 +940,7 @@ _TrainerAboutToUseText::
 	text_ram wTrainerName
 	text " is"
 	line "about to use"
-	cont "@"
+	cont"@"
 	text_ram wEnemyMonNick
 	text "!"
 
@@ -1079,12 +1107,7 @@ _MonName1Text::
 	text "<USER>@"
 	text_end
 
-_Used1Text::
-	text_start
-	line "used @"
-	text_end
-
-_Used2Text::
+_UsedText::
 	text_start
 	line "used @"
 	text_end
@@ -1098,23 +1121,7 @@ _MoveNameText::
 	text_ram wStringBuffer
 	text "@"
 
-_ExclamationPoint1Text::
-	text "!"
-	done
-
-_ExclamationPoint2Text::
-	text "!"
-	done
-
-_ExclamationPoint3Text::
-	text "!"
-	done
-
-_ExclamationPoint4Text::
-	text "!"
-	done
-
-_ExclamationPoint5Text::
+_ExclamationPointText::
 	text "!"
 	done
 
@@ -1357,6 +1364,11 @@ _WhichFloorText::
 	line "you want? "
 	done
 
+_AlreadyOnThatFloor::
+	text "Already on that"
+	line "floor."
+	prompt
+
 _PartyMenuNormalText::
 	text "Choose a #MON."
 	done
@@ -1379,6 +1391,10 @@ _PartyMenuUseTMText::
 _PartyMenuSwapMonText::
 	text "Move #MON"
 	line "where?"
+	done
+
+_PartyMenuEmptyText::
+	text " "
 	done
 
 _PotionText::
@@ -1480,6 +1496,15 @@ _WhatDoYouWantText::
 _WhatToDepositText::
 	text "What do you want"
 	line "to deposit?"
+	done
+
+_WantToDepositText::
+	text "Deposit to PC?"
+	done
+
+_DepositHowManyToPCText::
+	text "Deposit how many"
+	line "to PC?"
 	done
 
 _DepositHowManyText::
@@ -1609,7 +1634,7 @@ _OnceReleasedText::
 	text_ram wStringBuffer
 	text " is"
 	cont "gone forever. OK?"
-	done
+	prompt
 
 _MonWasReleasedText::
 	text_ram wStringBuffer
@@ -1619,6 +1644,11 @@ _MonWasReleasedText::
 	text_ram wStringBuffer
 	text "!"
 	prompt
+
+_PressStartToReleaseText::
+	text "Press START to"
+	line "confirm release.@"
+	text_end
 
 _RequireCoinCaseText::
 	text "A COIN CASE is"

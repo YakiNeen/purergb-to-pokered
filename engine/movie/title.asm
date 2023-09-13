@@ -126,6 +126,9 @@ ENDC
 IF DEF(_BLUE)
 	ld a, STARTER2 ; which Pokemon to show first on the title screen
 ENDC
+IF DEF(_GREEN)
+	ld a, STARTER3 ; PureRGBnote: GREENBUILD: which Pokemon to show first on the title screen 
+ENDC
 	ld [wTitleMonSpecies], a
 	call LoadTitleMonSprite
 
@@ -142,6 +145,13 @@ ENDC
 	call GBPalNormal
 	ld a, %11100100
 	ldh [rOBP0], a
+	call UpdateGBCPal_OBP0 ; shinpokerednote: gbcnote: gbc color code from yellow 
+
+	push de
+	ld d, CONVERT_BGP
+	ld e, 2
+	farcall TransferMonPal ; shinpokerednote: gbcnote: update the palette for the new title mon
+	pop de
 
 ; make pokemon logo bounce up and down
 	ld bc, hSCY ; background scroll Y
@@ -154,7 +164,7 @@ ENDC
 	cp -3
 	jr nz, .skipPlayingSound
 	ld a, SFX_INTRO_CRASH
-	call PlaySound
+	rst _PlaySound
 .skipPlayingSound
 	ld a, [hli]
 	ld e, a
@@ -175,7 +185,7 @@ ENDC
 .ScrollTitleScreenPokemonLogo:
 ; Scrolls the Pokemon logo on the title screen to create the bouncing effect
 ; Scrolls d pixels e times
-	call DelayFrame
+	rst _DelayFrame
 	ld a, [bc] ; background scroll Y
 	add d
 	ld [bc], a
@@ -186,9 +196,9 @@ ENDC
 .finishedBouncingPokemonLogo
 	call LoadScreenTilesFromBuffer1
 	ld c, 36
-	call DelayFrames
+	rst _DelayFrames
 	ld a, SFX_INTRO_WHOOSH
-	call PlaySound
+	rst _PlaySound
 
 ; scroll game version in from the right
 	call PrintGameVersionOnTitleScreen
@@ -216,9 +226,19 @@ ENDC
 	call WaitForSoundToFinish
 	ld a, MUSIC_TITLE_SCREEN
 	ld [wNewSoundID], a
-	call PlaySound
+	rst _PlaySound
 	xor a
 	ld [wUnusedCC5B], a
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; shinpokerednote: gbcnote: The tiles in the window need to be shifted so that the bottom
+;half of the title screen is in the top half of the window area.
+;This is accomplished by copying the tile map to vram at an offset.
+;The goal is to get the tile map for the bottom half of the title screen
+;resides in the BGMap1 address space (address $9c00).
+	ld a, (vBGMap0 + $300) / $100
+	call TitleScreenCopyTileMapToVRAM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Keep scrolling in new mons indefinitely until the user performs input.
 .awaitUserInterruptionLoop
@@ -286,6 +306,13 @@ TitleScreenPickNewMon:
 
 	ld [hl], a
 	call LoadTitleMonSprite
+;;;;;;;;;; shinpokerednote: gbcnote: update the palette for the new title mon
+	push de
+	ld d, CONVERT_BGP
+	ld e, 2
+	farcall TransferMonPal 
+	pop de
+;;;;;;;;;;
 
 	ld a, $90
 	ldh [hWY], a
@@ -296,19 +323,20 @@ TitleScreenPickNewMon:
 TitleScreenScrollInMon:
 	ld d, 0 ; scroll in
 	farcall TitleScroll
-	xor a
+	;xor a
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; shinpokerednote: gbcnote: The window normally covers the whole screen when picking a new title screen mon.
+;This is not desired since it applies BG pal 2 to the whole screen when on a gbc.
+;Instead, shift the window downwards by 40 tiles to just cover the version text and below.
+;This makes it so the map attributes for BGMap1 (address $9c00) are covering the bottom half 
+;of the screen.
+	ld a, $40
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	ldh [hWY], a
 	ret
 
 ScrollTitleScreenGameVersion:
-.wait
-	ldh a, [rLY]
-	cp l
-	jr nz, .wait
-
-	ld a, h
-	ldh [rSCX], a
-
+	predef BGLayerScrollingUpdate ; shinpokerednote: gbcnote: consolidated into a predef that also fixes some issues
 .wait2
 	ldh a, [rLY]
 	cp h
@@ -339,6 +367,16 @@ DrawPlayerCharacter:
 	ld e, a
 	ld a, [wPlayerCharacterOAMTile]
 	ld [hli], a ; tile
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; shinpokerednote: gbcnote: set the palette for the player tiles
+;These bits only work on the GBC
+	push af
+	ld a, [hl]	;Attributes/Flags
+	and %11111000
+	or  %00000010
+	ld [hl], a
+	pop af
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	inc a
 	ld [wPlayerCharacterOAMTile], a
 	inc hl
@@ -394,7 +432,11 @@ INCLUDE "data/pokemon/title_mons.asm"
 
 ; prints version text (red, blue)
 PrintGameVersionOnTitleScreen:
-	hlcoord 7, 8
+	IF DEF(_GREEN) ; PureRGBnote: GREENBUILD: version text needs to be slightly moved to the left due to the larger length
+		hlcoord 6, 8 
+	ELSE
+		hlcoord 7, 8
+	ENDC
 	ld de, VersionOnTitleScreenText
 	jp PlaceString
 
@@ -405,6 +447,9 @@ IF DEF(_RED)
 ENDC
 IF DEF(_BLUE)
 	db $61,$62,$63,$64,$65,$66,$67,$68,"@" ; "Blue Version"
+ENDC
+IF DEF(_GREEN) ; PureRGBnote: GREENBUILD: different title screen subtitle text for green version
+	db $62,$63,$64,$7F,$65,$66,$67,$68,$69,"@" ; "Green Version"
 ENDC
 
 DebugNewGamePlayerName:

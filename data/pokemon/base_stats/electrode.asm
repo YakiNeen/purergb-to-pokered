@@ -1,23 +1,44 @@
 	db DEX_ELECTRODE ; pokedex id
 
-	db  60,  50,  70, 140,  80
+	db  65,  50,  70, 135, 105
 	;   hp  atk  def  spd  spc
 
-	db ELECTRIC, ELECTRIC ; type
+	db ELECTRIC, FIRE ; type
 	db 60 ; catch rate
 	db 150 ; base exp
 
 	INCBIN "gfx/pokemon/front/electrode.pic", 0, 1 ; sprite dimensions
-	dw ElectrodePicFront, ElectrodePicBack
+	dw ElectrodePicFront, ElectrodePicBackSW
 
-	db TACKLE, SCREECH, SONICBOOM, NO_MOVE ; level 1 learnset
+	db TACKLE, THUNDERSHOCK, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm TOXIC,        TAKE_DOWN,    HYPER_BEAM,   RAGE,         THUNDERBOLT,  \
-	     THUNDER,      TELEPORT,     MIMIC,        DOUBLE_TEAM,  REFLECT,      \
-	     BIDE,         SELFDESTRUCT, SWIFT,        SKULL_BASH,   REST,         \
-	     THUNDER_WAVE, EXPLOSION,    SUBSTITUTE,   FLASH
+	tmhm \
+	TOXIC,\
+	BODY_SLAM,\
+	DOUBLE_EDGE,\
+	AURORA_BEAM,\
+	HYPER_BEAM,\
+	AMNESIA,\
+	BARRIER,\
+	THUNDERBOLT,\
+	THUNDER,\
+	CRABHAMMER,\
+	MEGA_DRAIN,\
+	KINESIS,\ ; FIREWALL
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	LIGHT_SCREEN,\
+	THUNDER_WAVE,\
+	GLARE,\
+	SUBSTITUTE,\
+	FLASH
 	; end
 
-	db 0 ; padding
+	dw BANK(ElectrodePicFront), BANK(ElectrodePicBack)
+
+	dw 1, ElectrodePicBack

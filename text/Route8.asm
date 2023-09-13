@@ -87,8 +87,8 @@ _Route8CooltrainerF2EndBattleText::
 	prompt
 
 _Route8CooltrainerF2AfterBattleText::
-	text "I think PIDGEY"
-	line "and RATTATA"
+	text "I think EEVEE"
+	line "and FARFETCH'D"
 	cont "are cute too!"
 	done
 
@@ -141,9 +141,8 @@ _Route8CooltrainerF4EndBattleText::
 	prompt
 
 _Route8CooltrainerF4AfterBattleText::
-	text "I heard that"
-	line "CLEFAIRY evolves"
-	cont "when it's exposed"
+	text "CLEFAIRY evolves"
+	line "when it's exposed"
 	cont "to a MOON STONE."
 	done
 

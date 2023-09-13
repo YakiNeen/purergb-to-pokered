@@ -23,9 +23,9 @@ SSAnneB1FRooms_TextPointers:
 	dw_const SSAnneB1FRoomsFisherText,    TEXT_SSANNEB1FROOMS_FISHER
 	dw_const SSAnneB1FRoomsSuperNerdText, TEXT_SSANNEB1FROOMS_SUPER_NERD
 	dw_const SSAnneB1FRoomsMachokeText,   TEXT_SSANNEB1FROOMS_MACHOKE
-	dw_const PickUpItemText,              TEXT_SSANNEB1FROOMS_ETHER
-	dw_const PickUpItemText,              TEXT_SSANNEB1FROOMS_TM_REST
-	dw_const PickUpItemText,              TEXT_SSANNEB1FROOMS_MAX_POTION
+	dw_const PickUp2ItemText,             TEXT_SSANNEB1FROOMS_ITEM1
+	dw_const PickUpItemText,              TEXT_SSANNEB1FROOMS_ITEM2
+	dw_const PickUpItemText,              TEXT_SSANNEB1FROOMS_ITEM3
 
 SSAnne10TrainerHeaders:
 	def_trainers
@@ -47,44 +47,44 @@ SSAnneB1FRoomsSailor1Text:
 	text_asm
 	ld hl, SSAnne10TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsSailor2Text:
 	text_asm
 	ld hl, SSAnne10TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsSailor3Text:
 	text_asm
 	ld hl, SSAnne10TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsSailor4Text:
 	text_asm
 	ld hl, SSAnne10TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsSailor5Text:
 	text_asm
 	ld hl, SSAnne10TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsFisherText:
 	text_asm
 	ld hl, SSAnne10TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsMachokeText:
 	text_far _SSAnneB1FRoomsMachokeText
 	text_asm
 	ld a, MACHOKE
 	call PlayCry
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SSAnneB1FRoomsSailor1BattleText:
 	text_far _SSAnneB1FRoomsSailor1BattleText

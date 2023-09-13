@@ -25,6 +25,7 @@ Route11_TextPointers:
 	dw_const Route11Youngster3Text,       TEXT_ROUTE11_YOUNGSTER3
 	dw_const Route11SuperNerd2Text,       TEXT_ROUTE11_SUPER_NERD2
 	dw_const Route11Youngster4Text,       TEXT_ROUTE11_YOUNGSTER4
+	dw_const PickUpItemText,              TEXT_ROUTE11_ITEM1 ; PureRGBnote: ADDED: new item in this location
 	dw_const Route11DiglettsCaveSignText, TEXT_ROUTE11_DIGLETTSCAVE_SIGN
 
 Route11TrainerHeaders:
@@ -55,7 +56,7 @@ Route11Gambler1Text:
 	text_asm
 	ld hl, Route11TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Gambler1BattleText:
 	text_far _Route11Gambler1BattleText
@@ -73,7 +74,7 @@ Route11Gambler2Text:
 	text_asm
 	ld hl, Route11TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Gambler2BattleText:
 	text_far _Route11Gambler2BattleText
@@ -91,7 +92,7 @@ Route11Youngster1Text:
 	text_asm
 	ld hl, Route11TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Youngster1BattleText:
 	text_far _Route11Youngster1BattleText
@@ -109,7 +110,7 @@ Route11SuperNerd1Text:
 	text_asm
 	ld hl, Route11TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11SuperNerd1BattleText:
 	text_far _Route11SuperNerd1BattleText
@@ -127,7 +128,7 @@ Route11Youngster2Text:
 	text_asm
 	ld hl, Route11TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Youngster2BattleText:
 	text_far _Route11Youngster2BattleText
@@ -145,7 +146,7 @@ Route11Gambler3Text:
 	text_asm
 	ld hl, Route11TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Gambler3BattleText:
 	text_far _Route11Gambler3BattleText
@@ -163,7 +164,7 @@ Route11Gambler4Text:
 	text_asm
 	ld hl, Route11TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Gambler4BattleText:
 	text_far _Route11Gambler4BattleText
@@ -181,7 +182,7 @@ Route11Youngster3Text:
 	text_asm
 	ld hl, Route11TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Youngster3BattleText:
 	text_far _Route11Youngster3BattleText
@@ -199,7 +200,7 @@ Route11SuperNerd2Text:
 	text_asm
 	ld hl, Route11TrainerHeader8
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11SuperNerd2BattleText:
 	text_far _Route11SuperNerd2BattleText
@@ -217,7 +218,7 @@ Route11Youngster4Text:
 	text_asm
 	ld hl, Route11TrainerHeader9
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route11Youngster4BattleText:
 	text_far _Route11Youngster4BattleText

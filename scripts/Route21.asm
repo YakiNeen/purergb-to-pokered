@@ -24,6 +24,7 @@ Route21_TextPointers:
 	dw_const Route21Swimmer5Text, TEXT_ROUTE21_SWIMMER5
 	dw_const Route21Fisher3Text,  TEXT_ROUTE21_FISHER3
 	dw_const Route21Fisher4Text,  TEXT_ROUTE21_FISHER4
+	dw_const PickUpItemText,      TEXT_ROUTE21_ITEM1 ; PureRGBnote: ADDED: new item on this route.
 
 Route21TrainerHeaders:
 	def_trainers
@@ -51,55 +52,55 @@ Route21Fisher1Text:
 	text_asm
 	ld hl, Route21TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Fisher2Text:
 	text_asm
 	ld hl, Route21TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Swimmer1Text:
 	text_asm
 	ld hl, Route21TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Swimmer2Text:
 	text_asm
 	ld hl, Route21TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Swimmer3Text:
 	text_asm
 	ld hl, Route21TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Swimmer4Text:
 	text_asm
 	ld hl, Route21TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Swimmer5Text:
 	text_asm
 	ld hl, Route21TrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Fisher3Text:
 	text_asm
 	ld hl, Route21TrainerHeader7
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Fisher4Text:
 	text_asm
 	ld hl, Route21TrainerHeader8
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route21Fisher1BattleText:
 	text_far _Route21Fisher1BattleText

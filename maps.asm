@@ -98,7 +98,7 @@ PewterNidoranHouse_Blocks:
 PewterSpeechHouse_Blocks:
 ViridianNicknameHouse_Blocks: INCBIN "maps/ViridianNicknameHouse.blk"
 
-CeladonMansionRoofHouse_Blocks:
+CeladonMansionRoofHouse_Blocks: INCBIN "maps/CeladonMansionRoofHouse.blk"
 ViridianSchoolHouse_Blocks: INCBIN "maps/ViridianSchoolHouse.blk"
 
 CeruleanTrashedHouse_Blocks: INCBIN "maps/CeruleanTrashedHouse.blk"
@@ -125,6 +125,11 @@ ViridianMart_Blocks: INCBIN "maps/ViridianMart.blk"
 INCLUDE "data/maps/headers/ViridianSchoolHouse.asm"
 INCLUDE "scripts/ViridianSchoolHouse.asm"
 INCLUDE "data/maps/objects/ViridianSchoolHouse.asm"
+
+INCLUDE "data/maps/headers/ViridianSchoolHouseB1F.asm"
+INCLUDE "scripts/ViridianSchoolHouseB1F.asm"
+INCLUDE "data/maps/objects/ViridianSchoolHouseB1F.asm"
+ViridianSchoolHouseB1F_Blocks: INCBIN "maps/ViridianSchoolHouseB1F.blk"
 
 INCLUDE "data/maps/headers/ViridianNicknameHouse.asm"
 	ds 1
@@ -244,6 +249,11 @@ INCLUDE "data/maps/headers/BillsHouse.asm"
 INCLUDE "scripts/BillsHouse.asm"
 INCLUDE "data/maps/objects/BillsHouse.asm"
 BillsHouse_Blocks: INCBIN "maps/BillsHouse.blk"
+
+INCLUDE "data/maps/headers/BillsGarden.asm"
+INCLUDE "scripts/BillsGarden.asm"
+INCLUDE "data/maps/objects/BillsGarden.asm"
+BillsGarden_Blocks: INCBIN "maps/BillsGarden.blk"
 
 
 SECTION "Maps 5", ROMX
@@ -651,6 +661,16 @@ INCLUDE "scripts/PokemonMansionB1F.asm"
 INCLUDE "data/maps/objects/PokemonMansionB1F.asm"
 PokemonMansionB1F_Blocks: INCBIN "maps/PokemonMansionB1F.blk"
 
+INCLUDE "data/maps/headers/SecretLab.asm"
+INCLUDE "scripts/SecretLab.asm"
+INCLUDE "data/maps/objects/SecretLab.asm"
+SecretLab_Blocks: INCBIN "maps/SecretLab.blk"
+
+INCLUDE "data/maps/headers/TypeGuysHouse.asm"
+INCLUDE "scripts/TypeGuysHouse.asm"
+INCLUDE "data/maps/objects/TypeGuysHouse.asm"
+TypeGuysHouse_Blocks: INCBIN "maps/TypeGuysHouse.blk"
+
 
 SECTION "Maps 11", ROMX
 
@@ -695,7 +715,7 @@ INCLUDE "data/maps/objects/Route21.asm"
 Route21_Blocks: INCBIN "maps/Route21.blk"
 
 VermilionOldRodHouse_Blocks:
-Route12SuperRodHouse_Blocks:
+Route12SuperRodHouse_Blocks: INCBIN "maps/RodHouse.blk"
 Daycare_Blocks: INCBIN "maps/Daycare.blk"
 
 FuchsiaGoodRodHouse_Blocks: INCBIN "maps/FuchsiaGoodRodHouse.blk"
@@ -775,8 +795,6 @@ INCLUDE "data/maps/headers/Route18.asm"
 INCLUDE "data/maps/objects/Route18.asm"
 Route18_Blocks: INCBIN "maps/Route18.blk"
 
-	INCBIN "maps/UnusedPokecenterCopy.blk"
-
 
 SECTION "Maps 14", ROMX
 
@@ -840,7 +858,6 @@ LavenderPokecenter_Blocks:
 PewterPokecenter_Blocks: INCBIN "maps/PewterPokecenter.blk"
 
 UndergroundPathRoute7_Blocks:
-UndergroundPathRoute7Copy_Blocks:
 UndergroundPathRoute6_Blocks:
 UndergroundPathRoute5_Blocks: INCBIN "maps/UndergroundPathRoute5.blk"
 
@@ -958,10 +975,6 @@ INCLUDE "data/maps/headers/UndergroundPathRoute7.asm"
 INCLUDE "scripts/UndergroundPathRoute7.asm"
 INCLUDE "data/maps/objects/UndergroundPathRoute7.asm"
 
-INCLUDE "data/maps/headers/UndergroundPathRoute7Copy.asm"
-INCLUDE "scripts/UndergroundPathRoute7Copy.asm"
-INCLUDE "data/maps/objects/UndergroundPathRoute7Copy.asm"
-
 INCLUDE "data/maps/headers/SilphCo9F.asm"
 INCLUDE "scripts/SilphCo9F.asm"
 INCLUDE "data/maps/objects/SilphCo9F.asm"
@@ -978,8 +991,6 @@ SECTION "Maps 17", ROMX
 ViridianForest_Blocks: INCBIN "maps/ViridianForest.blk"
 UndergroundPathNorthSouth_Blocks: INCBIN "maps/UndergroundPathNorthSouth.blk"
 UndergroundPathWestEast_Blocks: INCBIN "maps/UndergroundPathWestEast.blk"
-
-	INCBIN "maps/UnusedDiglettsCaveCopy.blk"
 
 SSAnneB1FRooms_Blocks:
 SSAnne2FRooms_Blocks: INCBIN "maps/SSAnne2FRooms.blk"
@@ -1014,12 +1025,15 @@ INCLUDE "scripts/PokemonTower6F.asm"
 INCLUDE "data/maps/objects/PokemonTower6F.asm"
 PokemonTower6F_Blocks: INCBIN "maps/PokemonTower6F.blk"
 
-	INCBIN "maps/UnusedEmptyMap.blk"
-
 INCLUDE "data/maps/headers/PokemonTower7F.asm"
 INCLUDE "scripts/PokemonTower7F.asm"
 INCLUDE "data/maps/objects/PokemonTower7F.asm"
 PokemonTower7F_Blocks: INCBIN "maps/PokemonTower7F.blk"
+
+INCLUDE "data/maps/headers/PokemonTowerB1F.asm"
+INCLUDE "scripts/PokemonTowerB1F.asm"
+INCLUDE "data/maps/objects/PokemonTowerB1F.asm"
+PokemonTowerB1F_Blocks: INCBIN "maps/PokemonTowerB1F.blk"
 
 INCLUDE "data/maps/headers/CeladonMart1F.asm"
 INCLUDE "scripts/CeladonMart1F.asm"
@@ -1103,11 +1117,16 @@ CinnabarMart_Blocks:
 PewterMart_Blocks: INCBIN "maps/PewterMart.blk"
 
 FuchsiaBillsGrandpasHouse_Blocks: INCBIN "maps/FuchsiaBillsGrandpasHouse.blk"
+FuchsiaTreeDeleterHouse_Blocks: INCBIN "maps/FuchsiaTreeDeleterHouse.blk"
+FossilGuysHouse_Blocks: INCBIN "maps/FossilGuysHouse.blk"
 
 CinnabarPokecenter_Blocks:
 FuchsiaPokecenter_Blocks: INCBIN "maps/FuchsiaPokecenter.blk"
 
 CeruleanBadgeHouse_Blocks: INCBIN "maps/CeruleanBadgeHouse.blk"
+CeruleanOldRodHouse_Blocks: INCBIN "maps/CeruleanOldRodHouse.blk"
+CeruleanRocketHouse1F_Blocks: INCBIN "maps/CeruleanRocketHouse1F.blk"
+CeruleanRocketHouseB1F_Blocks: INCBIN "maps/CeruleanRocketHouseB1F.blk"
 
 
 SECTION "Maps 20", ROMX
@@ -1138,6 +1157,27 @@ SECTION "Maps 21", ROMX
 INCLUDE "data/maps/headers/FuchsiaBillsGrandpasHouse.asm"
 INCLUDE "scripts/FuchsiaBillsGrandpasHouse.asm"
 INCLUDE "data/maps/objects/FuchsiaBillsGrandpasHouse.asm"
+
+
+INCLUDE "data/maps/headers/FuchsiaTreeDeleterHouse.asm"
+INCLUDE "scripts/FuchsiaTreeDeleterHouse.asm"
+INCLUDE "data/maps/objects/FuchsiaTreeDeleterHouse.asm"
+
+INCLUDE "data/maps/headers/FossilGuysHouse.asm"
+INCLUDE "scripts/FossilGuysHouse.asm"
+INCLUDE "data/maps/objects/FossilGuysHouse.asm"
+
+INCLUDE "data/maps/headers/CeruleanOldRodHouse.asm"
+INCLUDE "scripts/CeruleanOldRodHouse.asm"
+INCLUDE "data/maps/objects/CeruleanOldRodHouse.asm"
+
+INCLUDE "data/maps/headers/CeruleanRocketHouse1F.asm"
+INCLUDE "scripts/CeruleanRocketHouse1F.asm"
+INCLUDE "data/maps/objects/CeruleanRocketHouse1F.asm"
+
+INCLUDE "data/maps/headers/CeruleanRocketHouseB1F.asm"
+INCLUDE "scripts/CeruleanRocketHouseB1F.asm"
+INCLUDE "data/maps/objects/CeruleanRocketHouseB1F.asm"
 
 INCLUDE "data/maps/headers/FuchsiaPokecenter.asm"
 INCLUDE "scripts/FuchsiaPokecenter.asm"

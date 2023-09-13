@@ -32,8 +32,9 @@ _VermilionGymLTSurgeReceivedTM24Text::
 
 _TM24ExplanationText::
 	text_start
-
-	para "TM24 contains"
+	para "@"
+	text_ram wStringBuffer
+	text " contains"
 	line "THUNDERBOLT!"
 
 	para "Teach it to an"
@@ -141,5 +142,16 @@ _VermilionGymGymGuideChampInMakingText::
 
 _VermilionGymGymGuideBeatLTSurgeText::
 	text "Whew! That match"
-	line "was electric!"
-	done
+	line "was electric!@"
+	text_end
+
+_VermilionGymGuideApexChipElectricText::
+	text "For electric"
+	line "#MON, an "
+	cont "APEX CHIP will"
+	cont "simulate a vast"
+	cont "grassy steppe"
+	cont "with frequent"
+	cont "storms,lightning"
+	cont "and thunder!"
+	prompt

@@ -18,7 +18,7 @@ DoInGameTradeDialogue:
 	push af
 	ld de, wInGameTradeMonNick
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	pop af
 	ld l, a
 	ld h, 0
@@ -58,7 +58,7 @@ DoInGameTradeDialogue:
 	call InGameTrade_DoTrade
 	jr c, .printText
 	ld hl, TradedForText
-	call PrintText
+	rst _PrintText
 .printText
 	ld hl, wInGameTradeTextPointerTableIndex
 	ld a, [hld] ; wInGameTradeTextPointerTableIndex
@@ -102,12 +102,19 @@ InGameTrade_DoTrade:
 	ld a, [wcf91]
 	cp b
 	ld a, $2
-	jr nz, .tradeFailed ; jump if the selected mon's species is not the required one
+	jp nz, .tradeFailed ; jump if the selected mon's species is not the required one
 	ld a, [wWhichPokemon]
-	ld hl, wPartyMon1Level
+;;;;;;;;;; PureRGBnote: ADDED: check if we need to store whether the player's pokemon uses alternate palette to make the trade animation correct
+	ld hl, wPartyMon1Flags
 	ld bc, wPartyMon2 - wPartyMon1
 	call AddNTimes
 	ld a, [hl]
+	and 1
+	ld [wIsAltPalettePkmn], a ; is the player's pokemon they're trading away alternate palette
+	ld bc, wPartyMon1Level - wPartyMon1Flags
+	add hl, bc ; go to level
+	ld a, [hl]
+;;;;;;;;;;
 	ld [wCurEnemyLVL], a
 	ld hl, wCompletedInGameTradeFlags
 	ld a, [wWhichTrade]
@@ -115,11 +122,12 @@ InGameTrade_DoTrade:
 	ld b, FLAG_SET
 	predef FlagActionPredef
 	ld hl, ConnectCableText
-	call PrintText
+	rst _PrintText
 	ld a, [wWhichPokemon]
 	push af
 	ld a, [wCurEnemyLVL]
 	push af
+	call GetTradeMonPalette ; PureRGBnote: ADDED: stores whether mon you receive via trade has an alternate palette into wIsAltPalettePkmnData
 	call LoadHpBarAndStatusTilePatterns
 	call InGameTrade_PrepareTradeData
 	predef InternalClockTradeAnim
@@ -133,7 +141,7 @@ InGameTrade_DoTrade:
 	ld [wMonDataLocation], a ; not used
 	ld [wRemoveMonFromBox], a
 	call RemovePokemon
-	ld a, $80 ; prevent the player from naming the mon
+	ld a, %10000000 ; prevent the player from naming the mon
 	ld [wMonDataLocation], a
 	call AddPartyMon
 	call InGameTrade_CopyDataToReceivedMon
@@ -148,9 +156,31 @@ InGameTrade_DoTrade:
 	scf
 .tradeSucceeded
 	ld [wInGameTradeTextPointerTableIndex], a
+	ld a, 0
+	ld [wIsAltPalettePkmnData], a ; PureRGBnote: ADDED: clear any alt palette flags so the next pokemon we deal with won't be alt palette
 	ret
 
-InGameTrade_RestoreScreen:
+GetTradeMonPalette:
+	ld a, [wWhichTrade]
+	ld hl, TradeMonPalettes
+	cp 8
+	jr c, .firstByte
+	inc hl
+.firstByte
+	and a
+	ld b, a
+	ld a, [hl]
+	jr z, .clearAndTestBit
+.loopShiftRight ; keep shifting until the bit we want to test is bit 0
+	srl a
+	dec b
+	jr nz, .loopShiftRight
+.clearAndTestBit
+	and 1 ; zero every other bit than bit 0
+	ld [wIsAltPalettePkmnData], a ; a now contains the flag value for whether the palette is alt or original.
+	ret
+
+InGameTrade_RestoreScreen::
 	call GBPalWhiteOutWithDelay3
 	call RestoreScreenTilesAndReloadTilePatterns
 	call ReloadTilesetTilePatterns
@@ -158,7 +188,7 @@ InGameTrade_RestoreScreen:
 	call Delay3
 	call LoadGBPal
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	farjp LoadWildData
 
 InGameTrade_PrepareTradeData:
@@ -194,7 +224,7 @@ InGameTrade_PrepareTradeData:
 InGameTrade_CopyData:
 	push hl
 	push bc
-	call CopyData
+	rst _CopyData
 	pop bc
 	pop hl
 	ret
@@ -205,13 +235,13 @@ InGameTrade_CopyDataToReceivedMon:
 	call InGameTrade_GetReceivedMonPointer
 	ld hl, wInGameTradeMonNick
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	call InGameTrade_GetReceivedMonPointer
 	ld hl, InGameTrade_TrainerString
 	ld bc, NAME_LENGTH
-	call CopyData
+	rst _CopyData
 	ld hl, wPartyMon1OTID
 	ld bc, wPartyMon2 - wPartyMon1
 	call InGameTrade_GetReceivedMonPointer
@@ -237,6 +267,10 @@ InGameTradeTextPointers:
 	dw TradeTextPointers1
 	dw TradeTextPointers2
 	dw TradeTextPointers3
+	dw TradeTextPointers4
+	dw TradeTextPointers5
+	dw TradeTextPointers6
+	dw TradeTextPointers7
 
 TradeTextPointers1:
 	dw WannaTrade1Text
@@ -259,6 +293,39 @@ TradeTextPointers3:
 	dw Thanks3Text
 	dw AfterTrade3Text
 
+;;;;;;;;;; PureRGBnote: ADDED: some trade NPCs have alt palette pokemon to trade and will tell you about it.
+
+TradeTextPointers4:
+	dw WannaTrade1ColorText
+	dw NoTrade1Text
+	dw WrongMon1Text
+	dw Thanks1TextPrompt
+	dw AfterTrade1Text
+
+TradeTextPointers5:
+	dw WannaTrade1ColorText
+	dw NoTrade1Text
+	dw WrongMon1Text
+	dw Thanks1Text
+	dw AfterTrade1Text
+
+TradeTextPointers6:
+	dw WannaTrade2ColorText
+	dw NoTrade2Text
+	dw WrongMon2Text
+	dw Thanks2Text
+	dw AfterTrade2Text
+
+TradeTextPointers7:
+	dw WannaTrade3ColorText
+	dw NoTrade3Text
+	dw WrongMon3Text
+	dw Thanks3Text
+	dw AfterTrade3Text
+
+;;;;;;;;;;
+
+
 ConnectCableText:
 	text_far _ConnectCableText
 	text_end
@@ -273,6 +340,30 @@ WannaTrade1Text:
 	text_far _WannaTrade1Text
 	text_end
 
+WannaTrade1TextPrompt:
+	text_far _WannaTrade1Text
+	text_promptbutton
+	text_end
+
+WannaTradeColorPaletteText:
+	text_far _TradeColorPaletteText
+	text_end
+
+WannaTrade1ColorText:
+	text_asm
+	ld a, [wOptions2]
+	bit BIT_ALT_PKMN_PALETTES, a ; do we have alt palettes enabled
+	jr nz, .altPalettesOn
+	ld hl, WannaTrade1Text
+	jr .done
+.altPalettesOn
+	ld hl, WannaTrade1TextPrompt
+	rst _PrintText
+	ld hl, WannaTradeColorPaletteText
+.done
+	rst _PrintText
+	rst TextScriptEnd
+
 NoTrade1Text:
 	text_far _NoTrade1Text
 	text_end
@@ -285,6 +376,11 @@ Thanks1Text:
 	text_far _Thanks1Text
 	text_end
 
+Thanks1TextPrompt:
+	text_far _Thanks1Text
+	text_promptbutton
+	text_end
+
 AfterTrade1Text:
 	text_far _AfterTrade1Text
 	text_end
@@ -292,6 +388,26 @@ AfterTrade1Text:
 WannaTrade2Text:
 	text_far _WannaTrade2Text
 	text_end
+
+WannaTrade2TextPrompt:
+	text_far _WannaTrade2Text
+	text_promptbutton
+	text_end
+
+WannaTrade2ColorText:
+	text_asm
+	ld a, [wOptions2]
+	bit BIT_ALT_PKMN_PALETTES, a ; do we have alt palettes enabled
+	jr nz, .altPalettesOn
+	ld hl, WannaTrade2Text
+	jr .done
+.altPalettesOn
+	ld hl, WannaTrade2TextPrompt
+	rst _PrintText
+	ld hl, WannaTradeColorPaletteText
+.done
+	rst _PrintText
+	rst TextScriptEnd
 
 NoTrade2Text:
 	text_far _NoTrade2Text
@@ -312,6 +428,26 @@ AfterTrade2Text:
 WannaTrade3Text:
 	text_far _WannaTrade3Text
 	text_end
+
+WannaTrade3TextPrompt:
+	text_far _WannaTrade3Text
+	text_promptbutton
+	text_end
+
+WannaTrade3ColorText:
+	text_asm
+	ld a, [wOptions2]
+	bit BIT_ALT_PKMN_PALETTES, a ; do we have alt palettes enabled
+	jr nz, .altPalettesOn
+	ld hl, WannaTrade3Text
+	jr .done
+.altPalettesOn
+	ld hl, WannaTrade3TextPrompt
+	rst _PrintText
+	ld hl, WannaTradeColorPaletteText
+.done
+	rst _PrintText
+	rst TextScriptEnd
 
 NoTrade3Text:
 	text_far _NoTrade3Text

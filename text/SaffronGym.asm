@@ -57,16 +57,22 @@ _SaffronGymSabrinaMarshBadgeInfoText::
 
 _SaffronGymSabrinaReceivedTM46Text::
 	text "<PLAYER> received"
-	line "TM46!@"
+	line "@"
+	text_ram wStringBuffer
+	text "!@"
 	text_end
 
 _TM46ExplanationText::
 	text_start
-
-	para "TM46 is PSYWAVE!"
+	para "@"
+	text_ram wStringBuffer
+	text " is PSYCHIC!"
 	line "It uses powerful"
 	cont "psychic waves to"
 	cont "inflict damage!"
+
+	para "It often lowers"
+	line "the SPECIAL stat!"
 	done
 
 _SaffronGymSabrinaTM46NoRoomText::
@@ -97,8 +103,19 @@ _SaffronGymGuideBeatSabrinaText::
 
 	para "If I had that,"
 	line "I'd make a bundle"
-	cont "at the slots!"
-	done
+	cont "at the slots!@"
+	text_end
+
+_SaffronGymGuideApexChipPsychicText::
+	text "For psychic"
+	line "#MON, an "
+	cont "APEX CHIP will"
+	cont "replicate a calm"
+	cont "silent area of"
+	cont "meditation, like"
+	cont "a temple or a"
+	cont "beach at sunset."
+	prompt 
 
 _SaffronGymChanneler1BattleText::
 	text "SABRINA is younger"
@@ -134,8 +151,11 @@ _SaffronGymYoungster1EndBattleText::
 
 _SaffronGymYoungster1AfterBattleText::
 	text "Psychic #MON"
-	line "fear only ghosts"
-	cont "and bugs!"
+	line "fear only bugs@"
+	text_end
+
+_SaffronGymYoungster1AfterBattleText3::
+	text "<SCROLL>and ghosts!"
 	done
 
 _SaffronGymChanneler2BattleText::

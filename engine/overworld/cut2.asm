@@ -1,3 +1,6 @@
+; PureRGBnote: MOVED: this was moved into a different bank, so some calls were modified to not reference stuff in the old bank.
+; AdjustOAMBlockXPos2 was duplicated in this file as AdjustOAMBlockXPos3 so this file doesn't rely on a specific bank.
+; AdjustOAMBlockYPos2 was duplicated in this file as AdjustOAMBlockYPos3 so this file doesn't rely on a specific bank.
 AnimCut:
 	ld a, [wCutTile]
 	cp $52
@@ -9,16 +12,17 @@ AnimCut:
 	ld a, 1
 	ld [wCoordAdjustmentAmount], a
 	ld c, 2
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ld hl, wShadowOAMSprite38XCoord
 	ld a, -1
 	ld [wCoordAdjustmentAmount], a
 	ld c, 2
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ldh a, [rOBP1]
 	xor $64
 	ldh [rOBP1], a
-	call DelayFrame
+	call UpdateGBCPal_OBP1 ; shinpokerednote: gbcnote: gbc color code from yellow 
+	rst _DelayFrame
 	pop bc
 	dec c
 	jr nz, .cutTreeLoop
@@ -37,7 +41,7 @@ AnimCut:
 	ld a, 2
 	ld [wCoordAdjustmentAmount], a
 	ld c, 4
-	call AdjustOAMBlockYPos2
+	call AdjustOAMBlockYPos3
 	pop bc
 	dec c
 	jr nz, .cutGrassLoop
@@ -49,26 +53,27 @@ AnimCutGrass_UpdateOAMEntries:
 	ld a, 1
 	ld [wCoordAdjustmentAmount], a
 	ld c, 1
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ld hl, wShadowOAMSprite37XCoord
 	ld a, 2
 	ld [wCoordAdjustmentAmount], a
 	ld c, 1
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ld hl, wShadowOAMSprite38XCoord
 	ld a, -2
 	ld [wCoordAdjustmentAmount], a
 	ld c, 1
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ld hl, wShadowOAMSprite39XCoord
 	ld a, -1
 	ld [wCoordAdjustmentAmount], a
 	ld c, 1
-	call AdjustOAMBlockXPos2
+	call AdjustOAMBlockXPos3
 	ldh a, [rOBP1]
 	xor $64
 	ldh [rOBP1], a
-	call DelayFrame
+	call UpdateGBCPal_OBP1
+	rst _DelayFrame
 	pop bc
 	dec c
 	jr nz, AnimCutGrass_UpdateOAMEntries
@@ -78,12 +83,59 @@ AnimCutGrass_SwapOAMEntries:
 	ld hl, wShadowOAMSprite36
 	ld de, wBuffer
 	ld bc, $8
-	call CopyData
+	rst _CopyData
 	ld hl, wShadowOAMSprite38
 	ld de, wShadowOAMSprite36
 	ld bc, $8
-	call CopyData
+	rst _CopyData
 	ld hl, wBuffer
 	ld de, wShadowOAMSprite38
 	ld bc, $8
 	jp CopyData
+
+AdjustOAMBlockXPos3start:
+	ld l, e
+	ld h, d
+
+AdjustOAMBlockXPos3:
+	ld de, 4
+.loop
+	ld a, [wCoordAdjustmentAmount]
+	ld b, a
+	ld a, [hl]
+	add b
+	cp 168
+	jr c, .skipPuttingEntryOffScreen
+; put off-screen if X >= 168
+	dec hl
+	ld a, 160
+	ld [hli], a
+.skipPuttingEntryOffScreen
+	ld [hl], a
+	add hl, de
+	dec c
+	jr nz, .loop
+	ret
+
+AdjustOAMBlockYPos3start:
+	ld l, e
+	ld h, d
+
+AdjustOAMBlockYPos3:
+	ld de, 4
+.loop
+	ld a, [wCoordAdjustmentAmount]
+	ld b, a
+	ld a, [hl]
+	add b
+	cp 112
+	jr c, .skipSettingPreviousEntrysAttribute
+	dec hl
+	ld a, 160 ; bug, sets previous OAM entry's attribute
+	ld [hli], a
+.skipSettingPreviousEntrysAttribute
+	ld [hl], a
+	add hl, de
+	dec c
+	jr nz, .loop
+	ret

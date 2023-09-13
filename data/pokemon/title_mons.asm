@@ -6,7 +6,7 @@ IF DEF(_RED)
 	db STARTER3
 	db WEEDLE
 	db NIDORAN_M
-	db SCYTHER
+	db ARCANINE
 	db PIKACHU
 	db CLEFAIRY
 	db RHYDON
@@ -22,17 +22,35 @@ IF DEF(_BLUE)
 	db STARTER2
 	db STARTER1
 	db STARTER3
-	db MANKEY
+	db KOFFING
 	db HITMONLEE
 	db VULPIX
 	db CHANSEY
 	db AERODACTYL
 	db JOLTEON
 	db SNORLAX
-	db GLOOM
-	db POLIWAG
-	db DODUO
+	db TANGELA
+	db SLOWPOKE
+	db VENONAT
 	db PORYGON
 	db GENGAR
 	db RAICHU
+ENDC
+IF DEF(_GREEN) ; PureRGBnote: GREENBUILD: the pokemon that appear on the start screen on green version.
+	db STARTER3
+	db STARTER1
+	db STARTER2
+	db DIGLETT
+	db FEAROW
+	db GRIMER
+	db KINGLER
+	db ZUBAT
+	db CATERPIE
+	db EEVEE
+	db VOLTORB
+	db STARYU
+	db NIDOKING
+	db SCYTHER
+	db HAUNTER
+	db EXEGGCUTE
 ENDC

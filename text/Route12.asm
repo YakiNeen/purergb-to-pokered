@@ -129,8 +129,49 @@ _Route12Fisher5AfterBattleText::
 	cont "they're so weak!"
 	done
 
+_Route12BattleText8::
+	text "The FISHERs here"
+	line "told me legends"
+	cont "of sea monsters!"
+	done
+
+_Route12EndBattleText8::
+	text "Keep"
+	line "your eyes on the"
+	cont "water!"
+	prompt
+
+_Route12AfterBattleText8::
+	text "Taming a sea"
+	line "monster would be"
+	cont "amazing to see!"
+	para "Can FISHERs do"
+	line "such a thing?"
+	done
+
+_Route12BattleText9::
+	text "Some #MON"
+	line "can breathe"
+	cont "underwater!"
+	done
+
+_Route12EndBattleText9::
+	text "Don't"
+	line "fall in!"
+	prompt
+
+_Route12AfterBattleText9::
+	text "Breathing"
+	line "underwater..."
+	para "I'd love to be"
+	line "able to do that!"
+	para "I'll stick to"
+	line "scuba diving for"
+	cont "now though!"
+	done
+
 _Route12SignText::
-	text "ROUTE 12 "
+	text "ROUTE 12"
 	line "North to LAVENDER"
 	done
 

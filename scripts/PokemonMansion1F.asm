@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers were added to this location
+
 PokemonMansion1F_Script:
 	call Mansion1Subscript1
 	call EnableAutoTextBoxDrawing
@@ -64,21 +66,30 @@ PokemonMansion1F_ScriptPointers:
 PokemonMansion1F_TextPointers:
 	def_text_pointers
 	dw_const PokemonMansion1FScientistText, TEXT_POKEMONMANSION1F_SCIENTIST
-	dw_const PickUpItemText,                TEXT_POKEMONMANSION1F_ESCAPE_ROPE
-	dw_const PickUpItemText,                TEXT_POKEMONMANSION1F_CARBOS
+	dw_const Mansion1Text2,                 TEXT_POKEMONMANSION1F_BURGLAR
+	dw_const Mansion1Text3,                 TEXT_POKEMONMANSION1F_FIREFIGHTER1
+	dw_const Mansion1Text4,                 TEXT_POKEMONMANSION1F_FIREFIGHTER2
+	dw_const PickUpItemText,                TEXT_POKEMONMANSION1F_ITEM1
+	dw_const PickUpItemText,                TEXT_POKEMONMANSION1F_ITEM2
 	dw_const PokemonMansion1FSwitchText,    TEXT_POKEMONMANSION1F_SWITCH
 
 Mansion1TrainerHeaders:
 	def_trainers
 Mansion1TrainerHeader0:
 	trainer EVENT_BEAT_MANSION_1_TRAINER_0, 3, PokemonMansion1FScientistBattleText, PokemonMansion1FScientistEndBattleText, PokemonMansion1FScientistAfterBattleText
+Mansion1TrainerHeader1:
+	trainer EVENT_BEAT_MANSION_1_TRAINER_1, 3, Mansion1BattleText2, Mansion1EndBattleText2, Mansion1AfterBattleText2
+Mansion1TrainerHeader2:
+	trainer EVENT_BEAT_MANSION_1_TRAINER_2, 3, Mansion1BattleText3, Mansion1EndBattleText3, Mansion1AfterBattleText3
+Mansion1TrainerHeader3:
+	trainer EVENT_BEAT_MANSION_1_TRAINER_3, 3, Mansion1BattleText4, Mansion1EndBattleText4, Mansion1AfterBattleText4
 	db -1 ; end
 
 PokemonMansion1FScientistText:
 	text_asm
 	ld hl, Mansion1TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 PokemonMansion1FScientistBattleText:
 	text_far _PokemonMansion1FScientistBattleText
@@ -92,10 +103,64 @@ PokemonMansion1FScientistAfterBattleText:
 	text_far _PokemonMansion1FScientistAfterBattleText
 	text_end
 
+Mansion1Text2:
+	text_asm
+	ld hl, Mansion1TrainerHeader1
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion1BattleText2:
+	text_far _Mansion1BattleText2
+	text_end
+
+Mansion1EndBattleText2:
+	text_far _Mansion1EndBattleText2
+	text_end
+
+Mansion1AfterBattleText2:
+	text_far _Mansion1AfterBattleText2
+	text_end
+
+Mansion1Text3:
+	text_asm
+	ld hl, Mansion1TrainerHeader2
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion1BattleText3:
+	text_far _Mansion1BattleText3
+	text_end
+
+Mansion1EndBattleText3:
+	text_far _Mansion1EndBattleText3
+	text_end
+
+Mansion1AfterBattleText3:
+	text_far _Mansion1AfterBattleText3
+	text_end
+
+Mansion1Text4:
+	text_asm
+	ld hl, Mansion1TrainerHeader3
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Mansion1BattleText4:
+	text_far _Mansion1BattleText4
+	text_end
+
+Mansion1EndBattleText4:
+	text_far _Mansion1EndBattleText4
+	text_end
+
+Mansion1AfterBattleText4:
+	text_far _Mansion1AfterBattleText4
+	text_end
+
 PokemonMansion1FSwitchText:
 	text_asm
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
@@ -105,18 +170,18 @@ PokemonMansion1FSwitchText:
 	ld hl, wCurrentMapScriptFlags
 	set 5, [hl]
 	ld hl, .PressedText
-	call PrintText
+	rst _PrintText
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	CheckAndSetEvent EVENT_MANSION_SWITCH_ON
 	jr z, .done
 	ResetEventReuseHL EVENT_MANSION_SWITCH_ON
 	jr .done
 .not_pressed
 	ld hl, .NotPressedText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _PokemonMansion1FSwitchText

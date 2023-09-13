@@ -1,9 +1,6 @@
 CeladonGym_Script:
-	ld hl, wCurrentMapScriptFlags
-	bit 6, [hl]
-	res 6, [hl]
-	call nz, .LoadNames
 	call EnableAutoTextBoxDrawing
+	call CeladonGymCheckHideCutTrees
 	ld hl, CeladonGymTrainerHeaders
 	ld de, CeladonGym_ScriptPointers
 	ld a, [wCeladonGymCurScript]
@@ -11,16 +8,45 @@ CeladonGym_Script:
 	ld [wCeladonGymCurScript], a
 	ret
 
-.LoadNames:
-	ld hl, .CityName
-	ld de, .LeaderName
-	jp LoadGymLeaderAndCityName
-
-.CityName:
-	db "CELADON CITY@"
-
-.LeaderName:
-	db "ERIKA@"
+CeladonGymCheckHideCutTrees:
+	ld hl, wCurrentMapScriptFlags
+	bit 5, [hl] ; did we load the map from a save/warp/door/battle, etc?
+	res 5, [hl]
+	ret z
+	ld de, CeladonGymCutAlcove
+	callfar FarArePlayerCoordsInRange
+	jr c, .removeTreeBlockers
+	; if the map is loaded outside of the alcove, reset the cut tree events
+	ResetEvent EVENT_CUT_DOWN_CELADON_GYM_LEFT_TREE
+	ResetEvent EVENT_CUT_DOWN_CELADON_GYM_BOTTOM_TREE
+	ResetEvent EVENT_CUT_DOWN_CELADON_GYM_RIGHT_TREE
+	ret
+.removeTreeBlockers
+	CheckEvent EVENT_CUT_DOWN_CELADON_GYM_LEFT_TREE
+	jr z, .bottomTreeCheck
+	lb bc, 2, 1
+	ld a, $35
+	call .replaceTileBlock
+.bottomTreeCheck
+	CheckEvent EVENT_CUT_DOWN_CELADON_GYM_BOTTOM_TREE
+	jr z, .rightTreeCheck
+	lb bc, 3, 2
+	ld a, $35
+	call .replaceTileBlock
+.rightTreeCheck
+	CheckEvent EVENT_CUT_DOWN_CELADON_GYM_RIGHT_TREE
+	jr z, .done
+	lb bc, 2, 3
+	ld a, $36
+	call .replaceTileBlock
+.done
+	; doing the redraw at the end will improve performance if we need to replace multiple tree tileblocks.
+	; since we're standing in the cut alcove to reach this code, all the trees are on screen and a redraw will be necessary
+	jpfar RedrawMapView
+.replaceTileBlock
+	ld [wNewTileBlockID], a
+	predef_jump ReplaceTileBlockNoRedraw
+	
 
 CeladonGymResetScripts:
 	xor a ; SCRIPT_CELADONGYM_DEFAULT
@@ -37,6 +63,9 @@ CeladonGym_ScriptPointers:
 	dw_const CeladonGymErikaPostBattleScript,       SCRIPT_CELADONGYM_ERIKA_POST_BATTLE
 
 CeladonGymErikaPostBattleScript:
+	ld hl, wCurrentMapScriptFlags
+	res 3, [hl]
+	call GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
 	ld a, [wIsInBattle]
 	cp $ff
 	jp z, CeladonGymResetScripts
@@ -48,7 +77,7 @@ CeladonGymReceiveTM21:
 	ldh [hSpriteIndexOrTextID], a
 	call DisplayTextID
 	SetEvent EVENT_BEAT_ERIKA
-	lb bc, TM_MEGA_DRAIN, 1
+	lb bc, TM_ERIKA, 1
 	call GiveItem
 	jr nc, .BagFull
 	ld a, TEXT_CELADONGYM_RECEIVED_TM21
@@ -114,11 +143,11 @@ CeladonGymErikaText:
 	jr .done
 .afterBeat
 	ld hl, .PostBattleAdviceText
-	call PrintText
+	rst _PrintText
 	jr .done
 .beforeBeat
 	ld hl, .PreBattleText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -135,7 +164,7 @@ CeladonGymErikaText:
 	ld [wCeladonGymCurScript], a
 	ld [wCurMapScript], a
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .PreBattleText:
 	text_far _CeladonGymErikaPreBattleText
@@ -167,7 +196,7 @@ CeladonGymCooltrainerF1Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText2:
 	text_far _CeladonGymBattleText2
@@ -185,7 +214,7 @@ CeladonGymBeauty1Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText3:
 	text_far _CeladonGymBattleText3
@@ -203,7 +232,7 @@ CeladonGymCooltrainerF2Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText4:
 	text_far _CeladonGymBattleText4
@@ -221,7 +250,7 @@ CeladonGymBeauty2Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText5:
 	text_far _CeladonGymBattleText5
@@ -239,7 +268,7 @@ CeladonGymCooltrainerF3Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText6:
 	text_far _CeladonGymBattleText6
@@ -257,7 +286,7 @@ CeladonGymBeauty3Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText7:
 	text_far _CeladonGymBattleText7
@@ -275,7 +304,7 @@ CeladonGymCooltrainerF4Text:
 	text_asm
 	ld hl, CeladonGymTrainerHeader6
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 CeladonGymBattleText8:
 	text_far _CeladonGymBattleText8

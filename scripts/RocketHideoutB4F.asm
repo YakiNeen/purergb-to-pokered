@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: code that plays Giovanni's theme if we have the option turned on
+
 RocketHideoutB4F_Script:
 	call RocketHideoutB4FDoorCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -7,6 +9,28 @@ RocketHideoutB4F_Script:
 	call ExecuteCurMapScriptInTable
 	ld [wRocketHideoutB4FCurScript], a
 	ret
+
+PlayGiovanniMusic:
+	ld a, [wOptions2]
+	bit BIT_MUSIC, a ; is the MUSIC option set to OG+?
+	ret z ; if not, don't play anything new
+	ld c, BANK(Music_Dungeon2)
+	ld a, MUSIC_DUNGEON2
+	call PlayMusic ; start playing something else with 4 channels in bank 3
+	ld de, Music_Giovanni_Ch1
+	callfar Audio3_RemapChannel1
+	ld de, Music_Giovanni_Ch2
+	callfar Audio3_RemapChannel2
+	ld de, Music_Giovanni_Ch3
+	callfar Audio3_RemapChannel3
+	ld de, Music_Giovanni_Ch4
+	jpfar Audio3_RemapChannel4
+
+PlayDefaultMusicIfMusicBitSet:
+	ld a, [wOptions2]
+	bit BIT_MUSIC, a
+	ret z
+	jp PlayDefaultMusic
 
 RocketHideoutB4FDoorCallbackScript:
 	ld hl, wCurrentMapScriptFlags
@@ -21,14 +45,19 @@ RocketHideoutB4FDoorCallbackScript:
 	jr .set_block
 .unlock_door
 	ld a, SFX_GO_INSIDE
-	call PlaySound
+	rst _PlaySound
 	SetEvent EVENT_ROCKET_HIDEOUT_4_DOOR_UNLOCKED
 .door_already_unlocked
 	ld a, $e ; Floor block
 .set_block
 	ld [wNewTileBlockID], a
 	lb bc, 5, 12
-	predef_jump ReplaceTileBlock
+	predef ReplaceTileBlock
+	ld hl, wCurrentMapScriptFlags
+	bit 3, [hl]
+	res 3, [hl]
+	ret z
+	jp GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here after battle
 
 RocketHideoutB4FSetDefaultScript:
 	xor a
@@ -48,6 +77,7 @@ RocketHideoutB4FBeatGiovanniScript:
 	ld a, [wIsInBattle]
 	cp $ff
 	jp z, RocketHideoutB4FSetDefaultScript
+	call PlayGiovanniMusic
 	call UpdateSprites
 	ld a, D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
@@ -71,7 +101,8 @@ RocketHideoutB4FBeatGiovanniScript:
 	ld a, SCRIPT_ROCKETHIDEOUTB4F_DEFAULT
 	ld [wRocketHideoutB4FCurScript], a
 	ld [wCurMapScript], a
-	ret
+	jp PlayDefaultMusicIfMusicBitSet
+
 
 RocketHideoutB4F_TextPointers:
 	def_text_pointers
@@ -79,9 +110,9 @@ RocketHideoutB4F_TextPointers:
 	dw_const RocketHideoutB4FRocket1Text,                 TEXT_ROCKETHIDEOUTB4F_ROCKET1
 	dw_const RocketHideoutB4FRocket2Text,                 TEXT_ROCKETHIDEOUTB4F_ROCKET2
 	dw_const RocketHideoutB4FRocket3Text,                 TEXT_ROCKETHIDEOUTB4F_ROCKET3
-	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_HP_UP
-	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_TM_RAZOR_WIND
-	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_IRON
+	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_ITEM1
+	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_ITEM2
+	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_ITEM3
 	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_SILPH_SCOPE
 	dw_const PickUpItemText,                              TEXT_ROCKETHIDEOUTB4F_LIFT_KEY
 	dw_const RocketHideoutB4FGiovanniHopeWeMeetAgainText, TEXT_ROCKETHIDEOUTB4F_GIOVANNI_HOPE_WE_MEET_AGAIN
@@ -98,10 +129,11 @@ RocketHideout4TrainerHeader2:
 
 RocketHideoutB4FGiovanniText:
 	text_asm
+	call PlayGiovanniMusic
 	CheckEvent EVENT_BEAT_ROCKET_HIDEOUT_GIOVANNI
 	jp nz, .beat_giovanni
 	ld hl, .ImpressedYouGotHereText
-	call PrintText
+	rst _PrintText
 	ld hl, wd72d
 	set 6, [hl]
 	set 7, [hl]
@@ -117,12 +149,12 @@ RocketHideoutB4FGiovanniText:
 	ld a, SCRIPT_ROCKETHIDEOUTB4F_BEAT_GIOVANNI
 	ld [wRocketHideoutB4FCurScript], a
 	ld [wCurMapScript], a
-	jr .asm_209f0
+	jr .done
 .beat_giovanni
 	ld hl, RocketHideoutB4FGiovanniHopeWeMeetAgainText
-	call PrintText
-.asm_209f0
-	jp TextScriptEnd
+	rst _PrintText
+.done
+	rst TextScriptEnd
 
 .ImpressedYouGotHereText:
 	text_far _RocketHideoutB4FGiovanniImpressedYouGotHereText
@@ -140,7 +172,7 @@ RocketHideoutB4FRocket1Text:
 	text_asm
 	ld hl, RocketHideout4TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB4FGiovanniBattleText:
 	text_far _RocketHideoutB4FGiovanniBattleText
@@ -158,7 +190,7 @@ RocketHideoutB4FRocket2Text:
 	text_asm
 	ld hl, RocketHideout4TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB4FRocket1BattleText:
 	text_far _RocketHideoutB4FRocket1BattleText
@@ -176,7 +208,7 @@ RocketHideoutB4FRocket3Text:
 	text_asm
 	ld hl, RocketHideout4TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB4FRocket2BattleText:
 	text_far _RocketHideoutB4FRocket2BattleText
@@ -189,14 +221,14 @@ RocketHideoutB4FRocket2EndBattleText:
 RocketHideoutB4FRocket2AfterBattleText:
 	text_asm
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	CheckAndSetEvent EVENT_ROCKET_DROPPED_LIFT_KEY
 	jr nz, .asm_455e9
 	ld a, HS_ROCKET_HIDEOUT_B4F_ITEM_5
 	ld [wMissableObjectIndex], a
 	predef ShowObject
 .asm_455e9
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _RocketHideoutB4FRocket2AfterBattleText

@@ -10,7 +10,7 @@ EnterMapAnim::
 	res 7, [hl]
 	jr nz, .flyAnimation
 	ld a, SFX_TELEPORT_ENTER_1
-	call PlaySound
+	rst _PlaySound
 	ld hl, wd732
 	bit 4, [hl] ; used dungeon warp?
 	res 4, [hl]
@@ -18,7 +18,7 @@ EnterMapAnim::
 	jr nz, .dungeonWarpAnimation
 	call PlayerSpinWhileMovingDown
 	ld a, SFX_TELEPORT_ENTER_2
-	call PlaySound
+	rst _PlaySound
 	call IsPlayerStandingOnWarpPadOrHole
 	ld a, b
 	and a
@@ -40,10 +40,11 @@ EnterMapAnim::
 	jp RestoreFacingDirectionAndYScreenPos
 .dungeonWarpAnimation
 	ld c, 50
-	call DelayFrames
+	rst _DelayFrames
 	call PlayerSpinWhileMovingDown
 	jr .done
 .flyAnimation
+	call SetCurBlackoutMap ; PureRGBnote: CHANGED: set the map fly we ended up at as the blackout map after flying
 	pop hl
 	ld de, BirdSprite
 	ld hl, vNPCSprites
@@ -51,34 +52,17 @@ EnterMapAnim::
 	call CopyVideoData
 	call LoadBirdSpriteGraphics
 	ld a, SFX_FLY
-	call PlaySound
+	rst _PlaySound
 	ld hl, wFlyAnimUsingCoordList
 	xor a ; is using coord list
 	ld [hli], a ; wFlyAnimUsingCoordList
-	ld a, 12
+	ld a, 36 ; length of animation in FlyAnimationEnterScreenCoords
 	ld [hli], a ; wFlyAnimCounter
-	ld [hl], $8 ; wFlyAnimBirdSpriteImageIndex (facing right)
+	ld [hl], SPRITE_FACING_LEFT ; wFlyAnimBirdSpriteImageIndex (facing left)
 	ld de, FlyAnimationEnterScreenCoords
-	call DoFlyAnimation
+	callfar DoFlyAnimation
 	call LoadPlayerSpriteGraphics
 	jr .restoreDefaultMusic
-
-FlyAnimationEnterScreenCoords:
-; y, x pairs
-; This is the sequence of screen coordinates used by the overworld
-; Fly animation when the player is entering a map.
-	db $05, $98
-	db $0F, $90
-	db $18, $88
-	db $20, $80
-	db $27, $78
-	db $2D, $70
-	db $32, $68
-	db $36, $60
-	db $39, $58
-	db $3B, $50
-	db $3C, $48
-	db $3C, $40
 
 PlayerSpinWhileMovingDown:
 	ld hl, wPlayerSpinWhileMovingUpOrDownAnimDeltaY
@@ -88,6 +72,7 @@ PlayerSpinWhileMovingDown:
 	ld [hli], a ; wPlayerSpinWhileMovingUpOrDownAnimMaxY
 	call GetPlayerTeleportAnimFrameDelay
 	ld [hl], a ; wPlayerSpinWhileMovingUpOrDownAnimFrameDelay
+	ld hl, wFacingDirectionList ; PureRGBnote: FIXED: on GBC or GB there was a visual glitch while this animation happened.
 	jp PlayerSpinWhileMovingUpOrDown
 
 _LeaveMapAnim::
@@ -100,7 +85,7 @@ _LeaveMapAnim::
 	jp nz, LeaveMapThroughHoleAnim
 .spinWhileMovingUp
 	ld a, SFX_TELEPORT_EXIT_1
-	call PlaySound
+	rst _PlaySound
 	ld hl, wPlayerSpinWhileMovingUpOrDownAnimDeltaY
 	ld a, -$10
 	ld [hli], a ; wPlayerSpinWhileMovingUpOrDownAnimDeltaY
@@ -108,6 +93,7 @@ _LeaveMapAnim::
 	ld [hli], a ; wPlayerSpinWhileMovingUpOrDownAnimMaxY
 	call GetPlayerTeleportAnimFrameDelay
 	ld [hl], a ; wPlayerSpinWhileMovingUpOrDownAnimFrameDelay
+	ld hl, wFacingDirectionList ; PureRGBnote: FIXED: on GBC or GB there was a visual glitch while this animation happened.
 	call PlayerSpinWhileMovingUpOrDown
 	call IsPlayerStandingOnWarpPadOrHole
 	ld a, b
@@ -115,7 +101,7 @@ _LeaveMapAnim::
 	jr z, .playerStandingOnWarpPad
 ; if not standing on a warp pad, there is an extra delay
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 .playerStandingOnWarpPad
 	call GBFadeOutToWhite
 	jp RestoreFacingDirectionAndYScreenPos
@@ -142,64 +128,30 @@ _LeaveMapAnim::
 	ld hl, wFlyAnimUsingCoordList
 	ld a, $ff ; is not using coord list (flap in place)
 	ld [hli], a ; wFlyAnimUsingCoordList
-	ld a, 8
+	ld a, 24 ; length of the "flapping in place" part
 	ld [hli], a ; wFlyAnimCounter
-	ld [hl], $c ; wFlyAnimBirdSpriteImageIndex
-	call DoFlyAnimation
+	ld [hl], SPRITE_FACING_RIGHT ; wFlyAnimBirdSpriteImageIndex
+	callfar DoFlyAnimation
 	ld a, SFX_FLY
-	call PlaySound
+	rst _PlaySound
 	ld hl, wFlyAnimUsingCoordList
 	xor a ; is using coord list
 	ld [hli], a ; wFlyAnimUsingCoordList
-	ld a, $c
+	ld a, 36 ; length of first part in coordinate pairs
 	ld [hli], a ; wFlyAnimCounter
-	ld [hl], $c ; wFlyAnimBirdSpriteImageIndex (facing right)
+	ld [hl], SPRITE_FACING_RIGHT ; wFlyAnimBirdSpriteImageIndex (facing right)
 	ld de, FlyAnimationScreenCoords1
-	call DoFlyAnimation
+	callfar DoFlyAnimation
 	ld c, 40
-	call DelayFrames
+	rst _DelayFrames
 	ld hl, wFlyAnimCounter
-	ld a, 11
+	ld a, 33 ; length of second part in coordinate pairs
 	ld [hli], a ; wFlyAnimCounter
-	ld [hl], $8 ; wFlyAnimBirdSpriteImageIndex (facing left)
+	ld [hl], SPRITE_FACING_LEFT ; wFlyAnimBirdSpriteImageIndex (facing left)
 	ld de, FlyAnimationScreenCoords2
-	call DoFlyAnimation
+	callfar DoFlyAnimation
 	call GBFadeOutToWhite
 	jp RestoreFacingDirectionAndYScreenPos
-
-FlyAnimationScreenCoords1:
-; y, x pairs
-; This is the sequence of screen coordinates used by the first part
-; of the Fly overworld animation.
-	db $3C, $48
-	db $3C, $50
-	db $3B, $58
-	db $3A, $60
-	db $39, $68
-	db $37, $70
-	db $37, $78
-	db $33, $80
-	db $30, $88
-	db $2D, $90
-	db $2A, $98
-	db $27, $A0
-
-FlyAnimationScreenCoords2:
-; y, x pairs
-; This is the sequence of screen coordinates used by the second part
-; of the Fly overworld animation.
-	db $1A, $90
-	db $19, $80
-	db $17, $70
-	db $15, $60
-	db $12, $50
-	db $0F, $40
-	db $0C, $30
-	db $09, $20
-	db $05, $10
-	db $00, $00
-
-	db $F0, $00
 
 LeaveMapThroughHoleAnim:
 	ld a, $ff
@@ -213,7 +165,18 @@ LeaveMapThroughHoleAnim:
 	ld [wShadowOAMSprite00YCoord], a
 	ld [wShadowOAMSprite01YCoord], a
 	ld c, 2
-	call DelayFrames
+	rst _DelayFrames
+;;;;;;;;;; PureRGBnote: ADDED: sound effect when falling into a hole
+	; play a sound effect of falling in
+	ld a, SFX_TRADE_MACHINE
+	rst _PlaySound
+	ld de, FallDownHole
+	; remap channel five to play a small pitch sweep sound
+	ld hl, wChannelCommandPointers + CHAN5 * 2
+	ld [hl], e
+	inc hl
+	ld [hl], d
+;;;;;;;;;;
 	; hide upper half of player's sprite
 	ld a, $a0
 	ld [wShadowOAMSprite02YCoord], a
@@ -222,30 +185,6 @@ LeaveMapThroughHoleAnim:
 	ld a, $1
 	ld [wUpdateSpritesEnabled], a ; enable UpdateSprites
 	jp RestoreFacingDirectionAndYScreenPos
-
-DoFlyAnimation:
-	ld a, [wFlyAnimBirdSpriteImageIndex]
-	xor $1 ; make the bird flap its wings
-	ld [wFlyAnimBirdSpriteImageIndex], a
-	ld [wSpritePlayerStateData1ImageIndex], a
-	call Delay3
-	ld a, [wFlyAnimUsingCoordList]
-	cp $ff
-	jr z, .skipCopyingCoords ; if the bird is flapping its wings in place
-	ld hl, wSpritePlayerStateData1YPixels
-	ld a, [de]
-	inc de
-	ld [hli], a ; y
-	inc hl
-	ld a, [de]
-	inc de
-	ld [hl], a ; x
-.skipCopyingCoords
-	ld a, [wFlyAnimCounter]
-	dec a
-	ld [wFlyAnimCounter], a
-	jr nz, DoFlyAnimation
-	ret
 
 LoadBirdSpriteGraphics:
 	ld de, BirdSprite
@@ -265,7 +204,7 @@ InitFacingDirectionList:
 	ld hl, PlayerSpinningFacingOrder
 	ld de, wFacingDirectionList
 	ld bc, 4
-	call CopyData
+	rst _CopyData
 	ld a, [wSpritePlayerStateData1ImageIndex] ; (image index is locked to standing images)
 	ld hl, wFacingDirectionList
 ; find the place in the list that matches the current facing direction
@@ -289,7 +228,7 @@ SpinPlayerSprite:
 	ld hl, wFacingDirectionList
 	ld de, wFacingDirectionList - 1
 	ld bc, 4
-	call CopyData
+	rst _CopyData
 	ld a, [wFacingDirectionList - 1]
 	ld [wFacingDirectionList + 3], a
 	pop hl
@@ -313,7 +252,7 @@ PlayerSpinInPlace:
 	ld a, [wPlayerSpinInPlaceAnimFrameDelayEndValue]
 	cp c
 	ret z
-	call DelayFrames
+	rst _DelayFrames
 	jr PlayerSpinInPlace
 
 PlayerSpinWhileMovingUpOrDown:
@@ -329,7 +268,7 @@ PlayerSpinWhileMovingUpOrDown:
 	ret z
 	ld a, [wPlayerSpinWhileMovingUpOrDownAnimFrameDelay]
 	ld c, a
-	call DelayFrames
+	rst _DelayFrames
 	jr PlayerSpinWhileMovingUpOrDown
 
 RestoreFacingDirectionAndYScreenPos:
@@ -377,7 +316,7 @@ INCLUDE "data/tilesets/warp_pad_hole_tile_ids.asm"
 
 FishingAnim:
 	ld c, 10
-	call DelayFrames
+	rst _DelayFrames
 	ld hl, wd736
 	set 6, [hl] ; reserve the last 4 OAM entries
 	ld de, RedSprite
@@ -394,9 +333,14 @@ FishingAnim:
 	add hl, bc
 	ld de, wShadowOAMSprite39
 	ld bc, $4
-	call CopyData
-	ld c, 100
-	call DelayFrames
+	rst _CopyData
+;;;;;;;;;; PureRGBnote: CHANGED: fishing animation wait time is randomized instead of hardcoded 100 frames.
+	call Random
+	and %1111111 ; a = random number between 0 and 127
+	add 20 ; minimum of 20 frames after starting to result, so minimum frames fishing = 20 and max = 147
+	ld c, a
+;;;;;;;;;;
+	rst _DelayFrames
 	ld a, [wRodResponse]
 	and a
 	ld hl, NoNibbleText
@@ -444,7 +388,7 @@ FishingAnim:
 	ld hl, ItsABiteText
 
 .done
-	call PrintText
+	rst _PrintText
 	ld hl, wd736
 	res 6, [hl] ; unreserve the last 4 OAM entries
 	call LoadFontTilePatterns
@@ -492,6 +436,10 @@ _HandleMidJump::
 	ld a, [wPlayerJumpingYScreenCoordsIndex]
 	ld c, a
 	inc a
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; shinpokerednote: 60fps - only update every other tick
+	call Ledge60fps
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	cp $10
 	jr nc, .finishedJump
 	ld [wPlayerJumpingYScreenCoordsIndex], a
@@ -518,6 +466,18 @@ _HandleMidJump::
 	res 7, [hl] ; not simulating joypad states any more
 	xor a
 	ld [wJoyIgnore], a
+	ret
+
+Ledge60fps:
+	push hl
+	push af
+	ld h, $c2
+	ld l, $0a
+	ld a, [hl]
+	xor $01
+	pop af
+	sub [hl]
+	pop hl
 	ret
 
 PlayerJumpingYScreenCoords:

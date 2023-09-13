@@ -8,15 +8,34 @@
 	db 58 ; base exp
 
 	INCBIN "gfx/pokemon/front/spearow.pic", 0, 1 ; sprite dimensions
-	dw SpearowPicFront, SpearowPicBack
+	dw SpearowPicFront, SpearowPicBackSW
 
 	db PECK, GROWL, NO_MOVE, NO_MOVE ; level 1 learnset
 	db GROWTH_MEDIUM_FAST ; growth rate
 
 	; tm/hm learnset
-	tmhm RAZOR_WIND,   WHIRLWIND,    TOXIC,        TAKE_DOWN,    DOUBLE_EDGE,  \
-	     RAGE,         MIMIC,        DOUBLE_TEAM,  BIDE,         SWIFT,        \
-	     SKY_ATTACK,   REST,         SUBSTITUTE,   FLY
+	tmhm \
+	RAZOR_WIND,\ ; ROOST
+	PIN_MISSILE,\
+	TOXIC,\
+	BODY_SLAM,\
+	SLASH,\
+	DOUBLE_EDGE,\
+	BARRIER,\
+	SWORDS_DANCE,\
+	REFLECT,\
+	BIDE,\
+	AGILITY,\
+	BARRAGE,\
+	SLAM,\ ; FILTHY SLAM
+	SKY_ATTACK,\
+	GLARE,\
+	SUBSTITUTE,\
+	CUT,\
+	FLY
 	; end
 
-	db 0 ; padding
+
+	dw BANK(SpearowPicFront), BANK(SpearowPicBack)
+
+	dw 1, SpearowPicBack

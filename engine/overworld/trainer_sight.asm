@@ -347,3 +347,65 @@ CheckPlayerIsInFrontOfSprite:
 .done
 	ld [wTrainerSpriteOffset], a
 	ret
+
+; PureRGBnote: MOVED: this code was in the home bank but didn't need to be, so it was moved for some space.
+PlayTrainerMusic::
+	ld a, [wEngagedTrainerClass]
+	cp OPP_RIVAL1
+	ret z
+	cp OPP_RIVAL2
+	ret z
+	cp OPP_RIVAL3
+	ret z
+;;;;;;;;;; PureRGBnote: If we're fighting giovanni, depending on our music option setting we may need to play the trainer music, but may not.
+	ld b, a
+	ld a, [wOptions2]
+	bit BIT_MUSIC, a
+	ld a, b
+	jr z, .skipGiovanniCheck
+	cp OPP_GIOVANNI
+	ret z
+.skipGiovanniCheck
+;;;;;;;;;;
+	ld a, [wGymLeaderNo]
+	and a
+	ret nz
+;;;;;;;;;; PureRGBnote: ADDED: skip the trainer encounter music in the secret lab (it plays already earlier than this)
+	ld a, [wCurMap]
+	cp SECRET_LAB
+	ret z
+;;;;;;;;;;
+	xor a
+	ld [wAudioFadeOutControl], a
+	call StopAllMusic
+	ld a, BANK(Music_MeetEvilTrainer)
+	ld [wAudioROMBank], a
+	ld [wAudioSavedROMBank], a
+	ld a, [wEngagedTrainerClass]
+	ld b, a
+	ld hl, EvilTrainerList
+.evilTrainerListLoop
+	ld a, [hli]
+	cp $ff
+	jr z, .noEvilTrainer
+	cp b
+	jr nz, .evilTrainerListLoop
+	ld a, MUSIC_MEET_EVIL_TRAINER
+	jr .PlaySound
+.noEvilTrainer
+	ld hl, FemaleTrainerList
+.femaleTrainerListLoop
+	ld a, [hli]
+	cp $ff
+	jr z, .maleTrainer
+	cp b
+	jr nz, .femaleTrainerListLoop
+	ld a, MUSIC_MEET_FEMALE_TRAINER
+	jr .PlaySound
+.maleTrainer
+	ld a, MUSIC_MEET_MALE_TRAINER
+.PlaySound
+	ld [wNewSoundID], a
+	jp PlaySound
+
+INCLUDE "data/trainers/encounter_types.asm"

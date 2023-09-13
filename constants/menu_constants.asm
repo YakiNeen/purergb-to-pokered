@@ -1,4 +1,4 @@
-DEF BAG_ITEM_CAPACITY EQU 20
+DEF BAG_ITEM_CAPACITY EQU 30 ; PureRGBnote: CHANGED: bag size increased to 30
 DEF PC_ITEM_CAPACITY  EQU 50
 
 ; text box IDs
@@ -24,8 +24,8 @@ DEF PC_ITEM_CAPACITY  EQU 50
 	const MONEY_BOX                         ; $13
 	const TWO_OPTION_MENU                   ; $14
 	const BUY_SELL_QUIT_MENU                ; $15
-	const_skip                              ; $16
-	const_skip                              ; $17
+	const AMOUNT_LEFT_BOX                   ; $16 ; PureRGBnote: ADDED: New menu box type (used at the cinnabar lab color changer)
+	const AMOUNT_LEFT_BOX_TEMPLATE          ; $17 ; PureRGBnote: ADDED: New menu box type (used at the cinnabar lab color changer)
 	const_skip                              ; $18
 	const_skip                              ; $19
 	const JP_POKEDEX_MENU_TEMPLATE          ; $1a
@@ -68,6 +68,8 @@ DEF CHOSE_SECOND_ITEM EQU 2
 	const TMHM_PARTY_MENU      ; $03
 	const SWAP_MONS_PARTY_MENU ; $04
 	const EVO_STONE_PARTY_MENU ; $05
+	const EMPTY_PARTY_MENU     ; $06
+	
 ; party menu message IDs
 ; PartyMenuItemUseMessagePointers indexes (see engine/menus/party_menu.asm)
 	const_next $F0

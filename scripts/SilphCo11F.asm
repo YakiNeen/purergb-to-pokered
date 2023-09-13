@@ -1,3 +1,6 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+; PureRGBnote: ADDED: code that plays Giovanni's theme if we have the option turned on
+
 SilphCo11F_Script:
 	call SilphCo11FGateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -68,7 +71,21 @@ SilphCo11FSetUnlockedDoorEventScript:
 	and a
 	ret z
 	SetEvent EVENT_SILPH_CO_11_UNLOCKED_DOOR
+	callfar CheckAllCardKeyEvents
+	jp Load11FCheckCardKeyText
+
+Load11FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, 7
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo11Text7:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo11FTeamRocketLeavesScript:
 	ld hl, .HideMissableObjectIDs
@@ -100,6 +117,13 @@ SilphCo11FTeamRocketLeavesScript:
 	db HS_SAFFRON_CITY_B
 	db HS_SAFFRON_CITY_C
 	db HS_SAFFRON_CITY_D
+;;;;;;;;;; PureRGBnote: ADDED: show additional new NPCs on the first floor
+	db HS_SILPH_CO_1F_TRAINER_1
+	db HS_SILPH_CO_1F_TRAINER_2
+	db HS_SILPH_CO_1F_TRAINER_3
+	db HS_SILPH_CO_1F_TRAINER_4
+;;;;;;;;;;
+	db HS_SILPH_CO_1F_RECEPTIONIST ; PureRGBnote: CHANGED: used to be shown with an event instead for some reason
 	db -1 ; end
 
 .HideMissableObjectIDs:
@@ -169,6 +193,7 @@ SilphCo11FDefaultScript:
 	ld hl, .PlayerCoordsArray
 	call ArePlayerCoordsInArray
 	jp nc, CheckFightingMapTrainers
+	callfar PlayGiovanniMusic
 	ld a, [wCoordIndex]
 	ld [wcf0d], a
 	xor a
@@ -220,6 +245,12 @@ SilphCo11FGiovanniAfterBattleScript:
 	ld b, SPRITE_FACING_DOWN
 .continue
 	call SilphCo11FSetPlayerAndSpriteFacingDirectionScript
+	call UpdateSprites
+	call SilphCo11FGateCallbackScript
+	ld hl, wCurrentMapScriptFlags
+	res 3, [hl]
+	call GBFadeInFromWhite ; PureRGBnote: ADDED: since trainer instantly talks to us after battle we need to fade back in here
+	callfar PlayGiovanniMusic
 	ld a, D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
 	ld a, TEXT_SILPHCO11F_GIOVANNI_YOU_RUINED_OUR_PLANS
@@ -231,6 +262,7 @@ SilphCo11FGiovanniAfterBattleScript:
 	call Delay3
 	call GBFadeInFromBlack
 	SetEvent EVENT_BEAT_SILPH_CO_GIOVANNI
+	callfar PlayDefaultMusicIfMusicBitSet
 	xor a
 	ld [wJoyIgnore], a
 	jp SilphCo11FSetCurScript
@@ -281,6 +313,7 @@ SilphCo11F_TextPointers:
 	dw_const SilphCo11FRocket1Text,                   TEXT_SILPHCO11F_ROCKET1
 	dw_const SilphCo11FRocket2Text,                   TEXT_SILPHCO11F_ROCKET2
 	dw_const SilphCo11FGiovanniYouRuinedOurPlansText, TEXT_SILPHCO11F_GIOVANNI_YOU_RUINED_OUR_PLANS
+	dw_const SilphCo11Text7,                          TEXT_SILPHCO11F_CARD_KEY_DONE
 
 SilphCo11TrainerHeaders:
 	def_trainers 4
@@ -295,23 +328,23 @@ SilphCo11FSilphPresidentText:
 	CheckEvent EVENT_GOT_MASTER_BALL
 	jp nz, .got_item
 	ld hl, .Text
-	call PrintText
-	lb bc, MASTER_BALL, 1
+	rst _PrintText
+	lb bc, ITEM_SILPH_CO_PRESIDENT_REWARD, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld hl, .ReceivedMasterBallText
-	call PrintText
+	rst _PrintText
 	SetEvent EVENT_GOT_MASTER_BALL
 	jr .done
 .bag_full
 	ld hl, .NoRoomText
-	call PrintText
+	rst _PrintText
 	jr .done
 .got_item
 	ld hl, .MasterBallDescriptionText
-	call PrintText
+	rst _PrintText
 .done
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _SilphCo11FSilphPresidentText
@@ -350,7 +383,7 @@ SilphCo11FRocket1Text:
 	text_asm
 	ld hl, SilphCo11TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo11FRocket1BattleText:
 	text_far _SilphCo11FRocket1BattleText
@@ -368,7 +401,7 @@ SilphCo11FRocket2Text:
 	text_asm
 	ld hl, SilphCo11TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo11FRocket2BattleText:
 	text_far _SilphCo11FRocket2BattleText
@@ -382,13 +415,13 @@ SilphCo11FRocket2AfterBattleText:
 	text_far _SilphCo11FRocket2AfterBattleText
 	text_end
 
-SilphCo10FPorygonText: ; unreferenced
+SilphCo10FPorygonText: ; unreferenced ; TODO: use?
 	text_asm
 	ld hl, .Text
-	call PrintText
+	rst _PrintText
 	ld a, PORYGON
 	call DisplayPokedex
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .Text:
 	text_far _SilphCo10FPorygonText

@@ -1,39 +1,41 @@
+; PureRGBnote: CHANGED: the fishing guru relative here will now give you GOOD ROD.
+
 VermilionOldRodHouse_Script:
 	jp EnableAutoTextBoxDrawing
 
 VermilionOldRodHouse_TextPointers:
 	def_text_pointers
-	dw_const VermilionOldRodHouseFishingGuruText, TEXT_VERMILIONOLDRODHOUSE_FISHING_GURU
+	dw_const VermilionGuruHouseText1, TEXT_VERMILIONOLDRODHOUSE_FISHING_GURU
 
-VermilionOldRodHouseFishingGuruText:
+VermilionGuruHouseText1:
 	text_asm
 	ld a, [wd728]
-	bit 3, a ; got old rod?
-	jr nz, .got_old_rod
+	bit 4, a ; got good rod?
+	jr nz, .got_item
 	ld hl, .DoYouLikeToFishText
-	call PrintText
+	rst _PrintText
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
 	jr nz, .refused
-	lb bc, OLD_ROD, 1
+	lb bc, GOOD_ROD, 1
 	call GiveItem
 	jr nc, .bag_full
 	ld hl, wd728
-	set 3, [hl] ; got old rod
+	set 4, [hl] ; got good rod
 	ld hl, .TakeThisText
-	jr .print_text
+	jr .done
 .bag_full
 	ld hl, .NoRoomText
-	jr .print_text
+	jr .done
 .refused
 	ld hl, .ThatsSoDisappointingText
-	jr .print_text
-.got_old_rod
+	jr .done
+.got_item
 	ld hl, .HowAreTheFishBitingText
-.print_text
-	call PrintText
-	jp TextScriptEnd
+.done
+	rst _PrintText
+	rst TextScriptEnd
 
 .DoYouLikeToFishText:
 	text_far _VermilionOldRodHouseFishingGuruDoYouLikeToFishText
@@ -42,7 +44,6 @@ VermilionOldRodHouseFishingGuruText:
 .TakeThisText:
 	text_far _VermilionOldRodHouseFishingGuruTakeThisText
 	sound_get_item_1
-	text_far _VermilionOldRodHouseFishingGuruFishingIsAWayOfLifeText
 	text_end
 
 .ThatsSoDisappointingText:

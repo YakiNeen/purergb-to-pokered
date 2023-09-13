@@ -77,23 +77,23 @@ SaffronGateGuardText:
 	and a
 	jr nz, .have_drink
 	ld hl, SaffronGateGuardGeeImThirstyText
-	call PrintText
+	rst _PrintText
 	call Route5GateMovePlayerUpScript
 	ld a, SCRIPT_ROUTE5GATE_PLAYER_MOVING
 	ld [wRoute5GateCurScript], a
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .have_drink
 	ld hl, SaffronGateGuardGiveDrinkText
-	call PrintText
+	rst _PrintText
 	ld hl, wd728
 	set 6, [hl]
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .thanks_for_drink
 	ld hl, SaffronGateGuardThanksForTheDrinkText
-	call PrintText
-	jp TextScriptEnd
+	rst _PrintText
+	rst TextScriptEnd
 
 SaffronGateGuardGeeImThirstyText:
 	text_far _SaffronGateGuardGeeImThirstyText

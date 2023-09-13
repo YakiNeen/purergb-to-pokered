@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: new trainers on this route.
+
 Route6_Script:
 	call EnableAutoTextBoxDrawing
 	ld hl, Route6TrainerHeaders
@@ -21,6 +23,9 @@ Route6_TextPointers:
 	dw_const Route6CooltrainerM2Text,       TEXT_ROUTE6_COOLTRAINER_M2
 	dw_const Route6CooltrainerF2Text,       TEXT_ROUTE6_COOLTRAINER_F2
 	dw_const Route6Youngster2Text,          TEXT_ROUTE6_YOUNGSTER_2
+	dw_const Route6Text7,                   TEXT_ROUTE6_ROOKIE
+	dw_const Route6Text8,                   TEXT_ROUTE6_BURGLAR
+	dw_const PickUp3ItemText,               TEXT_ROUTE6_ITEM1 ; PureRGBnote: ADDED: new item on this route.
 	dw_const Route6UndergroundPathSignText, TEXT_ROUTE6_UNDERGROUND_PATH_SIGN
 
 Route6TrainerHeaders:
@@ -37,13 +42,17 @@ Route6TrainerHeader4:
 	trainer EVENT_BEAT_ROUTE_6_TRAINER_4, 3, Route6CooltrainerF2BattleText, Route6CooltrainerF2EndBattleText, Route6CooltrainerF2AfterBattleText
 Route6TrainerHeader5:
 	trainer EVENT_BEAT_ROUTE_6_TRAINER_5, 3, Route6Youngster2BattleText, Route6Youngster2EndBattleText, Route6Youngster2AfterBattleText
+Route6TrainerHeader6:
+	trainer EVENT_BEAT_ROUTE_6_TRAINER_6, 2, Route6BattleText7, Route6EndBattleText7, Route6AfterBattleText7
+Route6TrainerHeader7:
+	trainer EVENT_BEAT_ROUTE_6_TRAINER_7, 3, Route6BattleText8, Route6EndBattleText8, Route6AfterBattleText8
 	db -1 ; end
 
 Route6CooltrainerM1Text:
 	text_asm
 	ld hl, Route6TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6CooltrainerM1BattleText:
 	text_far _Route6CooltrainerM1BattleText
@@ -61,7 +70,7 @@ Route6CooltrainerF1Text:
 	text_asm
 	ld hl, Route6TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6CooltrainerF1BattleText:
 	text_far _Route6CooltrainerF1BattleText
@@ -75,7 +84,7 @@ Route6Youngster1Text:
 	text_asm
 	ld hl, Route6TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6Youngster1BattleText:
 	text_far _Route6Youngster1BattleText
@@ -93,7 +102,7 @@ Route6CooltrainerM2Text:
 	text_asm
 	ld hl, Route6TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6CooltrainerM2BattleText:
 	text_far _Route6CooltrainerM2BattleText
@@ -111,7 +120,7 @@ Route6CooltrainerF2Text:
 	text_asm
 	ld hl, Route6TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6CooltrainerF2BattleText:
 	text_far _Route6CooltrainerF2BattleText
@@ -129,7 +138,7 @@ Route6Youngster2Text:
 	text_asm
 	ld hl, Route6TrainerHeader5
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 Route6Youngster2BattleText:
 	text_far _Route6Youngster2BattleText
@@ -141,6 +150,42 @@ Route6Youngster2EndBattleText:
 
 Route6Youngster2AfterBattleText:
 	text_far _Route6Youngster2AfterBattleText
+	text_end
+
+Route6Text7:
+	text_asm
+	ld hl, Route6TrainerHeader6
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route6BattleText7:
+	text_far _Route6BattleText7
+	text_end
+
+Route6EndBattleText7:
+	text_far _Route6EndBattleText7
+	text_end
+
+Route6AfterBattleText7:
+	text_far _Route6AfterBattleText7
+	text_end
+
+Route6Text8:
+	text_asm
+	ld hl, Route6TrainerHeader7
+	call TalkToTrainer
+	rst TextScriptEnd
+
+Route6BattleText8:
+	text_far _Route6BattleText8
+	text_end
+
+Route6EndBattleText8:
+	text_far _Route6EndBattleText8
+	text_end
+
+Route6AfterBattleText8:
+	text_far _Route6AfterBattleText8
 	text_end
 
 Route6UndergroundPathSignText:

@@ -13,7 +13,7 @@ RocketHideoutB1FDoorCallbackScript:
 	bit 5, [hl]
 	res 5, [hl]
 	ret z
-	CheckEvent EVENT_677
+	CheckEvent EVENT_ROCKET_HIDEOUT_B1F_DOOR_UNLOCKED
 	jr nz, .door_open
 	CheckEventReuseA EVENT_BEAT_ROCKET_HIDEOUT_1_TRAINER_4
 	jr nz, .play_sound_door_open
@@ -21,8 +21,8 @@ RocketHideoutB1FDoorCallbackScript:
 	jr .set_door_block
 .play_sound_door_open
 	ld a, SFX_GO_INSIDE
-	call PlaySound
-	CheckEventHL EVENT_677
+	rst _PlaySound
+	SetEvent EVENT_ROCKET_HIDEOUT_B1F_DOOR_UNLOCKED
 .door_open
 	ld a, $e ; Floor Block
 .set_door_block
@@ -43,8 +43,8 @@ RocketHideoutB1F_TextPointers:
 	dw_const RocketHideoutB1FRocket3Text, TEXT_ROCKETHIDEOUTB1F_ROCKET3
 	dw_const RocketHideoutB1FRocket4Text, TEXT_ROCKETHIDEOUTB1F_ROCKET4
 	dw_const RocketHideoutB1FRocket5Text, TEXT_ROCKETHIDEOUTB1F_ROCKET5
-	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB1F_ESCAPE_ROPE
-	dw_const PickUpItemText,              TEXT_ROCKETHIDEOUTB1F_HYPER_POTION
+	dw_const PickUp5ItemText,              TEXT_ROCKETHIDEOUTB1F_ITEM1
+	dw_const PickUp3ItemText,              TEXT_ROCKETHIDEOUTB1F_ITEM2
 
 RocketHideout1TrainerHeaders:
 	def_trainers
@@ -64,31 +64,31 @@ RocketHideoutB1FRocket1Text:
 	text_asm
 	ld hl, RocketHideout1TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocket2Text:
 	text_asm
 	ld hl, RocketHideout1TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocket3Text:
 	text_asm
 	ld hl, RocketHideout1TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocket4Text:
 	text_asm
 	ld hl, RocketHideout1TrainerHeader3
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocket5Text:
 	text_asm
 	ld hl, RocketHideout1TrainerHeader4
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 RocketHideoutB1FRocket5EndBattleText:
 	text_far _RocketHideoutB1FRocket5EndBattleText

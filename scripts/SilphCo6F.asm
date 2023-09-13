@@ -1,3 +1,5 @@
+; PureRGBnote: ADDED: card key will be consumed if all card key doors were opened in the game.
+
 SilphCo6F_Script:
 	call SilphCo6F_GateCallbackScript
 	call EnableAutoTextBoxDrawing
@@ -32,7 +34,21 @@ SilphCo6F_UnlockedDoorEventScript:
 	and a
 	ret z
 	SetEvent EVENT_SILPH_CO_6_UNLOCKED_DOOR
+	callfar CheckAllCardKeyEvents
+	jp Load6FCheckCardKeyText
+
+Load6FCheckCardKeyText:
+	CheckEvent EVENT_ALL_CARD_KEY_DOORS_OPENED
+	ret z
+	ld a, TEXT_SILPHCO6F_CARD_KEY_DONE
+	ldh [hSpriteIndexOrTextID], a
+	call DisplayTextID
 	ret
+
+SilphCo6Text11:
+	text_asm
+	callfar PrintCardKeyDoneText
+	rst TextScriptEnd
 
 SilphCo6F_ScriptPointers:
 	def_script_pointers
@@ -50,8 +66,9 @@ SilphCo6F_TextPointers:
 	dw_const SilphCo6FRocket1Text,       TEXT_SILPHCO6F_ROCKET1
 	dw_const SilphCo6FScientistText,     TEXT_SILPHCO6F_SCIENTIST
 	dw_const SilphCo6FRocket2Text,       TEXT_SILPHCO6F_ROCKET2
-	dw_const PickUpItemText,             TEXT_SILPHCO6F_HP_UP
-	dw_const PickUpItemText,             TEXT_SILPHCO6F_X_ACCURACY
+	dw_const PickUpItemText,             TEXT_SILPHCO6F_ITEM1
+	dw_const PickUp3ItemText,            TEXT_SILPHCO6F_ITEM2
+	dw_const SilphCo6Text11,             TEXT_SILPHCO6F_CARD_KEY_DONE
 
 SilphCo6TrainerHeaders:
 	def_trainers 6
@@ -78,7 +95,7 @@ SilphCo6FSilphWorkerM1Text:
 	ld hl, .TookOverTheBuildingText
 	ld de, .BackToWorkText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .TookOverTheBuildingText:
 	text_far _SilphCo6FSilphWorkerM1TookOverTheBuildingText
@@ -93,7 +110,7 @@ SilphCo6FSilphWorkerM2Text:
 	ld hl, .HelpMePleaseText
 	ld de, .WeGotEngagedText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .HelpMePleaseText:
 	text_far _SilphCo6FSilphWorkerMHelpMePleaseText
@@ -108,7 +125,7 @@ SilphCo6FSilphWorkerF1Text:
 	ld hl, .SuchACowardText
 	ld de, .HaveToMarryHimText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .SuchACowardText:
 	text_far _SilphCo6FSilphWorkerF1SuchACowardText
@@ -123,7 +140,7 @@ SilphCo6FSilphWorkerF2Text:
 	ld hl, .TeamRocketConquerWorldText
 	ld de, .TeamRocketRanText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .TeamRocketConquerWorldText:
 	text_far _SilphCo6FSilphWorkerF2TeamRocketConquerWorldText
@@ -138,7 +155,7 @@ SilphCo6FSilphWorkerM3Text:
 	ld hl, .TargetedSilphText
 	ld de, .WorkForSilphText
 	call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 .TargetedSilphText:
 	text_far _SilphCo6FSilphWorkerM3TargetedSilphText
@@ -152,7 +169,7 @@ SilphCo6FRocket1Text:
 	text_asm
 	ld hl, SilphCo6TrainerHeader0
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo6FRocket1BattleText:
 	text_far _SilphCo6FRocket1BattleText
@@ -170,7 +187,7 @@ SilphCo6FScientistText:
 	text_asm
 	ld hl, SilphCo6TrainerHeader1
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo6FScientistBattleText:
 	text_far _SilphCo6FScientistBattleText
@@ -188,7 +205,7 @@ SilphCo6FRocket2Text:
 	text_asm
 	ld hl, SilphCo6TrainerHeader2
 	call TalkToTrainer
-	jp TextScriptEnd
+	rst TextScriptEnd
 
 SilphCo6FRocket2BattleText:
 	text_far _SilphCo6FRocket2BattleText
